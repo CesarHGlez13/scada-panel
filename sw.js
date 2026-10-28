@@ -3,7 +3,7 @@
  * Proporciona resiliencia offline y soporte PWA ante microcortes de Wi-Fi de planta
  */
 
-const CACHE_NAME = 'operations-scada-cache-v31';
+const CACHE_NAME = 'operations-scada-cache-v32';
 const CORE_ASSETS = [
   '/',
   'index.html',

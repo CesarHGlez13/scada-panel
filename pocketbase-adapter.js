@@ -25,7 +25,7 @@
     window.location.hostname !== 'localhost' &&
     window.location.hostname !== '127.0.0.1'
   );
-  const POLLING_INTERVAL_MS = 6000;
+  const POLLING_INTERVAL_MS = 2000;  // antes 6000: por túnel Cloudflare no hay SSE/websocket (verificado: sin eventos en 10 s), así que el panel sólo refresca por polling
   const DEFAULT_PB_URL = window.SCADA_PB_URL || 'http://192.168.100.34:8090';
 
   function genPbId() {

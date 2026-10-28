@@ -2,18 +2,16 @@
 (function applyEarlyAntiFouc() {
     try {
         const saved = localStorage.getItem('global_modules_config_v2') || localStorage.getItem('global_modules_config');
-        if (saved) {
-            const modules = JSON.parse(saved);
-            if (modules.operations === false) {
-                document.documentElement.classList.add('hide-module-operations');
+        if (!saved) return;
+        const modules = JSON.parse(saved);
+        // Los módulos históricos conservan su clase legacy; el resto se resuelve
+        // con data-module en applyModuleVisibility(). Aquí se aplican todas las
+        // claves del registro antes de pintar, para evitar el parpadeo (FOUC).
+        Object.keys(modules).forEach(k => {
+            if (modules[k] === false) {
+                document.documentElement.classList.add('hide-module-' + k);
             }
-            if (modules.cranes === false) {
-                document.documentElement.classList.add('hide-module-cranes');
-            }
-            if (modules.warehouse === false) {
-                document.documentElement.classList.add('hide-module-warehouse');
-            }
-        }
+        });
     } catch (e) {}
 })();
 
@@ -44,10 +42,41 @@ function hidePageLoader() {
 })();
 
 
+// ── Registro canónico de módulos (fuente única de verdad) ───────────────────
+// Cada módulo puede ocultarse desde Configuración. La visibilidad se aplica a:
+//   1) elementos con data-module="<key>"  2) enlaces de navegación  3) la pestaña `tab`
+// Los tres módulos históricos (operations, cranes, warehouse) conservan su clase
+// hide-module-<key> en <html> para no romper CSS existente.
+const MODULE_REGISTRY = [
+  { key: 'settings',      label: 'Configuración del Sistema',             tab: '#settings',        page: null, legacy: false, always: true },
+  { key: 'users',         label: 'Usuarios & Accesos',                  tab: '#users-mgmt',      page: null, legacy: false },
+  { key: 'cranes',        label: 'Gestión de Grúas',                    tab: '#cranes-mgmt',     page: 'cranes.html',      legacy: true },
+  { key: 'operations',    label: 'Gestión de Operaciones',              tab: '#operations-mgmt', page: 'operations.html',  legacy: true },
+  { key: 'warehouse',     label: 'Gestión de Almacén (Pick-to-Light)',  tab: '#warehouse-mgmt',  page: 'warehouse.html',   legacy: true },
+  { key: 'technicians',   label: 'Técnicos y Operadores',               tab: '#technicians-mgmt', page: 'technicians.html', legacy: false },
+  { key: 'esp32',         label: 'Hardware ESP32 & Flasheo',            tab: '#esp32-hardware',  page: null, legacy: false },
+  { key: 'failure_reasons', label: 'Motivos de Paro (ESP32/SCADA)',     tab: '#failure-reasons', page: null, legacy: false },
+  { key: 'topology',      label: 'Topología & Textos de Planta',        tab: '#topology-mgmt',   page: null, legacy: false },
+  { key: 'bot',           label: 'Bot: Logs, Estado y QR',              tab: '#bot',             page: null, legacy: false },
+  { key: 'database',      label: 'Base de Datos',                       tab: '#database',        page: null, legacy: false },
+  { key: 'notifications', label: 'Notificaciones',                      tab: '#notifications',   page: null, legacy: false }
+];
+
+function moduleDefaultModules() {
+  const out = {};
+  MODULE_REGISTRY.forEach(m => { out[m.key] = true; });
+  return out;
+}
+
+function isModuleEnabled(key, modules) {
+  const m = modules || (typeof globalConfigManager !== 'undefined' ? globalConfigManager.getConfig().modules : {});
+  return m[key] !== false;
+}
+
 // Sistema de Configuración Global
 class GlobalConfigManager {
     constructor() {
-        let cachedModules = { operations: true, cranes: true, warehouse: true };
+        let cachedModules = moduleDefaultModules();
         try {
             const saved = localStorage.getItem('global_modules_config_v2') || localStorage.getItem('global_modules_config');
             if (saved) {
@@ -126,94 +155,88 @@ class GlobalConfigManager {
     applyModuleVisibility() {
         if (typeof document === 'undefined') return;
 
-        const opActive = this.config.modules.operations !== false;
-        const craneActive = this.config.modules.cranes !== false;
-        const whActive = this.config.modules.warehouse !== false;
+        const mods = this.config.modules || {};
 
-        document.documentElement.classList.toggle('hide-module-operations', !opActive);
-        document.documentElement.classList.toggle('hide-module-cranes', !craneActive);
-        document.documentElement.classList.toggle('hide-module-warehouse', !whActive);
+        MODULE_REGISTRY.forEach(mod => {
+            if (mod.always) return;
+            const active = mods[mod.key] !== false;
 
-        // Ocultar/mostrar secciones de operaciones
-        const operationsElements = document.querySelectorAll('[data-module="operations"], [data-module*="operations"], .tile-ops');
-        operationsElements.forEach(element => {
-            if (opActive) {
-                element.style.display = '';
-                element.classList.remove('d-none');
-            } else {
-                element.style.display = 'none';
-                element.classList.add('d-none');
+            if (mod.legacy) {
+                document.documentElement.classList.toggle('hide-module-' + mod.key, !active);
+            }
+
+            // 1) Contenedores marcados con data-module (tarjetas, tiles, secciones, pestañas).
+            //    Un elemento puede pertenecer a varios módulos ("operations cranes"); se muestra
+            //    si al menos uno de sus módulos está habilitado.
+            document.querySelectorAll('[data-module]').forEach(element => {
+                const keys = (element.getAttribute('data-module') || '').split(/[\s,]+/).filter(Boolean);
+                if (!keys.length) return;
+                const active = keys.some(k => mods[k] !== false);
+                if (active) {
+                    element.style.display = '';
+                    element.classList.remove('d-none');
+                } else {
+                    element.style.display = 'none';
+                    element.classList.add('d-none');
+                }
+            });
+
+            // 2) Pestaña y su enlace de navegación
+            if (mod.tab) {
+                const link = document.querySelector(`.nav-link[data-bs-target="${mod.tab}"]`);
+                if (link) {
+                    const li = link.closest('li.nav-item') || link;
+                    if (active) { li.classList.remove('d-none'); li.style.display = ''; }
+                    else { li.classList.add('d-none'); li.style.display = 'none'; }
+                }
             }
         });
 
-        // Ocultar/mostrar secciones de grúas
-        const cranesElements = document.querySelectorAll('[data-module="cranes"], [data-module*="cranes"], .tile-cranes');
-        cranesElements.forEach(element => {
-            if (craneActive) {
-                element.style.display = '';
-                element.classList.remove('d-none');
-            } else {
-                element.style.display = 'none';
-                element.classList.add('d-none');
-            }
-        });
-
-        // Ocultar/mostrar secciones de almacén
-        const warehouseElements = document.querySelectorAll('[data-module="warehouse"], [data-module*="warehouse"], .tile-wh');
-        warehouseElements.forEach(element => {
-            if (whActive) {
-                element.style.display = '';
-                element.classList.remove('d-none');
-            } else {
-                element.style.display = 'none';
-                element.classList.add('d-none');
-            }
-        });
-
-        // Ocultar/mostrar enlaces de navegación
+        // Ocultar/mostrar enlaces de navegación de las páginas públicas
         this.updateNavigationLinks();
 
-        console.log('Visibilidad de módulos aplicada:', {
-            operations: this.config.modules.operations,
-            cranes: this.config.modules.cranes,
-            warehouse: this.config.modules.warehouse
-        });
+        // 3) Si la pestaña activa pertenece a un módulo oculto, abrir la primera visible
+        this.ensureVisibleActiveTab();
+
+        const summary = {};
+        MODULE_REGISTRY.forEach(m => { summary[m.key] = mods[m.key] !== false; });
+        console.log('Visibilidad de módulos aplicada:', summary);
+    }
+
+    ensureVisibleActiveTab() {
+        const tabs = document.getElementById('adminTabs');
+        if (!tabs) return;
+        const active = tabs.querySelector('.nav-link.active');
+        if (!active) return;
+        const li = active.closest('li.nav-item') || active;
+        if (getComputedStyle(li).display === 'none') {
+            const firstVisible = [...tabs.querySelectorAll('.nav-link')].find(l => {
+                const p = l.closest('li.nav-item') || l;
+                return getComputedStyle(p).display !== 'none';
+            });
+            if (firstVisible && typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+                bootstrap.Tab.getOrCreateInstance(firstVisible).show();
+            }
+        }
     }
 
     updateNavigationLinks() {
-        // Ocultar enlaces de navegación según la configuración
-        const operationsLinks = document.querySelectorAll('a[href*="operations"], .mobile-nav-item[data-module="operations"]');
-        const cranesLinks = document.querySelectorAll('a[href*="cranes"], .mobile-nav-item[data-module="cranes"]');
-        const warehouseLinks = document.querySelectorAll('a[href*="warehouse"], .mobile-nav-item[data-module="warehouse"]');
-
-        operationsLinks.forEach(link => {
-            if (!this.config.modules.operations) {
-                link.style.display = 'none';
-                link.classList.add('d-none');
-            } else {
-                link.style.display = '';
-                link.classList.remove('d-none');
-            }
-        });
-
-        cranesLinks.forEach(link => {
-            if (!this.config.modules.cranes) {
-                link.style.display = 'none';
-                link.classList.add('d-none');
-            } else {
-                link.style.display = '';
-                link.classList.remove('d-none');
-            }
-        });
-
-        warehouseLinks.forEach(link => {
-            if (this.config.modules.warehouse === false) {
-                link.style.display = 'none';
-                link.classList.add('d-none');
-            } else {
-                link.style.display = '';
-                link.classList.remove('d-none');
-            }
+        const mods = this.config.modules || {};
+        MODULE_REGISTRY.forEach(mod => {
+            if (mod.always) return;
+            const active = mods[mod.key] !== false;
+            const sel = mod.page
+                ? `a[href*="${mod.page}"]`
+                : `.nav-link[data-bs-target="${mod.tab}"]`;
+            document.querySelectorAll(sel).forEach(link => {
+                if (!active) {
+                    link.style.display = 'none';
+                    link.classList.add('d-none');
+                } else {
+                    link.style.display = '';
+                    link.classList.remove('d-none');
+                }
+            });
         });
     }
 
@@ -257,14 +280,18 @@ class GlobalConfigManager {
 function getEnabledModules() {
     if (typeof globalConfigManager !== 'undefined' && globalConfigManager.initialized) {
         const m = globalConfigManager.getConfig().modules || {};
-        return {
-            operations: m.operations !== false,
-            cranes: m.cranes !== false,
-            warehouse: m.warehouse !== false
-        };
+        const out = {};
+        MODULE_REGISTRY.forEach(mod => { out[mod.key] = m[mod.key] !== false; });
+        return out;
     }
-    return { operations: true, cranes: true, warehouse: true };
+    return moduleDefaultModules();
 }
+
+// Expuestos para otros módulos (admin.js, plant-map.js, theme-init.js)
+window.MODULE_REGISTRY = MODULE_REGISTRY;
+window.moduleDefaultModules = moduleDefaultModules;
+window.isModuleEnabled = isModuleEnabled;
+window.getModuleRegistry = () => MODULE_REGISTRY;
 
 /** Formato de contadores según módulos habilitados (index.html estadísticas) */
 window.formatModuleStat = function formatModuleStat(opCount, craneCount) {

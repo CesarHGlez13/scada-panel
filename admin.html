@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="mobile.css?v=3.0" />
     <link rel="stylesheet" href="scada-pro.css?v=2.1" />
     <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
-    <link rel="stylesheet" href="admin.css?v=1.0">
+    <link rel="stylesheet" href="admin.css?v=1.1">
   </head>
   <body>
     <div id="siteNavbarRightContent" style="display:none">
@@ -144,45 +144,10 @@
           id="adminTabs"
           role="tablist"
         >
-          <li class="nav-item" role="presentation">
+          <li class="nav-item admin-nav-group-label" role="presentation"><span class="nav-link-plain text-uppercase fw-bold" style="font-size:0.7rem;letter-spacing:0.08em;color:#64748b;">Configuración y Accesos</span></li>
+<li class="nav-item" role="presentation">
             <button
               class="nav-link active"
-              id="bot-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#bot"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-robot"></i> Bot & Logs
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="database-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#database"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-database"></i> Base de Datos
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="notifications-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#notifications"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-bell"></i> Notificaciones
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
               id="settings-tab"
               data-bs-toggle="pill"
               data-bs-target="#settings"
@@ -192,91 +157,7 @@
               <i class="bi bi-gear"></i> Configuración
             </button>
           </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="cranes-mgmt-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#cranes-mgmt"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-gear-wide-connected"></i> Gestión de Grúas
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="operations-mgmt-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#operations-mgmt"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-sliders"></i> Gestión de Operaciones
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="warehouse-mgmt-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#warehouse-mgmt"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-box-seam"></i> Gestión de Almacén (Pick-to-Light)
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="technicians-mgmt-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#technicians-mgmt"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-people"></i> Técnicos y Operadores
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="bot-mgmt-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#bot-mgmt"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-robot"></i> Gestión de Bot
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="failure-reasons-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#failure-reasons"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-exclamation-triangle"></i> Motivos de Paro (ESP32/SCADA)
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button
-              class="nav-link"
-              id="topology-mgmt-tab"
-              data-bs-toggle="pill"
-              data-bs-target="#topology-mgmt"
-              type="button"
-              role="tab"
-            >
-              <i class="bi bi-diagram-3-fill text-info"></i> Topología & Textos de Planta
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
+<li class="nav-item" data-module="users" role="presentation">
             <button
               class="nav-link"
               id="users-mgmt-tab"
@@ -288,12 +169,147 @@
               <i class="bi bi-shield-lock-fill text-warning"></i> Usuarios & Accesos
             </button>
           </li>
+          <li class="nav-item admin-nav-group-label" role="presentation"><span class="nav-link-plain text-uppercase fw-bold" style="font-size:0.7rem;letter-spacing:0.08em;color:#64748b;">Módulos Operativos</span></li>
+<li class="nav-item" data-module="cranes" role="presentation">
+            <button
+              class="nav-link"
+              id="cranes-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#cranes-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-gear-wide-connected"></i> Gestión de Grúas
+            </button>
+          </li>
+<li class="nav-item" data-module="operations" role="presentation">
+            <button
+              class="nav-link"
+              id="operations-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#operations-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-sliders"></i> Gestión de Operaciones
+            </button>
+          </li>
+<li class="nav-item" data-module="warehouse" role="presentation">
+            <button
+              class="nav-link"
+              id="warehouse-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#warehouse-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-box-seam"></i> Gestión de Almacén (Pick-to-Light)
+            </button>
+          </li>
+<li class="nav-item" data-module="technicians" role="presentation">
+            <button
+              class="nav-link"
+              id="technicians-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#technicians-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-people"></i> Técnicos y Operadores
+            </button>
+          </li>
+          <li class="nav-item admin-nav-group-label" role="presentation"><span class="nav-link-plain text-uppercase fw-bold" style="font-size:0.7rem;letter-spacing:0.08em;color:#64748b;">Hardware ESP32 y SCADA</span></li>
+          <li class="nav-item" data-module="esp32" role="presentation">
+            <button
+              class="nav-link"
+              id="esp32-hardware-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#esp32-hardware"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-cpu-fill text-info"></i> Hardware ESP32 &amp; Flasheo
+            </button>
+          </li>
+<li class="nav-item" data-module="failure_reasons" role="presentation">
+            <button
+              class="nav-link"
+              id="failure-reasons-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#failure-reasons"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-exclamation-triangle"></i> Motivos de Paro (ESP32/SCADA)
+            </button>
+          </li>
+<li class="nav-item" data-module="topology" role="presentation">
+            <button
+              class="nav-link"
+              id="topology-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#topology-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-diagram-3-fill text-info"></i> Topología & Textos de Planta
+            </button>
+          </li>
+          <li class="nav-item admin-nav-group-label" role="presentation"><span class="nav-link-plain text-uppercase fw-bold" style="font-size:0.7rem;letter-spacing:0.08em;color:#64748b;">Sistema y Datos</span></li>
+<li class="nav-item" data-module="bot" role="presentation">
+            <button
+              class="nav-link"
+              id="bot-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#bot"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-robot"></i> Logs del Bot
+            </button>
+          </li>
+<li class="nav-item" data-module="bot" role="presentation">
+            <button
+              class="nav-link"
+              id="bot-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#bot-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-robot"></i> Bot: Estado y QR
+            </button>
+          </li>
+<li class="nav-item" data-module="database" role="presentation">
+            <button
+              class="nav-link"
+              id="database-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#database"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-database"></i> Base de Datos
+            </button>
+          </li>
+<li class="nav-item" data-module="notifications" role="presentation">
+            <button
+              class="nav-link"
+              id="notifications-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#notifications"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-bell"></i> Notificaciones
+            </button>
+          </li>
         </ul>
 
         <!-- Contenido de las pestañas -->
         <div class="tab-content" id="adminTabsContent">
           <!-- Pestaña Bot & Logs -->
-          <div class="tab-pane fade show active" id="bot" role="tabpanel">
+          <div class="tab-pane fade" id="bot" data-module="bot" role="tabpanel">
             <div class="row">
               <div class="col-md-3">
                 <div class="card text-center">
@@ -367,7 +383,7 @@
           </div>
 
           <!-- Pestaña Base de Datos -->
-          <div class="tab-pane fade" id="database" role="tabpanel">
+          <div class="tab-pane fade" id="database" data-module="database" role="tabpanel">
             <div class="row">
               <div class="col-md-3">
                 <div class="card text-center">
@@ -527,7 +543,7 @@
           </div>
 
           <!-- Pestaña Notificaciones -->
-          <div class="tab-pane fade" id="notifications" role="tabpanel">
+          <div class="tab-pane fade" id="notifications" data-module="notifications" role="tabpanel">
             <div class="row">
               <div class="col-md-3">
                 <div class="card text-center">
@@ -675,7 +691,54 @@
           </div>
 
           <!-- Pestaña Configuración -->
-          <div class="tab-pane fade" id="settings" role="tabpanel">
+          <div class="tab-pane fade show active" id="settings" data-module="settings" role="tabpanel">
+            <!-- Control de visibilidad de módulos (registry-driven) -->
+            <div class="card mb-4 border-info" id="globalConfigSection">
+              <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <h5 class="mb-0"><i class="bi bi-sliders"></i> Configuración Global del Sistema</h5>
+                <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-25 font-monospace">config/global</span>
+              </div>
+              <div class="card-body">
+                <p class="small text-muted mb-3">
+                  Marca o desmarca cada módulo. Al guardar, la visibilidad se aplica de inmediato a las pestañas del panel y a las páginas públicas, y se sincroniza con PocketBase (<code>config/global</code>). Los módulos desmarcados también se ocultan en el menú de navegación.
+                </p>
+                <div class="row g-3">
+                  <div class="col-lg-7">
+                    <h6 class="text-info fw-bold small text-uppercase mb-2" style="letter-spacing:0.05em;">
+                      <i class="bi bi-grid-fill me-1"></i> Módulos Habilitados
+                    </h6>
+                    <div id="moduleRegistryControls" class="d-flex flex-column gap-2">
+                      <!-- Renderizado dinámico desde window.MODULE_REGISTRY -->
+                    </div>
+                  </div>
+                  <div class="col-lg-5">
+                    <h6 class="text-info fw-bold small text-uppercase mb-2" style="letter-spacing:0.05em;">
+                      <i class="bi bi-whatsapp me-1"></i> Configuración del Bot
+                    </h6>
+                    <div class="mb-2">
+                      <label for="helpCommand" class="form-label small text-muted mb-1">Comando de Ayuda:</label>
+                      <input type="text" class="form-control form-control-sm" id="helpCommand" value="NanoBot ayuda">
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="autoHelp">
+                      <label class="form-check-label small" for="autoHelp">Enviar menú de ayuda automáticamente</label>
+                    </div>
+                    <hr class="border-secondary my-3">
+                    <p class="small text-muted mb-0">
+                      El control de motivos de paro por área está en la pestaña
+                      <a href="#failure-reasons" onclick="showAdminTab('failure-reasons')">Motivos de Paro</a>;
+                      el flasheo y la asignación de nodos en
+                      <a href="#esp32-hardware" onclick="showAdminTab('esp32-hardware')">Hardware ESP32</a>.
+                    </p>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top border-secondary border-opacity-25">
+                  <button type="button" class="btn btn-primary fw-semibold px-4 shadow-sm" id="btnSaveGlobalConfig">
+                    <i class="bi bi-save me-1"></i> Guardar Configuración
+                  </button>
+                </div>
+              </div>
+            </div>
             <div class="row">
               <div class="col-md-3">
                 <div class="card text-center">
@@ -741,7 +804,7 @@
           </div>
           
           <!-- Pestaña Gestión de Grúas -->
-          <div class="tab-pane fade" id="cranes-mgmt" role="tabpanel">
+          <div class="tab-pane fade" id="cranes-mgmt" data-module="cranes" role="tabpanel">
             <div class="row">
               <div class="col-md-3" id="cranesSideCardCol">
                 <div class="card text-center">
@@ -779,268 +842,7 @@
                 <div id="areaTabsContent"></div>
 
                 <!-- Panel Monitor Global ESP32 (oculto por defecto) -->
-                <div id="globalEsp32Panel" style="display:none;">
-                  <!-- Tarjeta Unificada de Hardware ESP32, Flasheo Web & Configuración USB Multi-Rol -->
-                  <div class="card mb-4" id="esp32UniversalHardwareCard" style="background: rgba(13, 17, 23, 0.95); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
-                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(56, 189, 248, 0.08); border-bottom: 1px solid rgba(56, 189, 248, 0.2);">
-                      <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-cpu-fill text-info fs-5"></i>
-                        <h6 class="mb-0 fw-bold text-white">Centro de Hardware ESP32 & Flasheo Universal (v3.0.0)</h6>
-                        <span class="badge bg-primary" id="esp32ActiveRoleBadge">Multi-Rol: Grúas • Operaciones • Almacén</span>
-                      </div>
-                      <span class="badge bg-dark border border-info text-info"><i class="bi bi-lightning-charge-fill me-1"></i>Web Serial & ESP Web Tools</span>
-                    </div>
-                    <div class="card-body">
-                      <p class="small text-muted mb-4">
-                        Conecta cualquier ESP32 nuevo por cable USB a Google Chrome o Edge para flashearle el <strong>Firmware Universal v3.0.0</strong> en 45 segundos. Puedes configurarlo y alternarlo en caliente entre <strong>Grúas</strong>, <strong>Operaciones</strong> y <strong>Almacén IoT</strong> sin compilar nada.
-                      </p>
-                      <div class="row g-4">
-                        <!-- Columna 1: Flasheo Web por Rol de Hardware -->
-                        <div class="col-lg-5">
-                          <div class="p-3 rounded-3 h-100" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                            <div class="d-flex align-items-center gap-2 mb-3">
-                              <span class="badge bg-primary fs-6">1</span>
-                              <h6 class="mb-0 fw-bold text-white"><i class="bi bi-cloud-arrow-down"></i> Flasheo Web Directo (1 Clic)</h6>
-                            </div>
-                            <p class="small text-muted mb-2">
-                              Selecciona el rol de hardware que conectarás por USB para cargarle su firmware específico:
-                            </p>
-
-                            <!-- Selector de Firmware: Centro de Mando vs Nodo Satélite -->
-                            <div class="btn-group w-100 mb-3" role="group" id="firmwareTypeSwitch">
-                              <input type="radio" class="btn-check" name="firmwareSelection" id="fwSelectCentroMando" autocomplete="off" checked>
-                              <label class="btn btn-outline-info btn-sm fw-bold py-2" for="fwSelectCentroMando" id="labelFwCentroMando">
-                                <i class="bi bi-display me-1"></i> Centro de Mando<br><span style="font-size:0.68rem; font-weight:normal;">LCD GC9A01 • Multinodo</span>
-                              </label>
-
-                              <input type="radio" class="btn-check" name="firmwareSelection" id="fwSelectSatellite" autocomplete="off">
-                              <label class="btn btn-outline-primary btn-sm fw-bold py-2" for="fwSelectSatellite" id="labelFwSatellite">
-                                <i class="bi bi-cpu me-1"></i> Nodo Satélite<br><span style="font-size:0.68rem; font-weight:normal;">1 Grúa por Nodo (ej: 30A)</span>
-                              </label>
-                            </div>
-
-                            <!-- Panel Info: Centro de Mando -->
-                            <div id="fwInfoCentroMando" class="p-2 rounded bg-dark border border-info border-opacity-25 mb-3 small" style="font-size:0.77rem; line-height: 1.4;">
-                              <div class="fw-bold text-info mb-1"><i class="bi bi-check-circle-fill me-1"></i>Centro de Mando SCADA (Pantalla Circular GC9A01):</div>
-                              <ul class="mb-1 ps-3 text-muted">
-                                <li><strong>Hardware:</strong> ESP32 Clásico DevKit V1 (30 Pines).</li>
-                                <li><strong>Periféricos:</strong> Display GC9A01 SPI 240x240, Tira WS2815, Botón Metálico.</li>
-                                <li><strong>Función:</strong> Supervisa toda la sección (30A, 30B, 30C, 30D), cálculo OEE y semáforo 360°.</li>
-                              </ul>
-                            </div>
-
-                            <!-- Panel Info: Nodo Satélite -->
-                            <div id="fwInfoSatellite" class="p-2 rounded bg-dark border border-primary border-opacity-25 mb-3 small" style="display:none; font-size:0.77rem; line-height: 1.4;">
-                              <div class="fw-bold text-primary mb-1"><i class="bi bi-check-circle-fill me-1"></i>Nodo Satélite Secundario (1 Grúa por Nodo):</div>
-                              <ul class="mb-1 ps-3 text-muted">
-                                <li><strong>Hardware:</strong> ESP32 Clásico o ESP32-C3 SuperMini.</li>
-                                <li><strong>Periféricos:</strong> Pulsador arcade/metálico, Baliza WS2815 y OLED (opcional).</li>
-                                <li><strong>Función:</strong> Asignado a <strong>1 sola grúa</strong> (ej. 30A). Al pulsar reporta falla a WhatsApp; mantener 4s la resuelve.</li>
-                              </ul>
-                            </div>
-
-                            <!-- Botones de Flasheo Web -->
-                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                              <!-- Botón para Centro de Mando GC9A01 -->
-                              <div id="installWrapperCentroMando">
-                                <esp-web-install-button manifest="firmware/manifest-centro-mando.json" id="espWebInstallCentroMando">
-                                  <button slot="activate" class="btn btn-info shadow-sm py-2 px-3 fw-bold text-dark">
-                                    <i class="bi bi-lightning-charge-fill"></i> Instalar Centro de Mando (GC9A01)
-                                  </button>
-                                  <span slot="unsupported" class="text-danger small">
-                                    <i class="bi bi-exclamation-triangle"></i> Tu navegador no soporta Web Serial. Usa Chrome o Edge.
-                                  </span>
-                                  <span slot="not-allowed" class="text-warning small">
-                                    <i class="bi bi-shield-lock"></i> Se requiere conexión segura (HTTPS o localhost).
-                                  </span>
-                                </esp-web-install-button>
-                              </div>
-
-                              <!-- Botón para Nodo Satélite Secundario -->
-                              <div id="installWrapperSatellite" style="display:none;">
-                                <esp-web-install-button manifest="firmware/manifest-satellite.json" id="espWebInstallSatellite">
-                                  <button slot="activate" class="btn btn-primary shadow-sm py-2 px-3 fw-bold">
-                                    <i class="bi bi-lightning-charge-fill"></i> Instalar Nodo Satélite (ESP32 / C3)
-                                  </button>
-                                  <span slot="unsupported" class="text-danger small">
-                                    <i class="bi bi-exclamation-triangle"></i> Tu navegador no soporta Web Serial. Usa Chrome o Edge.
-                                  </span>
-                                  <span slot="not-allowed" class="text-warning small">
-                                    <i class="bi bi-shield-lock"></i> Se requiere conexión segura (HTTPS o localhost).
-                                  </span>
-                                </esp-web-install-button>
-                              </div>
-
-                              <a href="firmware/esp32_centro_mando_gc9a01.ino" download="esp32_centro_mando_gc9a01.ino" id="downloadInoLink" class="btn btn-outline-secondary btn-sm" title="Descargar código fuente Arduino">
-                                <i class="bi bi-file-code"></i> Código .ino
-                              </a>
-                            </div>
-
-                            <div class="p-2 rounded bg-dark border border-warning border-opacity-25 mb-2 small text-warning" style="font-size:0.77rem; line-height: 1.4;">
-                              <i class="bi bi-lightbulb-fill me-1"></i><strong>Modo Flasheo ESP32-C3 / SuperMini:</strong><br>
-                              Si aparece <em>TIMEOUT</em> o no avanza, pon el C3 en modo bootloader manual:<br>
-                              1. Mantén presionado el botón <strong>BOOT</strong>.<br>
-                              2. Presiona y suelta <strong>RST</strong> (o desconecta y conecta el cable USB manteniendo presionado BOOT).<br>
-                              3. Suelta <strong>BOOT</strong> y presiona <em>Instalar</em> nuevamente.
-                            </div>
-                            <div class="small text-muted p-2 rounded bg-dark border border-secondary border-opacity-25 font-monospace" style="font-size:0.78rem;">
-                              <i class="bi bi-check2-all text-success"></i> Ambos firmwares soportan Wi-Fi Manager (Portal Cautivo al sostener 20s) y sincronización con Firestore.
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Columna 2: USB Directo Multi-Rol -->
-                        <div class="col-lg-7">
-                          <div class="p-3 rounded-3 h-100" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                              <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-success fs-6">2</span>
-                                <h6 class="mb-0 fw-bold text-white"><i class="bi bi-usb-plug-fill"></i> Configurar Rol, Destino y Wi-Fi por USB</h6>
-                              </div>
-                              <span id="usbStatusBadge" class="badge bg-secondary d-inline-flex align-items-center">No conectado</span>
-                            </div>
-                            <p class="small text-muted mb-3">
-                              Conecta el ESP32 para seleccionar a qué módulo de la fábrica servirá y grabar la configuración permanentemente en su memoria Flash NVS.
-                            </p>
-                            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                              <button class="btn btn-outline-success btn-sm fw-semibold" id="usbConnectBtn">
-                                <i class="bi bi-plug"></i> Conectar por USB
-                              </button>
-                              <button class="btn btn-outline-secondary btn-sm" id="usbDisconnectBtn" style="display:none;">
-                                <i class="bi bi-x-circle"></i> Desconectar
-                              </button>
-                            </div>
-                            <!-- Overlay visible cuando ESP32 NO está conectado -->
-                            <div id="usbDisconnectedOverlay" class="p-3 rounded border border-secondary border-dashed text-center mb-2" style="background:rgba(0,0,0,0.25); border-style:dashed!important;">
-                              <i class="bi bi-usb-plug text-secondary" style="font-size:2rem; opacity:0.5;"></i>
-                              <p class="small text-muted mb-2 mt-2">Conecta el ESP32 por USB y presiona <strong class="text-white">"Conectar por USB"</strong> para asignarle su función (Grúas, Operaciones o Almacén) en segundos.</p>
-                            </div>
-
-                            <!-- Controles interactivos USB -->
-                            <div id="usbConfigControls" class="p-3 rounded bg-dark mb-2" style="display:none; border: 1px solid rgba(255,255,255,0.08);">
-                              <div class="row g-2 mb-2">
-                                <div class="col-sm-6">
-                                  <label class="small text-uppercase fw-bold text-info mb-1" style="font-size: 0.72rem;">Tipo de Dispositivo / Rol:</label>
-                                  <select class="form-select form-select-sm" id="usbDeviceRoleSelect">
-                                    <option value="cranes" selected>🌟 Centro de Mando SCADA (Sección Completa)</option>
-                                    <option value="satellite_crane">🎯 Nodo Satélite (1 Grúa por Nodo: ej. 30A)</option>
-                                    <option value="operations">⚙️ Gestión de Operaciones (Paros de Estación)</option>
-                                    <option value="warehouse">📦 Gestión de Almacén (Pick/Put-to-Light)</option>
-                                  </select>
-                                </div>
-                                <div class="col-sm-6">
-                                  <label class="small text-uppercase fw-bold text-info mb-1" id="usbTargetIdLabel" style="font-size: 0.72rem;">Área de Grúas Asignada:</label>
-                                  <select class="form-select form-select-sm" id="usbTargetAreaSelect"></select>
-                                </div>
-                                <div class="col-sm-6">
-                                  <label class="small text-muted mb-1" style="font-size: 0.72rem;">Red Wi-Fi (SSID):</label>
-                                  <input type="text" class="form-control form-control-sm" id="usbWifiSsidInput" placeholder="Nombre de Red Wi-Fi">
-                                </div>
-                                <div class="col-sm-6">
-                                  <label class="small text-muted mb-1" style="font-size: 0.72rem;">Contraseña Wi-Fi:</label>
-                                  <input type="password" class="form-control form-control-sm" id="usbWifiPassInput" placeholder="Contraseña Wi-Fi">
-                                </div>
-
-                                <!-- Controles y Vista Previa Micro-OLED 0.42" (Solo visible para Nodo Satélite C3) -->
-                                <div class="col-12" id="usbOledConfigCard" style="display:none;">
-                                  <div class="p-2 rounded border border-info border-opacity-25" style="background: rgba(6, 182, 212, 0.05);">
-                                    <div class="d-flex align-items-center justify-content-between mb-2">
-                                      <div class="d-flex align-items-center gap-2">
-                                        <span class="badge bg-info text-dark font-monospace" style="font-size:0.7rem;"><i class="bi bi-display"></i> Micro-OLED 0.42"</span>
-                                        <span class="small fw-bold text-light" style="font-size:0.78rem;">Pantalla Integrada SSD1306 (72x40 px)</span>
-                                      </div>
-                                      <span class="badge bg-secondary font-monospace" id="usbOledCurrentRotBadge" style="font-size:0.7rem;">Rotación: 0° (Normal)</span>
-                                    </div>
-                                    <div class="row align-items-center g-2">
-                                      <!-- Vista previa visual pixel-art del micro-OLED -->
-                                      <div class="col-auto">
-                                        <div id="usbOledPreviewBox" style="width: 144px; height: 80px; background: #000; border: 2px solid #334155; border-radius: 6px; padding: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.25); transition: transform 0.3s ease;">
-                                          <div id="usbOledPreviewCrane" class="font-monospace fw-bold text-info" style="font-size: 1.45rem; line-height: 1; letter-spacing: 1px;">20C</div>
-                                          <div id="usbOledPreviewStatus" class="font-monospace text-light" style="font-size: 0.65rem; margin-top: 4px; letter-spacing: 0.5px;">OPERATIVA</div>
-                                        </div>
-                                        <div class="text-center mt-1">
-                                          <small class="text-muted font-monospace" style="font-size:0.65rem;"><i class="bi bi-eye"></i> Simulación 72x40</small>
-                                        </div>
-                                      </div>
-                                      <div class="col">
-                                        <p class="small text-muted mb-2" style="font-size:0.75rem;">
-                                          Configura la orientación de la pantalla si el módulo C3 se instala invertido (180°) dentro del gabinete 3D o en riel DIN.
-                                        </p>
-                                        <div class="d-flex flex-wrap gap-2">
-                                          <button class="btn btn-outline-info btn-sm py-1 px-2" id="usbRotateOledBtn" type="button">
-                                            <i class="bi bi-arrow-repeat me-1"></i> Rotar 180°
-                                          </button>
-                                          <button class="btn btn-outline-warning btn-sm py-1 px-2" id="usbTestOledBtn" type="button">
-                                            <i class="bi bi-aspect-ratio me-1"></i> Probar Pantalla
-                                          </button>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div class="col-12 mt-3">
-                                  <button class="btn btn-success btn-sm w-100 fw-bold shadow-sm" id="usbWriteAreaBtn">
-                                    <i class="bi bi-save me-1"></i> Guardar Configuración en Flash NVS del ESP32
-                                  </button>
-                                </div>
-                              </div>
-                              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-secondary border-opacity-25 mt-2">
-                                <div class="d-flex align-items-center gap-1">
-                                  <button class="btn btn-outline-info btn-sm py-0 px-2" id="usbGetInfoBtn"><i class="bi bi-info-circle"></i> Info</button>
-                                  <button class="btn btn-outline-warning btn-sm py-0 px-2" id="usbTestLedsBtn"><i class="bi bi-lightbulb"></i> Probar Tira LED</button>
-                                  <button class="btn btn-outline-secondary btn-sm py-0 px-2" id="usbRebootBtn"><i class="bi bi-arrow-clockwise"></i> Reiniciar</button>
-                                </div>
-                                <small class="text-success font-monospace" style="font-size:0.75rem;"><i class="bi bi-shield-check"></i> 100% Permanente en NVS</small>
-                              </div>
-                              <div class="small text-info font-monospace p-2 rounded bg-black border border-secondary border-opacity-25 mt-2" id="usbTerminalOutput" style="max-height:120px;overflow-y:auto;white-space:pre-wrap;font-size:0.78rem;">Puerto USB abierto. Esperando datos del ESP32...</div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Tabla Global de Dispositivos Multi-Rol -->
-                        <div class="col-12">
-                          <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
-                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                              <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-info text-dark fs-6">3</span>
-                                <h6 class="mb-0 fw-bold text-white"><i class="bi bi-hdd-network"></i> Dispositivos ESP32 Registrados en la Fábrica</h6>
-                              </div>
-                              <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-dark border border-secondary" id="totalEsp32DevicesBadge">0 dispositivos detectados</span>
-                                <button class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#manualAddEsp32Modal" id="openManualEsp32ModalBtn">
-                                  <i class="bi bi-plus-circle me-1"></i> + Agregar ESP32
-                                </button>
-                              </div>
-                            </div>
-                            <p class="small text-muted mb-3">
-                              Todos los microcontroladores encendidos en la planta se listan aquí en tiempo real con su rol actual (Grúas, Operaciones o Almacén). Puedes reasignar su función remotamente desde la nube sin necesidad de reprogramarlos.
-                            </p>
-                            <div class="table-responsive">
-                              <table class="table table-dark table-hover align-middle mb-0 small" style="width: 100%;">
-                                <thead>
-                                  <tr class="text-muted">
-                                    <th style="width: 110px;">Estado</th>
-                                    <th style="width: 110px;">Módulo / Rol</th>
-                                    <th style="min-width: 230px; width: 240px;">Destino Asignado</th>
-                                    <th style="width: 130px;">IP / MAC</th>
-                                    <th style="min-width: 580px; width: 600px;">Acciones Remotas (Reasignar / Pantalla OLED / Red / Borrar)</th>
-                                  </tr>
-                                </thead>
-                                <tbody id="esp32DevicesTableBody">
-                                  <tr><td colspan="5" class="text-center py-3 text-muted">
-                                    <div class="spinner-border spinner-border-sm text-info me-2"></div>
-                                    Buscando dispositivos ESP32 en Firestore...
-                                  </td></tr>
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <!-- Panel movido a la pestaña #esp32-hardware (Hardware ESP32 & Flasheo) -->
 
               </div>
             </div>
@@ -1171,7 +973,7 @@
           <!-- Fin cranes-mgmt -->
 
           <!-- Pestaña Gestión de Operaciones -->
-          <div class="tab-pane fade" id="operations-mgmt" role="tabpanel">
+          <div class="tab-pane fade" id="operations-mgmt" data-module="operations" role="tabpanel">
             <div class="row">
               <div class="col-md-3">
                 <div class="card text-center mb-3">
@@ -1332,7 +1134,7 @@
           </div>
 
           <!-- Pestaña Gestión de Almacén (Pick-to-Light) -->
-          <div class="tab-pane fade" id="warehouse-mgmt" role="tabpanel">
+          <div class="tab-pane fade" id="warehouse-mgmt" data-module="warehouse" role="tabpanel">
             <div class="row">
               <!-- Lateral Izquierdo: Telemetría y KPIs de Almacén -->
               <div class="col-md-3">
@@ -1485,7 +1287,7 @@
           </div>
 
           <!-- Pestaña Técnicos y Operadores -->
-          <div class="tab-pane fade" id="technicians-mgmt" role="tabpanel">
+          <div class="tab-pane fade" id="technicians-mgmt" data-module="technicians" role="tabpanel">
             <div class="text-center text-muted py-4">
               <div class="spinner-border spinner-border-sm me-2" role="status"></div>
               Cargando panel de técnicos y operadores...
@@ -1493,7 +1295,7 @@
           </div>
 
           <!-- Pestaña Gestión de Bot -->
-          <div class="tab-pane fade" id="bot-mgmt" role="tabpanel">
+          <div class="tab-pane fade" id="bot-mgmt" data-module="bot" role="tabpanel">
             <div class="row">
               <div class="col-md-4">
                 <div class="card text-center mb-4">
@@ -1601,8 +1403,283 @@
             </div>
           </div>
 
+          <!-- Pestaña Hardware ESP32 & Flasheo Universal -->
+          <div class="tab-pane fade" id="esp32-hardware" data-module="esp32" role="tabpanel">
+            <div class="alert alert-info d-flex justify-content-between align-items-center flex-wrap gap-2 py-2 mb-3 border-info border-opacity-25">
+              <div class="small">
+                <i class="bi bi-info-circle me-1"></i>
+                <strong>Hardware &amp; Flasheo Universal:</strong> flasheo por USB, asignación de rol / grúa y registro de nodos. El catálogo de motivos de paro que sincronizan los ESP32 está en la siguiente pestaña.
+              </div>
+              <a class="btn btn-sm btn-outline-warning" href="#failure-reasons" onclick="showAdminTab('failure-reasons')">
+                <i class="bi bi-list-check me-1"></i> Catálogo de Motivos de Paro
+              </a>
+            </div>
+<div id="globalEsp32Panel" style="display:block;">
+              <!-- Tarjeta Unificada de Hardware ESP32, Flasheo Web & Configuración USB Multi-Rol -->
+              <div class="card mb-4" id="esp32UniversalHardwareCard" style="background: rgba(13, 17, 23, 0.95); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(56, 189, 248, 0.08); border-bottom: 1px solid rgba(56, 189, 248, 0.2);">
+                  <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-cpu-fill text-info fs-5"></i>
+                    <h6 class="mb-0 fw-bold text-white">Centro de Hardware ESP32 & Flasheo Universal (v3.0.0)</h6>
+                    <span class="badge bg-primary" id="esp32ActiveRoleBadge">Multi-Rol: Grúas • Operaciones • Almacén</span>
+                  </div>
+                  <span class="badge bg-dark border border-info text-info"><i class="bi bi-lightning-charge-fill me-1"></i>Web Serial & ESP Web Tools</span>
+                </div>
+                <div class="card-body">
+                  <p class="small text-muted mb-4">
+                    Conecta cualquier ESP32 nuevo por cable USB a Google Chrome o Edge para flashearle el <strong>Firmware Universal v3.0.0</strong> en 45 segundos. Puedes configurarlo y alternarlo en caliente entre <strong>Grúas</strong>, <strong>Operaciones</strong> y <strong>Almacén IoT</strong> sin compilar nada.
+                  </p>
+                  <div class="row g-4">
+                    <!-- Columna 1: Flasheo Web por Rol de Hardware -->
+                    <div class="col-lg-5">
+                      <div class="p-3 rounded-3 h-100" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                          <span class="badge bg-primary fs-6">1</span>
+                          <h6 class="mb-0 fw-bold text-white"><i class="bi bi-cloud-arrow-down"></i> Flasheo Web Directo (1 Clic)</h6>
+                        </div>
+                        <p class="small text-muted mb-2">
+                          Selecciona el rol de hardware que conectarás por USB para cargarle su firmware específico:
+                        </p>
+
+                        <!-- Selector de Firmware: Centro de Mando vs Nodo Satélite -->
+                        <div class="btn-group w-100 mb-3" role="group" id="firmwareTypeSwitch">
+                          <input type="radio" class="btn-check" name="firmwareSelection" id="fwSelectCentroMando" autocomplete="off" checked>
+                          <label class="btn btn-outline-info btn-sm fw-bold py-2" for="fwSelectCentroMando" id="labelFwCentroMando">
+                            <i class="bi bi-display me-1"></i> Centro de Mando<br><span style="font-size:0.68rem; font-weight:normal;">LCD GC9A01 • Multinodo</span>
+                          </label>
+
+                          <input type="radio" class="btn-check" name="firmwareSelection" id="fwSelectSatellite" autocomplete="off">
+                          <label class="btn btn-outline-primary btn-sm fw-bold py-2" for="fwSelectSatellite" id="labelFwSatellite">
+                            <i class="bi bi-cpu me-1"></i> Nodo Satélite<br><span style="font-size:0.68rem; font-weight:normal;">1 Grúa por Nodo (ej: 30A)</span>
+                          </label>
+                        </div>
+
+                        <!-- Panel Info: Centro de Mando -->
+                        <div id="fwInfoCentroMando" class="p-2 rounded bg-dark border border-info border-opacity-25 mb-3 small" style="font-size:0.77rem; line-height: 1.4;">
+                          <div class="fw-bold text-info mb-1"><i class="bi bi-check-circle-fill me-1"></i>Centro de Mando SCADA (Pantalla Circular GC9A01):</div>
+                          <ul class="mb-1 ps-3 text-muted">
+                            <li><strong>Hardware:</strong> ESP32 Clásico DevKit V1 (30 Pines).</li>
+                            <li><strong>Periféricos:</strong> Display GC9A01 SPI 240x240, Tira WS2815, Botón Metálico.</li>
+                            <li><strong>Función:</strong> Supervisa toda la sección (30A, 30B, 30C, 30D), cálculo OEE y semáforo 360°.</li>
+                          </ul>
+                        </div>
+
+                        <!-- Panel Info: Nodo Satélite -->
+                        <div id="fwInfoSatellite" class="p-2 rounded bg-dark border border-primary border-opacity-25 mb-3 small" style="display:none; font-size:0.77rem; line-height: 1.4;">
+                          <div class="fw-bold text-primary mb-1"><i class="bi bi-check-circle-fill me-1"></i>Nodo Satélite Secundario (1 Grúa por Nodo):</div>
+                          <ul class="mb-1 ps-3 text-muted">
+                            <li><strong>Hardware:</strong> ESP32 Clásico o ESP32-C3 SuperMini.</li>
+                            <li><strong>Periféricos:</strong> Pulsador arcade/metálico, Baliza WS2815 y OLED (opcional).</li>
+                            <li><strong>Función:</strong> Asignado a <strong>1 sola grúa</strong> (ej. 30A). Al pulsar reporta falla a WhatsApp; mantener 4s la resuelve.</li>
+                          </ul>
+                        </div>
+
+                        <!-- Botones de Flasheo Web -->
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                          <!-- Botón para Centro de Mando GC9A01 -->
+                          <div id="installWrapperCentroMando">
+                            <esp-web-install-button manifest="firmware/manifest-centro-mando.json" id="espWebInstallCentroMando">
+                              <button slot="activate" class="btn btn-info shadow-sm py-2 px-3 fw-bold text-dark">
+                                <i class="bi bi-lightning-charge-fill"></i> Instalar Centro de Mando (GC9A01)
+                              </button>
+                              <span slot="unsupported" class="text-danger small">
+                                <i class="bi bi-exclamation-triangle"></i> Tu navegador no soporta Web Serial. Usa Chrome o Edge.
+                              </span>
+                              <span slot="not-allowed" class="text-warning small">
+                                <i class="bi bi-shield-lock"></i> Se requiere conexión segura (HTTPS o localhost).
+                              </span>
+                            </esp-web-install-button>
+                          </div>
+
+                          <!-- Botón para Nodo Satélite Secundario -->
+                          <div id="installWrapperSatellite" style="display:none;">
+                            <esp-web-install-button manifest="firmware/manifest-satellite.json" id="espWebInstallSatellite">
+                              <button slot="activate" class="btn btn-primary shadow-sm py-2 px-3 fw-bold">
+                                <i class="bi bi-lightning-charge-fill"></i> Instalar Nodo Satélite (ESP32 / C3)
+                              </button>
+                              <span slot="unsupported" class="text-danger small">
+                                <i class="bi bi-exclamation-triangle"></i> Tu navegador no soporta Web Serial. Usa Chrome o Edge.
+                              </span>
+                              <span slot="not-allowed" class="text-warning small">
+                                <i class="bi bi-shield-lock"></i> Se requiere conexión segura (HTTPS o localhost).
+                              </span>
+                            </esp-web-install-button>
+                          </div>
+
+                          <a href="firmware/esp32_centro_mando_gc9a01.ino" download="esp32_centro_mando_gc9a01.ino" id="downloadInoLink" class="btn btn-outline-secondary btn-sm" title="Descargar código fuente Arduino">
+                            <i class="bi bi-file-code"></i> Código .ino
+                          </a>
+                        </div>
+
+                        <div class="p-2 rounded bg-dark border border-warning border-opacity-25 mb-2 small text-warning" style="font-size:0.77rem; line-height: 1.4;">
+                          <i class="bi bi-lightbulb-fill me-1"></i><strong>Modo Flasheo ESP32-C3 / SuperMini:</strong><br>
+                          Si aparece <em>TIMEOUT</em> o no avanza, pon el C3 en modo bootloader manual:<br>
+                          1. Mantén presionado el botón <strong>BOOT</strong>.<br>
+                          2. Presiona y suelta <strong>RST</strong> (o desconecta y conecta el cable USB manteniendo presionado BOOT).<br>
+                          3. Suelta <strong>BOOT</strong> y presiona <em>Instalar</em> nuevamente.
+                        </div>
+                        <div class="small text-muted p-2 rounded bg-dark border border-secondary border-opacity-25 font-monospace" style="font-size:0.78rem;">
+                          <i class="bi bi-check2-all text-success"></i> Ambos firmwares soportan Wi-Fi Manager (Portal Cautivo al sostener 20s) y sincronización con Firestore.
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Columna 2: USB Directo Multi-Rol -->
+                    <div class="col-lg-7">
+                      <div class="p-3 rounded-3 h-100" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-success fs-6">2</span>
+                            <h6 class="mb-0 fw-bold text-white"><i class="bi bi-usb-plug-fill"></i> Configurar Rol, Destino y Wi-Fi por USB</h6>
+                          </div>
+                          <span id="usbStatusBadge" class="badge bg-secondary d-inline-flex align-items-center">No conectado</span>
+                        </div>
+                        <p class="small text-muted mb-3">
+                          Conecta el ESP32 para seleccionar a qué módulo de la fábrica servirá y grabar la configuración permanentemente en su memoria Flash NVS.
+                        </p>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                          <button class="btn btn-outline-success btn-sm fw-semibold" id="usbConnectBtn">
+                            <i class="bi bi-plug"></i> Conectar por USB
+                          </button>
+                          <button class="btn btn-outline-secondary btn-sm" id="usbDisconnectBtn" style="display:none;">
+                            <i class="bi bi-x-circle"></i> Desconectar
+                          </button>
+                        </div>
+                        <!-- Overlay visible cuando ESP32 NO está conectado -->
+                        <div id="usbDisconnectedOverlay" class="p-3 rounded border border-secondary border-dashed text-center mb-2" style="background:rgba(0,0,0,0.25); border-style:dashed!important;">
+                          <i class="bi bi-usb-plug text-secondary" style="font-size:2rem; opacity:0.5;"></i>
+                          <p class="small text-muted mb-2 mt-2">Conecta el ESP32 por USB y presiona <strong class="text-white">"Conectar por USB"</strong> para asignarle su función (Grúas, Operaciones o Almacén) en segundos.</p>
+                        </div>
+
+                        <!-- Controles interactivos USB -->
+                        <div id="usbConfigControls" class="p-3 rounded bg-dark mb-2" style="display:none; border: 1px solid rgba(255,255,255,0.08);">
+                          <div class="row g-2 mb-2">
+                            <div class="col-sm-6">
+                              <label class="small text-uppercase fw-bold text-info mb-1" style="font-size: 0.72rem;">Tipo de Dispositivo / Rol:</label>
+                              <select class="form-select form-select-sm" id="usbDeviceRoleSelect">
+                                <option value="cranes" selected>🌟 Centro de Mando SCADA (Sección Completa)</option>
+                                <option value="satellite_crane">🎯 Nodo Satélite (1 Grúa por Nodo: ej. 30A)</option>
+                                <option value="operations">⚙️ Gestión de Operaciones (Paros de Estación)</option>
+                                <option value="warehouse">📦 Gestión de Almacén (Pick/Put-to-Light)</option>
+                              </select>
+                            </div>
+                            <div class="col-sm-6">
+                              <label class="small text-uppercase fw-bold text-info mb-1" id="usbTargetIdLabel" style="font-size: 0.72rem;">Área de Grúas Asignada:</label>
+                              <select class="form-select form-select-sm" id="usbTargetAreaSelect"></select>
+                            </div>
+                            <div class="col-sm-6">
+                              <label class="small text-muted mb-1" style="font-size: 0.72rem;">Red Wi-Fi (SSID):</label>
+                              <input type="text" class="form-control form-control-sm" id="usbWifiSsidInput" placeholder="Nombre de Red Wi-Fi">
+                            </div>
+                            <div class="col-sm-6">
+                              <label class="small text-muted mb-1" style="font-size: 0.72rem;">Contraseña Wi-Fi:</label>
+                              <input type="password" class="form-control form-control-sm" id="usbWifiPassInput" placeholder="Contraseña Wi-Fi">
+                            </div>
+
+                            <!-- Controles y Vista Previa Micro-OLED 0.42" (Solo visible para Nodo Satélite C3) -->
+                            <div class="col-12" id="usbOledConfigCard" style="display:none;">
+                              <div class="p-2 rounded border border-info border-opacity-25" style="background: rgba(6, 182, 212, 0.05);">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                  <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-info text-dark font-monospace" style="font-size:0.7rem;"><i class="bi bi-display"></i> Micro-OLED 0.42"</span>
+                                    <span class="small fw-bold text-light" style="font-size:0.78rem;">Pantalla Integrada SSD1306 (72x40 px)</span>
+                                  </div>
+                                  <span class="badge bg-secondary font-monospace" id="usbOledCurrentRotBadge" style="font-size:0.7rem;">Rotación: 0° (Normal)</span>
+                                </div>
+                                <div class="row align-items-center g-2">
+                                  <!-- Vista previa visual pixel-art del micro-OLED -->
+                                  <div class="col-auto">
+                                    <div id="usbOledPreviewBox" style="width: 144px; height: 80px; background: #000; border: 2px solid #334155; border-radius: 6px; padding: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.25); transition: transform 0.3s ease;">
+                                      <div id="usbOledPreviewCrane" class="font-monospace fw-bold text-info" style="font-size: 1.45rem; line-height: 1; letter-spacing: 1px;">20C</div>
+                                      <div id="usbOledPreviewStatus" class="font-monospace text-light" style="font-size: 0.65rem; margin-top: 4px; letter-spacing: 0.5px;">OPERATIVA</div>
+                                    </div>
+                                    <div class="text-center mt-1">
+                                      <small class="text-muted font-monospace" style="font-size:0.65rem;"><i class="bi bi-eye"></i> Simulación 72x40</small>
+                                    </div>
+                                  </div>
+                                  <div class="col">
+                                    <p class="small text-muted mb-2" style="font-size:0.75rem;">
+                                      Configura la orientación de la pantalla si el módulo C3 se instala invertido (180°) dentro del gabinete 3D o en riel DIN.
+                                    </p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                      <button class="btn btn-outline-info btn-sm py-1 px-2" id="usbRotateOledBtn" type="button">
+                                        <i class="bi bi-arrow-repeat me-1"></i> Rotar 180°
+                                      </button>
+                                      <button class="btn btn-outline-warning btn-sm py-1 px-2" id="usbTestOledBtn" type="button">
+                                        <i class="bi bi-aspect-ratio me-1"></i> Probar Pantalla
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div class="col-12 mt-3">
+                              <button class="btn btn-success btn-sm w-100 fw-bold shadow-sm" id="usbWriteAreaBtn">
+                                <i class="bi bi-save me-1"></i> Guardar Configuración en Flash NVS del ESP32
+                              </button>
+                            </div>
+                          </div>
+                          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-secondary border-opacity-25 mt-2">
+                            <div class="d-flex align-items-center gap-1">
+                              <button class="btn btn-outline-info btn-sm py-0 px-2" id="usbGetInfoBtn"><i class="bi bi-info-circle"></i> Info</button>
+                              <button class="btn btn-outline-warning btn-sm py-0 px-2" id="usbTestLedsBtn"><i class="bi bi-lightbulb"></i> Probar Tira LED</button>
+                              <button class="btn btn-outline-secondary btn-sm py-0 px-2" id="usbRebootBtn"><i class="bi bi-arrow-clockwise"></i> Reiniciar</button>
+                            </div>
+                            <small class="text-success font-monospace" style="font-size:0.75rem;"><i class="bi bi-shield-check"></i> 100% Permanente en NVS</small>
+                          </div>
+                          <div class="small text-info font-monospace p-2 rounded bg-black border border-secondary border-opacity-25 mt-2" id="usbTerminalOutput" style="max-height:120px;overflow-y:auto;white-space:pre-wrap;font-size:0.78rem;">Puerto USB abierto. Esperando datos del ESP32...</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Tabla Global de Dispositivos Multi-Rol -->
+                    <div class="col-12">
+                      <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-info text-dark fs-6" id="esp32DevicesHeaderCountBadge">0</span>
+                            <h6 class="mb-0 fw-bold text-white"><i class="bi bi-hdd-network"></i> Dispositivos ESP32 Registrados en la Fábrica</h6>
+                          </div>
+                          <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-dark border border-secondary" id="totalEsp32DevicesBadge">0 dispositivos detectados</span>
+                            <button class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#manualAddEsp32Modal" id="openManualEsp32ModalBtn">
+                              <i class="bi bi-plus-circle me-1"></i> + Agregar ESP32
+                            </button>
+                          </div>
+                        </div>
+                        <p class="small text-muted mb-3">
+                          Todos los microcontroladores encendidos en la planta se listan aquí en tiempo real con su rol actual (Grúas, Operaciones o Almacén). Puedes reasignar su función remotamente desde la nube sin necesidad de reprogramarlos.
+                        </p>
+                        <div class="table-responsive">
+                          <table class="table table-dark table-hover align-middle mb-0 small" style="width: 100%;">
+                            <thead>
+                              <tr class="text-muted">
+                                <th style="width: 110px;">Estado</th>
+                                <th style="width: 110px;">Módulo / Rol</th>
+                                <th style="min-width: 230px; width: 240px;">Destino Asignado</th>
+                                <th style="width: 130px;">IP / MAC</th>
+                                <th style="min-width: 580px; width: 600px;">Acciones Remotas (Reasignar / Pantalla OLED / Red / Borrar)</th>
+                              </tr>
+                            </thead>
+                            <tbody id="esp32DevicesTableBody">
+                              <tr><td colspan="5" class="text-center py-3 text-muted">
+                                <div class="spinner-border spinner-border-sm text-info me-2"></div>
+                                Buscando dispositivos ESP32 en Firestore...
+                              </td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Pestaña Motivos de Falla / Paro (ESP32 / SCADA) -->
-          <div class="tab-pane fade" id="failure-reasons" role="tabpanel">
+          <div class="tab-pane fade" id="failure-reasons" data-module="failure_reasons" role="tabpanel">
             <div class="row">
               <div class="col-lg-7">
                 <div class="card mb-4">
@@ -1617,6 +1694,16 @@
                       Este catálogo alimenta directamente la pantalla circular <strong>GC9A01</strong> del <strong>Centro de Mando ESP32</strong> y los formularios web de reporte. Al guardar aquí, se sincroniza en Firestore (<code>config/failure_reasons</code>) y los ESP32 lo almacenan en su memoria Flash NVS (no volátil) para operar sin conexión a Internet.
                     </p>
                     
+                    <div class="input-group mb-3">
+                      <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-buildings"></i></span>
+                      <select id="failureReasonAreaSelect" class="form-select bg-dark text-light border-secondary" onchange="setFailureReasonArea(this.value)">
+                        <option value="global">Global (fallback para todas las áreas)</option>
+                      </select>
+                    </div>
+                    <p class="small text-muted mb-3">
+                      El catálogo <strong>Global</strong> es el que usan las placas ya flasheadas. Si creas un catálogo propio para un área (10s, 20s, 30s…), esa área usará sus motivos y las demás seguirán usando el global. Máximo 16 motivos por catálogo y 31 caracteres por motivo (el campo ESP-NOW del satélite es de 32 bytes).
+                    </p>
+
                     <div class="input-group mb-3">
                       <input type="text" id="newFailureReasonInput" class="form-control" placeholder="Ej: 1 Leva rota, Fuga neumática, Tornillería floja..." maxlength="35">
                       <button class="btn btn-success" type="button" onclick="addFailureReason()">
@@ -1702,7 +1789,7 @@
           </div>
 
           <!-- Pestaña Topología & Textos de Planta (ISA-101 / SCADA) -->
-          <div class="tab-pane fade" id="topology-mgmt" role="tabpanel">
+          <div class="tab-pane fade" id="topology-mgmt" data-module="topology" role="tabpanel">
             <div class="row">
               <div class="col-12">
                 <div class="card mb-4 border-info">
@@ -1735,7 +1822,7 @@
                         <h6 class="text-uppercase text-info tracking-wider fw-bold mb-0">
                           <i class="bi bi-buildings me-2"></i>Naves & Bahías de Producción (5 Áreas ISA-101)
                         </h6>
-                        <span class="badge bg-secondary-subtle text-info border border-secondary font-mono">5 Naves Activas</span>
+                        <span class="badge bg-secondary-subtle text-info border border-secondary font-mono" id="topologyAreasCountBadge">5 Naves Activas</span>
                       </div>
                       <div class="row g-3" id="adminTopologyAreasContainer">
                         <!-- Renderizado dinámico de las 5 áreas -->
@@ -1751,7 +1838,7 @@
                           <h6 class="text-uppercase text-info tracking-wider fw-bold mb-0">
                             <i class="bi bi-cpu me-2"></i>Estaciones y Operaciones Industriales
                           </h6>
-                          <small class="text-muted">Personaliza la etiqueta de cada una de las 41 operaciones de la línea de producción</small>
+                          <small class="text-muted">Personaliza la etiqueta de cada operación (<span id="topologyOpsTotalBadge">0</span>) de la línea de producción</small>
                         </div>
                         <div class="d-flex align-items-center gap-2 flex-wrap">
                           <div class="input-group input-group-sm" style="width: 260px;">
@@ -1760,11 +1847,7 @@
                           </div>
                           <select id="adminTopologyAreaFilter" class="form-select form-select-sm bg-dark text-light border-secondary" style="width: 170px;" onchange="filterAdminTopologyOps()">
                             <option value="all">Todas las Naves</option>
-                            <option value="area5">Área 5 (Recepción)</option>
-                            <option value="area10">Área 10 (Pailería)</option>
-                            <option value="area20">Área 20 (Maquinado)</option>
-                            <option value="area30">Área 30 (Pintura)</option>
-                            <option value="area35">Área 35+ (Ensamble)</option>
+                            <!-- Opciones generadas desde config/plant_topology_config -->
                           </select>
                           <span class="badge bg-info-subtle text-info border border-info" id="adminTopologyOpsCountBadge">41 operaciones</span>
                         </div>
@@ -1794,7 +1877,7 @@
           </div>
 
           <!-- Pestaña Gestión de Usuarios, Roles & Seguridad SCADA -->
-          <div class="tab-pane fade" id="users-mgmt" role="tabpanel">
+          <div class="tab-pane fade" id="users-mgmt" data-module="users" role="tabpanel">
             <!-- Renderizado dinámico vía admin-users.js?v=4.8 -->
           </div>
         </div>
@@ -1941,8 +2024,8 @@
     <script src="sha256.js?v=4.8"></script>
     <script src="pocketbase-adapter.js?v=4.8"></script>
     <script src="auth-system.js?v=4.8"></script>
-    <script src="global-config.js?v=4.8"></script>
-    <script src="admin.js?v=5.0"></script>
+    <script src="global-config.js?v=5.1"></script>
+    <script src="admin.js?v=5.1"></script>
     <script src="admin-technicians.js?v=2.6"></script>
     <script src="admin-users.js?v=4.8"></script>
     <script src="mobile-nav.js?v=4.8"></script>

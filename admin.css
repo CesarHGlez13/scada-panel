@@ -160,3 +160,93 @@
         color: var(--text-color);
         box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
       }
+
+/* ============================================================
+   Ronda 6 — Visibilidad de módulos (registry-driven) y legibilidad
+   ============================================================ */
+
+/* Visibilidad genérica: cualquier contenedor/pestaña marcada con data-module
+   se oculta cuando su módulo está deshabilitado. Se usa [data-module~="key"]
+   para soportar elementos que pertenecen a varios módulos. */
+html.hide-module-bot [data-module~="bot"],
+html.hide-module-database [data-module~="database"],
+html.hide-module-notifications [data-module~="notifications"],
+html.hide-module-users [data-module~="users"],
+html.hide-module-technicians [data-module~="technicians"],
+html.hide-module-esp32 [data-module~="esp32"],
+html.hide-module-failure_reasons [data-module~="failure_reasons"],
+html.hide-module-topology [data-module~="topology"] {
+  display: none !important;
+}
+
+/* Etiquetas de grupo de la navegación del panel */
+.admin-nav-group-label {
+  padding: 0.5rem 0.6rem;
+  color: #64748b;
+  white-space: nowrap;
+  align-self: center;
+}
+
+/* Encabezados de grupo en la tabla de dispositivos ESP32 */
+.dev-group-header td {
+  background: rgba(56, 189, 248, 0.07);
+  color: #38bdf8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-top: 1px solid rgba(56, 189, 248, 0.22);
+}
+
+/* Los títulos jerárquicos del panel estaban al mismo tamaño que los nombres
+   de sección, lo que rompía la lectura. Se normaliza la jerarquía. */
+.card-header h5 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+.card-header h6 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+/* Legibilidad en tema claro: Bootstrap deja texto blanco sobre tarjetas blancas */
+body.light-theme .card-header h5,
+body.light-theme .card-header h6,
+body.light-theme .text-light,
+body.light-theme .text-white,
+body.light-theme .font-mono.text-info,
+body.light-theme .table thead th {
+  color: #0f172a !important;
+}
+body.light-theme .form-control,
+body.light-theme .form-select {
+  background: #fff !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(99, 102, 241, 0.25) !important;
+}
+body.light-theme .table-dark,
+body.light-theme .table-dark thead th {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border-color: rgba(99, 102, 241, 0.15) !important;
+}
+body.light-theme .badge.bg-dark {
+  background: #e2e8f0 !important;
+  color: #1e293b !important;
+}
+body.light-theme .input-group-text {
+  background: #eef2f9 !important;
+  color: #475569 !important;
+}
+body.light-theme .alert-dark {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(99, 102, 241, 0.15) !important;
+}
+
+/* En tema oscuro, .text-muted quedaba muy cerca del fondo de las tarjetas */
+body:not(.light-theme) .text-muted {
+  color: #94a3b8 !important;
+}

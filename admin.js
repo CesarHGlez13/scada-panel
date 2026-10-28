@@ -1459,13 +1459,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Configuración global del sistema
 const globalConfig = {
-    // Habilitar/deshabilitar módulos
-    modules: {
-        operations: true,  // true = habilitado, false = deshabilitado
-        cranes: true,      // true = habilitado, false = deshabilitado
-        warehouse: true    // true = habilitado, false = deshabilitado
-    },
-    
+    // Habilitar/deshabilitar módulos: la fuente única de verdad es MODULE_REGISTRY
+    // (global-config.js). Aquí se inicializa con todos los módulos y se completa
+    // con lo que devuelva PocketBase en config/global.
+    modules: (typeof window.moduleDefaultModules === 'function')
+        ? window.moduleDefaultModules()
+        : {
+            operations: true,
+            cranes: true,
+            warehouse: true
+        },
+
     // Configuración del bot
     bot: {
         helpCommand: 'NanoBot ayuda',  // Comando específico para mostrar ayuda
@@ -1492,9 +1496,11 @@ async function loadGlobalConfig() {
     try {
         const doc = await db.collection('config').doc('global').get();
         if (doc.exists) {
-            const config = doc.data();
-            globalConfig.modules = config.modules || globalConfig.modules;
-            globalConfig.bot = config.bot || globalConfig.bot;
+            const config = doc.data() || {};
+            // Merge (no reemplazo): así los módulos nuevos del registro no se pierden
+            // cuando PocketBase todavía tiene el objeto antiguo con solo 3 claves.
+            globalConfig.modules = { ...globalConfig.modules, ...(config.modules || {}) };
+            globalConfig.bot = { ...globalConfig.bot, ...(config.bot || {}) };
             console.log('Configuración global cargada:', globalConfig);
         }
     } catch (error) {
@@ -1504,28 +1510,40 @@ async function loadGlobalConfig() {
 
 // Función para actualizar UI según configuración
 function updateUIForConfig() {
-    const operationsEnabled = globalConfig.modules.operations !== false;
-    const cranesEnabled = globalConfig.modules.cranes !== false;
-    const warehouseEnabled = globalConfig.modules.warehouse !== false;
-    
-    // Ocultar/mostrar elementos de operaciones
-    const operationsElements = document.querySelectorAll('[data-module="operations"]');
-    operationsElements.forEach(el => {
-        el.style.display = operationsEnabled ? '' : 'none';
-    });
-    
-    // Ocultar/mostrar elementos de grúas
-    const cranesElements = document.querySelectorAll('[data-module="cranes"]');
-    cranesElements.forEach(el => {
-        el.style.display = cranesEnabled ? '' : 'none';
+    // Refrescar los toggles del registro para que reflequen la configuración real
+    document.querySelectorAll('[data-module-key]').forEach(input => {
+        const key = input.getAttribute('data-module-key');
+        input.checked = globalConfig.modules[key] !== false;
     });
 
-    // Ocultar/mostrar elementos de almacén
-    const warehouseElements = document.querySelectorAll('[data-module="warehouse"]');
-    warehouseElements.forEach(el => {
-        el.style.display = warehouseEnabled ? '' : 'none';
+    // La visibilidad la resuelve el registro completo (MODULE_REGISTRY), no solo
+    // los tres módulos históricos. Se conserva el fallback por si el gestor no está
+    // disponible (páginas que no cargan global-config.js).
+    if (typeof globalConfigManager !== 'undefined' && globalConfigManager && typeof globalConfigManager.updateConfig === 'function') {
+        globalConfigManager.updateConfig({ modules: globalConfig.modules, bot: globalConfig.bot });
+        return;
+    }
+
+    const registry = (typeof window.getModuleRegistry === 'function') ? window.getModuleRegistry() : [];
+    document.querySelectorAll('[data-module]').forEach(el => {
+        const keys = (el.getAttribute('data-module') || '').split(/[\s,]+/).filter(Boolean);
+        if (!keys.length) return;
+        const active = keys.some(k => globalConfig.modules[k] !== false);
+        el.style.display = active ? '' : 'none';
     });
-    
+
+    registry.forEach(mod => {
+        if (mod.always) return;
+        const active = globalConfig.modules[mod.key] !== false;
+        if (mod.legacy) document.documentElement.classList.toggle('hide-module-' + mod.key, !active);
+        const link = document.querySelector(`#adminTabs .nav-link[data-bs-target="${mod.tab}"]`);
+        if (link) {
+            const li = link.closest('li.nav-item') || link;
+            li.classList.toggle('d-none', !active);
+            li.style.display = active ? '' : 'none';
+        }
+    });
+
     // Actualizar navegación
     updateNavigation();
 }
@@ -1558,73 +1576,90 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Función para agregar controles de configuración en admin
+// Renderiza UN toggle por cada módulo del MODULE_REGISTRY (fuente única de verdad)
+// dentro de la pestaña de Configuración (#settings). Si esa pestaña no existe,
+// conserva el comportamiento legacy dentro de #bot.
 function addGlobalConfigControls() {
-    if (document.getElementById('globalConfigSection')) return;
+    const registry = (typeof window.getModuleRegistry === 'function')
+        ? window.getModuleRegistry()
+        : [
+            { key: 'operations', label: 'Gestión de Operaciones' },
+            { key: 'cranes', label: 'Gestión de Grúas' },
+            { key: 'warehouse', label: 'Gestión de Almacén (Pick-to-Light)' }
+        ];
 
-    const configSection = document.createElement('div');
-    configSection.id = 'globalConfigSection';
-    configSection.className = 'config-section mb-4';
-    setSafeDOM(configSection, `
-        <div class="card shadow-sm border border-info border-opacity-25" style="background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(8px);">
-            <div class="card-header d-flex align-items-center justify-content-between" style="background: rgba(30, 41, 59, 0.7); border-bottom: 1px solid rgba(56, 189, 248, 0.2);">
-                <h5 class="mb-0 fw-bold fs-6 text-white">
-                    <i class="bi bi-sliders text-info me-2"></i>Configuración Global del Sistema
-                </h5>
-                <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-25 font-monospace" style="font-size:0.7rem;">Módulos & Bot</span>
-            </div>
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <h6 class="text-info fw-bold small text-uppercase mb-2" style="letter-spacing:0.05em;">
-                            <i class="bi bi-grid-fill me-1"></i> Módulos Habilitados
-                        </h6>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="enableOperations" ${globalConfig.modules.operations ? 'checked' : ''}>
-                            <label class="form-check-label text-light small" for="enableOperations">
-                                Gestión de Operaciones
-                            </label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="enableCranes" ${globalConfig.modules.cranes ? 'checked' : ''}>
-                            <label class="form-check-label text-light small" for="enableCranes">
-                                Gestión de Grúas
-                            </label>
-                        </div>
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" id="enableWarehouse" ${globalConfig.modules.warehouse !== false ? 'checked' : ''}>
-                            <label class="form-check-label text-light small" for="enableWarehouse">
-                                Gestión de Almacén (Pick-to-Light)
-                            </label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h6 class="text-info fw-bold small text-uppercase mb-2" style="letter-spacing:0.05em;">
-                            <i class="bi bi-whatsapp me-1"></i> Configuración del Bot
-                        </h6>
-                        <div class="form-group mb-2">
-                            <label for="helpCommand" class="form-label small text-muted mb-1">Comando de Ayuda:</label>
-                            <input type="text" class="form-control form-control-sm" id="helpCommand" value="${globalConfig.bot.helpCommand || 'NanoBot ayuda'}">
-                        </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="autoHelp" ${globalConfig.bot.autoHelp ? 'checked' : ''}>
-                            <label class="form-check-label text-light small" for="autoHelp">
-                                Enviar menú de ayuda automáticamente
-                            </label>
-                        </div>
+    const container = document.getElementById('moduleRegistryControls');
+    const settingsPane = document.getElementById('settings');
+
+    if (!container) {
+        // Comportamiento legacy: insertar la tarjeta completa en la pestaña Bot
+        const legacyHost = settingsPane || document.getElementById('bot');
+        if (!legacyHost) return;
+        const configSection = document.createElement('div');
+        configSection.id = 'globalConfigSection';
+        configSection.className = 'config-section mb-4';
+        const switches = registry.map(m => `
+            <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="enableModule_${m.key}" data-module-key="${m.key}" ${m.always ? 'disabled' : ''} ${(globalConfig.modules[m.key] !== false) ? 'checked' : ''}>
+                <label class="form-check-label small" for="enableModule_${m.key}">${m.label}</label>
+            </div>`).join('');
+        setSafeDOM(configSection, `
+            <div class="card shadow-sm border border-info border-opacity-25">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold fs-6">Configuración Global del Sistema</h5>
+                    <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-25 font-monospace">Módulos &amp; Bot</span>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-info fw-bold small text-uppercase mb-2">Módulos Habilitados</h6>
+                    ${switches}
+                    <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top border-secondary border-opacity-25">
+                        <button type="button" class="btn btn-primary fw-semibold px-4 shadow-sm" data-safe-action="saveGlobalConfigFromUI()">Guardar Configuración</button>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end gap-2 mt-3 pt-3 border-top border-secondary border-opacity-25">
-                    <button type="button" class="btn btn-primary fw-semibold px-4 shadow-sm" id="btnSaveGlobalConfig">
-                        <i class="bi bi-save me-1"></i> Guardar Configuración
-                    </button>
-                </div>
             </div>
-        </div>
-    `);
+        `);
+        legacyHost.insertBefore(configSection, legacyHost.firstChild);
+    }
 
-    // Vincular listener directo al botón Guardar
-    const saveBtn = configSection.querySelector('#btnSaveGlobalConfig');
-    if (saveBtn) {
+    // Renderizar los toggles del registro (en #settings si existe)
+    if (container) {
+        const html = registry.map(m => {
+            const active = m.always || (globalConfig.modules[m.key] !== false);
+            const tabLink = m.tab
+                ? `<a class="ms-2 font-monospace text-info" style="font-size:0.72rem;" href="${m.tab}" onclick="showAdminTab('${m.tab.replace('#', '')}');return false;">pestaña</a>`
+                : (m.page ? `<a class="ms-2 font-monospace text-info" style="font-size:0.72rem;" href="${m.page}">página</a>` : '');
+            return `
+                <div class="form-check form-switch mb-1">
+                    <input class="form-check-input" type="checkbox" id="enableModule_${m.key}" data-module-key="${m.key}" ${m.always ? 'disabled' : ''} ${active ? 'checked' : ''}>
+                    <label class="form-check-label small" for="enableModule_${m.key}">
+                        ${m.label} ${tabLink}
+                    </label>
+                </div>`;
+        }).join('');
+        setSafeDOM(container, html);
+
+        // Aplicar al instante: al mover un interruptor se guarda y se refleja en la
+        // navegación sin tener que pulsar "Guardar Configuración" (se conserva el botón).
+        if (!container.dataset.bound) {
+            container.dataset.bound = 'true';
+            container.addEventListener('change', async (e) => {
+                const input = e.target;
+                if (!input || !input.getAttribute('data-module-key')) return;
+                try { await saveGlobalConfigFromUI(); } catch (err) { /* showAlert ya informó */ }
+            });
+        }
+    }
+
+    // Sincronizar campos del bot
+    const helpInput = document.getElementById('helpCommand');
+    const autoHelp = document.getElementById('autoHelp');
+    if (helpInput) helpInput.value = globalConfig.bot.helpCommand || 'NanoBot ayuda';
+    if (autoHelp) autoHelp.checked = Boolean(globalConfig.bot.autoHelp);
+
+    // Vincular listener al botón Guardar
+    const saveBtn = document.getElementById('btnSaveGlobalConfig');
+    if (saveBtn && !saveBtn.dataset.bound) {
+        saveBtn.dataset.bound = 'true';
         saveBtn.addEventListener('click', async () => {
             saveBtn.disabled = true;
             setSafeDOM(saveBtn, '<span class="spinner-border spinner-border-sm me-2"></span> Guardando...');
@@ -1641,26 +1676,43 @@ function addGlobalConfigControls() {
             }
         });
     }
-
-    // Insertar después del primer card o al inicio de bot tab
-    const botPane = document.getElementById('bot');
-    const firstCard = (botPane && botPane.querySelector('.card')) || document.querySelector('.card');
-    if (firstCard) {
-        firstCard.parentNode.insertBefore(configSection, firstCard.nextSibling);
-    }
 }
 
+// Helper para abrir una pestaña del panel desde cualquier enlace interno
+function showAdminTab(target) {
+    const link = document.querySelector(`#adminTabs .nav-link[data-bs-target="#${target}"]`);
+    if (!link) return false;
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tab) {
+        bootstrap.Tab.getOrCreateInstance(link).show();
+    } else {
+        link.click();
+    }
+    return false;
+}
+window.showAdminTab = showAdminTab;
+
 // Función para guardar configuración desde UI
+// Lee TODOS los toggles del registro (data-module-key), no solo los tres históricos.
 async function saveGlobalConfigFromUI() {
-    const elOp = document.getElementById('enableOperations');
-    const elCr = document.getElementById('enableCranes');
-    const elWh = document.getElementById('enableWarehouse');
+    const inputs = document.querySelectorAll('[data-module-key]');
+    if (inputs.length) {
+        inputs.forEach(input => {
+            const key = input.getAttribute('data-module-key');
+            if (!key) return;
+            globalConfig.modules[key] = input.checked;
+        });
+    } else {
+        // Fallback histórico
+        const elOp = document.getElementById('enableOperations');
+        const elCr = document.getElementById('enableCranes');
+        const elWh = document.getElementById('enableWarehouse');
+        if (elOp) globalConfig.modules.operations = elOp.checked;
+        if (elCr) globalConfig.modules.cranes = elCr.checked;
+        if (elWh) globalConfig.modules.warehouse = elWh.checked;
+    }
+
     const elHelp = document.getElementById('helpCommand');
     const elAuto = document.getElementById('autoHelp');
-
-    if (elOp) globalConfig.modules.operations = elOp.checked;
-    if (elCr) globalConfig.modules.cranes = elCr.checked;
-    if (elWh) globalConfig.modules.warehouse = elWh.checked;
     if (elHelp) globalConfig.bot.helpCommand = elHelp.value.trim() || 'NanoBot ayuda';
     if (elAuto) globalConfig.bot.autoHelp = elAuto.checked;
 
@@ -2062,12 +2114,12 @@ function renderCranesMgmtUI() {
         tabsNav.appendChild(btn);
     });
 
-    // Pestaña Monitor Global
+    // Pestaña Monitor Global (ahora una pestaña propia: #esp32-hardware)
     const globalBtn = document.createElement('button');
     const isGlobal = activeAreaKey === '__global__';
     globalBtn.className = `btn area-tab-btn area-tab-btn--global ${isGlobal ? 'area-tab-btn--active' : ''}`;
     globalBtn.dataset.areaKey = '__global__';
-    setSafeDOM(globalBtn, `<i class="bi bi-cpu-fill"></i> Monitor Global ESP32`);
+    setSafeDOM(globalBtn, `<i class="bi bi-cpu-fill"></i> Hardware ESP32 &amp; Flasheo`);
     globalBtn.addEventListener('click', () => switchToAreaTab('__global__'));
     tabsNav.appendChild(globalBtn);
 
@@ -2106,14 +2158,16 @@ function switchToAreaTab(areaKey) {
     const mainCol      = document.getElementById('cranesMainContentCol');
 
     if (areaKey === '__global__') {
-        if (sideCol) sideCol.style.display = 'none';
-        if (mainCol) { mainCol.classList.remove('col-md-9'); mainCol.classList.add('col-12'); }
-        if (tabsContent)  tabsContent.style.display  = 'none';
-        if (globalPanel)  globalPanel.style.display  = 'block';
+        // El panel de hardware ESP32 vive ahora en su propia pestaña (#esp32-hardware).
+        // "Monitor Global" simplemente la abre; no se altera el layout de Grúas.
+        if (typeof showAdminTab === 'function') showAdminTab('esp32-hardware');
+        if (globalPanel) globalPanel.style.display = 'block';
+        return;
     } else {
         if (sideCol) sideCol.style.display = 'block';
         if (mainCol) { mainCol.classList.remove('col-12'); mainCol.classList.add('col-md-9'); }
-        if (globalPanel)  globalPanel.style.display  = 'none';
+        // El panel de hardware ya no está dentro de la pestaña de Grúas, así que NO se
+        // oculta: hacerlo vaciaba la pestaña #esp32-hardware al elegir un área.
         if (tabsContent)  tabsContent.style.display  = 'block';
 
         // Rebuild area panel (panel LED activo solo si ESP32 conectado por USB)
@@ -2134,16 +2188,15 @@ function renderActiveAreaPanel(areas) {
     if (!tabsContent) return;
 
     if (activeAreaKey === '__global__') {
-        if (sideCol) sideCol.style.display = 'none';
-        if (mainCol) { mainCol.classList.remove('col-md-9'); mainCol.classList.add('col-12'); }
-        tabsContent.style.display = 'none';
-        if (globalPanel) globalPanel.style.display = 'block';
+        // El hardware ESP32 ya no vive dentro de la pestaña de Grúas: sólo se
+        // abre su pestaña, sin alterar el layout de las áreas.
+        if (typeof showAdminTab === 'function') showAdminTab('esp32-hardware');
         return;
     }
 
     if (sideCol) sideCol.style.display = 'block';
     if (mainCol) { mainCol.classList.remove('col-12'); mainCol.classList.add('col-md-9'); }
-    if (globalPanel) globalPanel.style.display = 'none';
+    // No se oculta el panel de hardware: pertenece a la pestaña #esp32-hardware.
     tabsContent.style.display = 'block';
 
     if (!cranesConfig || !areas.includes(activeAreaKey)) return;
@@ -3967,7 +4020,7 @@ function initEsp32DeviceManager() {
             if (snap.empty) {
                 setSafeDOM(tableBody, `
                     <tr>
-                        <td colspan="8" class="text-center py-4 text-muted">
+                        <td colspan="5" class="text-center py-4 text-muted">
                             <i class="bi bi-hdd-network me-2 fs-5 text-info"></i> No hay dispositivos ESP32 encendidos o registrados aún.
                             <div class="mt-1 small">Al encender cualquier ESP32 con WiFi, aparecerá aquí automáticamente.</div>
                         </td>
@@ -3978,8 +4031,10 @@ function initEsp32DeviceManager() {
             }
 
             if (totalBadge) totalBadge.textContent = `${snap.size} dispositivo${snap.size > 1 ? 's' : ''} detectado${snap.size > 1 ? 's' : ''}`;
+            const headerBadge = document.getElementById('esp32DevicesHeaderCountBadge');
+            if (headerBadge) headerBadge.textContent = String(snap.size);
 
-            tableBody.replaceChildren();
+            const rows = [];
             snap.forEach(doc => {
                 const dev = doc.data();
                 // PocketBase devuelve un `id` de 15 caracteres; la clave lógica del dispositivo es su
@@ -4105,7 +4160,37 @@ function initEsp32DeviceManager() {
                         </div>
                     </td>
                 `);
-                tableBody.appendChild(tr);
+                rows.push({ tr, group: (devRole === 'satellite' ? 'satellite_crane' : devRole) });
+            });
+
+            // Orden: rol (Grúas → Satélite → Operaciones → Almacén) y luego destino.
+            const ROLE_ORDER = { cranes: 0, satellite_crane: 1, operations: 2, warehouse: 3 };
+            const GROUP_NAMES = {
+                cranes: 'Grúas / Centros de Mando',
+                satellite_crane: 'Nodos Satélite de Grúa',
+                operations: 'Operaciones',
+                warehouse: 'Almacén Pick-to-Light'
+            };
+            rows.sort((a, b) => {
+                const ra = ROLE_ORDER[a.group] ?? 9, rb = ROLE_ORDER[b.group] ?? 9;
+                return ra === rb ? 0 : ra - rb;
+            });
+
+            tableBody.replaceChildren();
+            let lastGroup = null;
+            rows.forEach(r => {
+                if (r.group !== lastGroup) {
+                    const header = document.createElement('tr');
+                    header.className = 'dev-group-header';
+                    setSafeDOM(header, `
+                        <td colspan="5" class="text-info font-monospace" style="font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;background:rgba(56,189,248,0.07);">
+                            <i class="bi bi-diagram-3 me-1"></i>${GROUP_NAMES[r.group] || r.group}
+                        </td>
+                    `);
+                    tableBody.appendChild(header);
+                    lastGroup = r.group;
+                }
+                tableBody.appendChild(r.tr);
             });
 
             // Sincronizar select de rol con select de destino
@@ -4662,10 +4747,12 @@ function initEsp32DeviceManager() {
 
 // Centro de Hardware & Flasheo ESP32 (Llamable desde Grúas, Operaciones y Almacén)
 window.openHardwareCenter = function(role, targetId) {
-    // 1. Activar pestaña donde reside el hardware center
-    const tabBtn = document.getElementById('cranes-mgmt-tab');
-    if (tabBtn) {
-        bootstrap.Tab.getOrCreateInstance(tabBtn).show();
+    // 1. Activar la pestaña propia del hardware center
+    if (typeof showAdminTab === 'function') {
+        showAdminTab('esp32-hardware');
+    } else {
+        const tabBtn = document.getElementById('cranes-mgmt-tab');
+        if (tabBtn) bootstrap.Tab.getOrCreateInstance(tabBtn).show();
     }
     // 2. Activar la vista del panel global de hardware ESP32
     if (typeof switchToAreaTab === 'function') {
@@ -6938,6 +7025,54 @@ let currentFailureReasons = [...DEFAULT_FAILURE_REASONS];
 let failureReasonsUnsubscribe = null;
 let simReasonIndex = 0;
 
+// Catálogo por área (aditivo, no rompe nada): 'reasons' sigue siendo el catálogo
+// global (fallback que ya usan las placas flasheadas) y 'byArea' permite que cada
+// área (10s, 20s, 30s...) tenga sus propios motivos. Si el área no tiene catálogo,
+// el ESP32 usa el global.
+let globalFailureReasons = [...DEFAULT_FAILURE_REASONS];
+let failureReasonsByArea = {};
+let activeReasonArea = 'global';
+
+function activeReasonList() {
+    if (activeReasonArea === 'global') return globalFailureReasons;
+    const list = failureReasonsByArea[activeReasonArea];
+    // Sin catálogo propio: el área usa el catálogo global (fallback), igual que el ESP32.
+    return (Array.isArray(list) && list.length > 0) ? list : globalFailureReasons;
+}
+
+// Catálogo escribible del área activa. La primera edición materializa el catálogo
+// del área sembrándolo desde el global, para no mutar el catálogo global por accidente.
+function writableReasonList() {
+    if (activeReasonArea === 'global') return globalFailureReasons;
+    if (!Array.isArray(failureReasonsByArea[activeReasonArea])) {
+        failureReasonsByArea[activeReasonArea] = [...globalFailureReasons];
+    }
+    return failureReasonsByArea[activeReasonArea];
+}
+
+function setFailureReasonArea(area) {
+    activeReasonArea = area || 'global';
+    currentFailureReasons = activeReasonList();
+    simReasonIndex = 0;
+    renderFailureReasonsUI();
+}
+
+// Opciones del selector de área: registro de topología (fuente de verdad) con
+// fallback a las áreas históricas.
+function renderFailureReasonAreaOptions() {
+    const select = document.getElementById('failureReasonAreaSelect');
+    if (!select) return;
+    const areas = (window.HermesTopology && window.HermesTopology.areas) || {};
+    const keys = Object.keys(areas).length ? Object.keys(areas).sort() : ['area5', 'area10', 'area20', 'area30', 'area35'];
+    let html = `<option value="global" ${activeReasonArea === 'global' ? 'selected' : ''}>Global (fallback para todas las áreas)</option>`;
+    keys.forEach(key => {
+        const label = areas[key] ? (areas[key].label || key) : key;
+        const count = (failureReasonsByArea[key] || []).length;
+        html += `<option value="${key}" ${activeReasonArea === key ? 'selected' : ''}>${label}${count ? ` (${count})` : ' (usa global)'}</option>`;
+    });
+    setSafeDOM(select, html);
+}
+
 async function initFailureReasonsMgmt() {
     const container = document.getElementById('failureReasonsListContainer');
     if (!container) return;
@@ -6948,20 +7083,27 @@ async function initFailureReasonsMgmt() {
         failureReasonsUnsubscribe = db.collection('config').doc('failure_reasons').onSnapshot(async (doc) => {
             if (!doc.exists) {
                 console.log('No existe catálogo de motivos en Firestore, inicializando defaults...');
-                currentFailureReasons = [...DEFAULT_FAILURE_REASONS];
+                globalFailureReasons = [...DEFAULT_FAILURE_REASONS];
+                currentFailureReasons = activeReasonList();
                 await db.collection('config').doc('failure_reasons').set({
-                    reasons: currentFailureReasons,
+                    reasons: globalFailureReasons,
+                    byArea: failureReasonsByArea,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedBy: 'system_init'
                 });
             } else {
                 const data = doc.data();
                 if (Array.isArray(data.reasons) && data.reasons.length > 0) {
-                    currentFailureReasons = data.reasons;
+                    globalFailureReasons = data.reasons;
                 } else {
-                    currentFailureReasons = [...DEFAULT_FAILURE_REASONS];
+                    globalFailureReasons = [...DEFAULT_FAILURE_REASONS];
                 }
+                if (data.byArea && typeof data.byArea === 'object') {
+                    failureReasonsByArea = data.byArea;
+                }
+                currentFailureReasons = activeReasonList();
             }
+            renderFailureReasonAreaOptions();
             renderFailureReasonsUI();
         }, (error) => {
             console.error('Error al escuchar config/failure_reasons:', error);
@@ -6978,7 +7120,12 @@ function renderFailureReasonsUI() {
     if (!container) return;
 
     if (badge) {
-        badge.textContent = `${currentFailureReasons.length} motivos configurados`;
+        const areaName = activeReasonArea === 'global'
+            ? 'Global'
+            : ((window.HermesTopology && window.HermesTopology.areas[activeReasonArea] && window.HermesTopology.areas[activeReasonArea].label) || activeReasonArea);
+        const usesGlobalFallback = activeReasonArea !== 'global' &&
+            !(Array.isArray(failureReasonsByArea[activeReasonArea]) && failureReasonsByArea[activeReasonArea].length > 0);
+        badge.textContent = `${currentFailureReasons.length} motivos · ${areaName}${usesGlobalFallback ? ' (usa global)' : ''}`;
     }
 
     if (currentFailureReasons.length === 0) {
@@ -7033,7 +7180,9 @@ async function addFailureReason() {
         return;
     }
 
-    currentFailureReasons.push(text);
+    const list = writableReasonList();
+    currentFailureReasons = list;
+    list.push(text);
     input.value = '';
     await saveFailureReasonsToCloud(true);
 }
@@ -7048,7 +7197,9 @@ async function editFailureReason(idx) {
         showAlert('El texto del motivo no puede estar vacío.', 'warning');
         return;
     }
-    currentFailureReasons[idx] = trimmed;
+    const list = writableReasonList();
+    currentFailureReasons = list;
+    list[idx] = trimmed;
     await saveFailureReasonsToCloud(true);
 }
 
@@ -7056,7 +7207,9 @@ async function deleteFailureReason(idx) {
     if (idx < 0 || idx >= currentFailureReasons.length) return;
     const reason = currentFailureReasons[idx];
     if (!confirm(`¿Eliminar "${reason}" del catálogo de fallas?`)) return;
-    currentFailureReasons.splice(idx, 1);
+    const list = writableReasonList();
+    currentFailureReasons = list;
+    list.splice(idx, 1);
     if (simReasonIndex >= currentFailureReasons.length) {
         simReasonIndex = Math.max(0, currentFailureReasons.length - 1);
     }
@@ -7066,15 +7219,20 @@ async function deleteFailureReason(idx) {
 async function moveFailureReason(idx, direction) {
     const targetIdx = idx + direction;
     if (targetIdx < 0 || targetIdx >= currentFailureReasons.length) return;
-    const temp = currentFailureReasons[idx];
-    currentFailureReasons[idx] = currentFailureReasons[targetIdx];
-    currentFailureReasons[targetIdx] = temp;
+    const list = writableReasonList();
+    currentFailureReasons = list;
+    const temp = list[idx];
+    list[idx] = list[targetIdx];
+    list[targetIdx] = temp;
     await saveFailureReasonsToCloud(true);
 }
 
 async function resetDefaultFailureReasons() {
     if (!confirm('¿Restaurar el catálogo a los motivos predeterminados industriales?')) return;
-    currentFailureReasons = [...DEFAULT_FAILURE_REASONS];
+    const list = writableReasonList();
+    currentFailureReasons = list;
+    list.length = 0;
+    list.push(...DEFAULT_FAILURE_REASONS);
     simReasonIndex = 0;
     await saveFailureReasonsToCloud(false);
     showAlert('Catálogo restaurado a valores industriales predeterminados.', 'info');
@@ -7090,7 +7248,8 @@ async function saveFailureReasonsToCloud(silent = false) {
         }
 
         await db.collection('config').doc('failure_reasons').set({
-            reasons: currentFailureReasons,
+            reasons: globalFailureReasons,
+            byArea: failureReasonsByArea,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedBy: sessionStorage.getItem('adminUser') || 'admin'
         });
@@ -7153,6 +7312,9 @@ function prevSimReason() {
 window.initFailureReasonsMgmt = initFailureReasonsMgmt;
 window.renderFailureReasonsUI = renderFailureReasonsUI;
 window.addFailureReason = addFailureReason;
+window.setFailureReasonArea = setFailureReasonArea;
+window.writableReasonList = writableReasonList;
+window.renderFailureReasonAreaOptions = renderFailureReasonAreaOptions;
 window.editFailureReason = editFailureReason;
 window.deleteFailureReason = deleteFailureReason;
 window.moveFailureReason = moveFailureReason;
@@ -7172,6 +7334,9 @@ function initAdminTopologyMgmt() {
             renderAdminTopologyUI();
         }
     });
+    // Render inicial: antes la pestaña quedaba vacía hasta que alguien la abría
+    // y además nunca se refrescaba cuando el snapshot de PocketBase llegaba tarde.
+    renderAdminTopologyUI();
 }
 
 function getAreaKeyForOp(opId) {
@@ -7194,20 +7359,35 @@ function renderAdminTopologyUI() {
     }
 
     const areas = window.HermesTopology.areas || {};
-    const ops = window.HermesTopology.operations || {};
 
-    // 1. Renderizar Áreas (5 Naves)
+    // 1. Áreas: se listan las reales (config/plant_topology_config), no una lista fija.
+    const areaKeys = Object.keys(areas).sort();
+    const areaBadge = document.getElementById('topologyAreasCountBadge');
+    if (areaBadge) areaBadge.textContent = `${areaKeys.length} Naves Activas`;
+
+    // 2. Filtro de naves generado desde el catálogo real
+    const areaFilter = document.getElementById('adminTopologyAreaFilter');
+    if (areaFilter) {
+        const current = areaFilter.value || 'all';
+        let opts = '<option value="all">Todas las Naves</option>';
+        areaKeys.forEach(key => {
+            const area = areas[key] || { label: key };
+            opts += `<option value="${key}" ${current === key ? 'selected' : ''}>${(area.label || key)}</option>`;
+        });
+        setSafeDOM(areaFilter, opts);
+    }
+
     let areasHtml = '';
-    const areaKeys = ['area5', 'area10', 'area20', 'area30', 'area35'];
     areaKeys.forEach(key => {
         const area = areas[key] || { label: key, code: key.toUpperCase(), color: '#38bdf8', icon: 'bi-buildings' };
+        const opCount = Object.keys(window.HermesTopology.operations || {}).filter(opId => getAreaKeyForOp(opId) === key).length;
         areasHtml += `
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 border-secondary bg-dark shadow-sm">
                     <div class="card-body p-3">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="badge" style="background: rgba(56, 189, 248, 0.15); color: ${area.color || '#38bdf8'}; border: 1px solid ${area.color || '#38bdf8'}40; font-family: monospace;">
-                                <i class="bi ${area.icon || 'bi-buildings'} me-1"></i>${area.code || key}
+                                <i class="bi ${area.icon || 'bi-buildings'} me-1"></i>${area.code || key.toUpperCase()}
                             </span>
                             <span class="badge bg-secondary-subtle text-secondary font-mono small">${key}</span>
                         </div>
@@ -7215,8 +7395,10 @@ function renderAdminTopologyUI() {
                             <label class="form-label small text-muted mb-1">Nombre Descriptivo de la Nave:</label>
                             <input type="text" class="form-control form-control-sm bg-black text-light border-secondary" id="adminAreaInput_${key}" value="${(area.label || '').replace(/"/g, '&quot;')}" placeholder="Nombre de nave...">
                         </div>
-                        <div class="small text-muted font-mono" style="font-size: 0.75rem;">
-                            Color SCADA: <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${area.color || '#38bdf8'}; vertical-align:middle;"></span> ${area.color || '#38bdf8'}
+                        <div class="small text-muted font-mono d-flex align-items-center gap-2" style="font-size: 0.75rem;">
+                            <i class="bi bi-gear-wide-connected me-1"></i>${opCount} operaciones
+                            <input type="color" class="form-control form-control-sm p-1" style="width:44px;height:26px;" id="adminAreaColor_${key}" value="${area.color || '#38bdf8'}" title="Color SCADA de la nave">
+                            <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${area.color || '#38bdf8'}; vertical-align:middle;"></span> ${area.color || '#38bdf8'}
                         </div>
                     </div>
                 </div>
@@ -7225,7 +7407,7 @@ function renderAdminTopologyUI() {
     });
     setSafeDOM(areasContainer, areasHtml);
 
-    // 2. Renderizar Operaciones
+    // 3. Renderizar Operaciones
     renderAdminTopologyOpsRows();
 }
 
@@ -7308,6 +7490,8 @@ function renderAdminTopologyOpsRows() {
     if (badge) {
         badge.textContent = `${visibleCount} de ${sortedOps.length} operaciones`;
     }
+    const totalBadge = document.getElementById('topologyOpsTotalBadge');
+    if (totalBadge) totalBadge.textContent = String(sortedOps.length);
 }
 
 function filterAdminTopologyOps() {
@@ -7327,16 +7511,21 @@ async function saveAdminTopology() {
     }
 
     const payloadAreas = {};
-    const areaKeys = ['area5', 'area10', 'area20', 'area30', 'area35'];
+    const areaKeys = Object.keys(window.HermesTopology.areas);
     areaKeys.forEach(key => {
         const input = document.getElementById(`adminAreaInput_${key}`);
+        const colorInput = document.getElementById(`adminAreaColor_${key}`);
         if (input && input.value.trim()) {
             if (window.HermesTopology.areas[key]) {
                 window.HermesTopology.areas[key].label = input.value.trim();
+                if (colorInput && colorInput.value) window.HermesTopology.areas[key].color = colorInput.value;
             }
             payloadAreas[key] = {
                 label: input.value.trim(),
-                code: window.HermesTopology.areas[key] ? window.HermesTopology.areas[key].code : key
+                code: window.HermesTopology.areas[key] ? window.HermesTopology.areas[key].code : key,
+                color: colorInput && colorInput.value
+                    ? colorInput.value
+                    : (window.HermesTopology.areas[key] ? window.HermesTopology.areas[key].color : '#38bdf8')
             };
         }
     });

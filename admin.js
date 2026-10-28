@@ -4451,7 +4451,7 @@ function initEsp32DeviceManager() {
         if (installWrapperCentroMando) installWrapperCentroMando.style.display = isCentroMando ? 'block' : 'none';
         if (installWrapperSatellite) installWrapperSatellite.style.display = isCentroMando ? 'none' : 'block';
         if (downloadInoLink) {
-            downloadInoLink.href = isCentroMando ? '/firmware/esp32_centro_mando_gc9a01.ino' : '/firmware/esp32_nodo_satelite_secundario.ino';
+            downloadInoLink.href = isCentroMando ? 'firmware/esp32_centro_mando_gc9a01.ino' : 'firmware/esp32_nodo_satelite_secundario.ino';
             downloadInoLink.download = isCentroMando ? 'esp32_centro_mando_gc9a01.ino' : 'esp32_nodo_satelite_secundario.ino';
         }
     };

@@ -843,7 +843,7 @@
                             <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                               <!-- Botón para Centro de Mando GC9A01 -->
                               <div id="installWrapperCentroMando">
-                                <esp-web-install-button manifest="/firmware/manifest-centro-mando.json" id="espWebInstallCentroMando">
+                                <esp-web-install-button manifest="firmware/manifest-centro-mando.json" id="espWebInstallCentroMando">
                                   <button slot="activate" class="btn btn-info shadow-sm py-2 px-3 fw-bold text-dark">
                                     <i class="bi bi-lightning-charge-fill"></i> Instalar Centro de Mando (GC9A01)
                                   </button>
@@ -858,7 +858,7 @@
 
                               <!-- Botón para Nodo Satélite Secundario -->
                               <div id="installWrapperSatellite" style="display:none;">
-                                <esp-web-install-button manifest="/firmware/manifest-satellite.json" id="espWebInstallSatellite">
+                                <esp-web-install-button manifest="firmware/manifest-satellite.json" id="espWebInstallSatellite">
                                   <button slot="activate" class="btn btn-primary shadow-sm py-2 px-3 fw-bold">
                                     <i class="bi bi-lightning-charge-fill"></i> Instalar Nodo Satélite (ESP32 / C3)
                                   </button>
@@ -871,7 +871,7 @@
                                 </esp-web-install-button>
                               </div>
 
-                              <a href="/firmware/esp32_centro_mando_gc9a01.ino" download="esp32_centro_mando_gc9a01.ino" id="downloadInoLink" class="btn btn-outline-secondary btn-sm" title="Descargar código fuente Arduino">
+                              <a href="firmware/esp32_centro_mando_gc9a01.ino" download="esp32_centro_mando_gc9a01.ino" id="downloadInoLink" class="btn btn-outline-secondary btn-sm" title="Descargar código fuente Arduino">
                                 <i class="bi bi-file-code"></i> Código .ino
                               </a>
                             </div>
@@ -1124,7 +1124,7 @@
                     </div>
                   </div>
                   <div class="modal-footer border-secondary">
-                    <a href="/esp32-crane-button.ino" download="esp32-crane-button.ino" class="btn btn-outline-info">
+                    <a href="esp32-crane-button.ino" download="esp32-crane-button.ino" class="btn btn-outline-info">
                       <i class="bi bi-download"></i> Descargar Archivo .ino
                     </a>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

@@ -239,17 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const submitBtn = adminLoginForm.querySelector('button[type="submit"]');
 
         const attemptsKey = 'admin_login_rate_limit';
-        let rateData = JSON.parse(localStorage.getItem(attemptsKey) || '{"count":0,"lockUntil":0}');
-        const now = Date.now();
-        if (rateData.lockUntil > now) {
-            const remainingSec = Math.ceil((rateData.lockUntil - now) / 1000);
-            showAlert(`Demasiados intentos fallidos. Acceso bloqueado. Reintente en ${remainingSec}s`, 'danger');
-            if (loginError) {
-                loginError.textContent = `Acceso bloqueado por tasa de intentos. Espere ${remainingSec} segundos.`;
-                loginError.style.display = 'block';
-            }
-            return;
-        }
 
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value.trim();
@@ -290,10 +279,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Registrar intento fallido
+        let rateData = JSON.parse(localStorage.getItem(attemptsKey) || '{"count":0,"lockUntil":0}');
+        const now = Date.now();
+        if (rateData.lockUntil > now) {
+            const remainingSec = Math.ceil((rateData.lockUntil - now) / 1000);
+            if (loginError) {
+                loginError.textContent = `Acceso bloqueado por tasa de intentos. Espere ${remainingSec} segundos.`;
+                loginError.style.display = 'block';
+            }
+            if (submitBtn) submitBtn.disabled = false;
+            return;
+        }
         rateData.count = (rateData.count || 0) + 1;
         if (rateData.count >= 5) {
-            rateData.lockUntil = now + (15 * 60 * 1000);
-            showAlert('Límite de 5 intentos fallidos alcanzado. Bloqueado por 15 minutos.', 'danger');
+            // Bloqueo corto (60 s en vez de 15 min): el lockout vive sólo en el navegador, no
+            // protege del lado servidor, y 15 minutos dejaban afuera a un usuario legítimo por
+            // 5 equivocaciones. Además ahora se comprueba el hash primero, así que unas
+            // credenciales correctas ya no pueden quedar bloqueadas por intentos previos.
+            rateData.lockUntil = now + (60 * 1000);
+            showAlert('Límite de 5 intentos fallidos alcanzado. Bloqueado por 60 segundos.', 'danger');
         }
         localStorage.setItem(attemptsKey, JSON.stringify(rateData));
 

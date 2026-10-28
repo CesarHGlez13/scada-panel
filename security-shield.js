@@ -21,7 +21,13 @@
     '192.168.100.34',
     '192.168.100.33',
     'localhost',
-    '127.0.0.1'
+    '127.0.0.1',
+    // Entrada fija del acceso remoto: Worker de Cloudflare (plan Free, subdomain
+    // scada-xiaomi-server). Sin este host el Domain-Lock neutralizaba la página
+    // (window.stop() + throw) y el navegador mostraba una pantalla negra.
+    'scada-entry.scada-xiaomi-server.workers.dev',
+    // Espejo público de GitHub Pages (solo lectura; el API se apunta al Worker).
+    'cesarhglez13.github.io'
   ];
 
   function isAuthorizedHost() {
@@ -32,6 +38,13 @@
 
     // Cloudflare Quick Tunnel / Named Tunnel (acceso remoto al servidor local)
     if (currentHost.endsWith('.trycloudflare.com')) return true;
+
+    // Entrada fija del acceso remoto: Worker de Cloudflare. Se permite el sufijo
+    // .workers.dev para no romper el acceso si se renombra el Worker o el subdomain.
+    if (currentHost.endsWith('.workers.dev')) return true;
+
+    // Espejo público de GitHub Pages
+    if (currentHost.endsWith('.github.io')) return true;
 
     // Permitir dominios de producción y loopback local
     if (AUTHORIZED_HOSTS.includes(currentHost)) return true;

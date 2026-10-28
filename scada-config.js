@@ -50,7 +50,7 @@
     // No se aplica cuando el origen YA es la entrada fija del Worker: el Worker proxyea al túnel
     // leyendo el KV que actualiza publish_tunnel_url.sh, así que se autocorrige solo; sobrescribirlo
     // con el archivo estático dejaba el panel apuntado a un Quick Tunnel muerto tras un reinicio.
-    if (SCADA_SERVER_URL === FALLBACK_TUNNEL_URL && !/\.workers\.dev$/.test(window.location.hostname)) {
+    if (SCADA_SERVER_URL === FALLBACK_TUNNEL_URL && /\.trycloudflare\.com$/.test(window.location.hostname)) {
         try {
             fetch('./tunnel_url.json', { cache: 'no-store' })
                 .then(function (r) { return r.ok ? r.json() : null; })

@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0f19" />
+    <title>Gestión de Grúas - Monitor de Operaciones</title>
+    <script src="security-shield.js?v=4.8"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <link href="styles.css?v=4.0" rel="stylesheet" />
+    <link href="mobile.css?v=3.0" rel="stylesheet" />
+    <link href="scada-pro.css?v=2.2" rel="stylesheet" />
+    <script src="theme-init.js?v=4.8"></script>
+    <script src="mobile-nav.js?v=4.8" defer></script>
+  </head>
+  <body>
+    <!-- Barra de navegación móvil fija persistente (cero parpadeo al cambiar de pestaña) -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav d-lg-none" aria-label="Navegación móvil">
+      <div class="mobile-bottom-nav-inner">
+        <a href="index.html" data-id="home" class="mobile-nav-item"><i class="bi bi-house-door-fill"></i><span>Inicio</span></a>
+        <a href="operations.html" data-id="ops" class="mobile-nav-item" data-module="operations"><i class="bi bi-gear-wide-connected"></i><span>Operaciones</span></a>
+        <a href="cranes.html" data-id="cranes" class="mobile-nav-item active" data-module="cranes">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21" stroke-width="1.8"/><rect x="2" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/><rect x="11" y="8" width="2" height="2.2" rx="0.3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="0.8"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M7 10.5h3"/><path d="M7 14h3"/><path d="M7 17.5h3"/><path d="M5.5 20.5h6" stroke-width="1.8"/><path d="M17.5 7v7" stroke-dasharray="1.5 1"/><path d="M16.5 14h2" stroke-width="1.8"/><path d="M17.5 14.8c0 0.8 0.8 0.8 0.8 0.2"/><rect x="14.5" y="16.5" width="6" height="2" rx="0.4" fill="currentColor" stroke="none"/></svg>
+          <span>Grúas</span>
+        </a>
+        <a href="inventory.html" data-id="inventory" class="mobile-nav-item"><i class="bi bi-box-seam"></i><span>Inventario</span></a>
+        <a href="mobile.html" data-id="more" class="mobile-nav-item"><i class="bi bi-grid"></i><span>Más</span></a>
+      </div>
+    </nav>
+
+    <!-- ═══ PANTALLA DE CARGA ═══ -->
+    <div id="page-loader">
+      <div class="pl-brand">
+        <div class="pl-brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M5.5 20.5h6"/></svg>
+        </div>
+        <div class="pl-brand-text">
+          <span class="pl-brand-name">Gestión de Grúas</span>
+          <span class="pl-brand-sub">Industrial SCADA</span>
+        </div>
+      </div>
+      <div class="pl-bar-wrap"><div class="pl-bar"></div></div>
+      <div class="pl-dots">
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <span class="pl-status">Cargando telemetría...</span>
+      </div>
+    </div>
+    <!-- ══════════════════════════ -->
+
+    <!-- Contenido Principal -->
+    <div id="mainContent">
+      <nav id="siteNavbar" data-active="cranes"></nav>
+
+      <div class="container mt-4">
+        <div class="cranes-header-wrapper d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+          <h2 class="mb-0">Gestión de Grúas</h2>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="btn-group flex-wrap scada-area-filter-group" id="cranes-filter-btn-group">
+              <button class="btn btn-outline-primary active" id="filterAll">
+                Todas
+              </button>
+              <button class="btn btn-outline-primary" id="filter10">
+                Área 10
+              </button>
+              <button class="btn btn-outline-primary" id="filter20">
+                Área 20
+              </button>
+              <button class="btn btn-outline-primary" id="filter30">
+                Área 30
+              </button>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary scada-edit-areas-btn font-mono" onclick="if(window.HermesTopology) window.HermesTopology.openEditModal();" title="Personalizar Nombres y Textos de Áreas y Operaciones">
+              <i class="bi bi-pencil-square me-1"></i> Editar Textos
+            </button>
+          </div>
+        </div>
+
+        <!-- Telemetría SCADA Andon 4.0 KPI Blocks -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-md-4">
+            <div class="scada-telemetry-kpi-card kpi-danger">
+              <div class="scada-kpi-top-row">
+                <h6 class="scada-kpi-header-lbl">
+                  <i class="bi bi-exclamation-octagon-fill text-danger"></i> Fallas Activas
+                </h6>
+                <span class="scada-kpi-microbadge alert">LIVE</span>
+              </div>
+              <div class="scada-kpi-value-row">
+                <span class="scada-kpi-big-num text-danger" id="active-cranes">0</span>
+              </div>
+              <div class="scada-kpi-subtext">
+                <i class="bi bi-broadcast text-danger"></i> Grúas con paro no resuelto
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="scada-telemetry-kpi-card kpi-warning">
+              <div class="scada-kpi-top-row">
+                <h6 class="scada-kpi-header-lbl">
+                  <i class="bi bi-stopwatch-fill text-warning"></i> MTTR Promedio
+                </h6>
+                <span class="scada-kpi-microbadge live">SLA &lt; 5M</span>
+              </div>
+              <div class="scada-kpi-value-row">
+                <span class="scada-kpi-big-num text-warning" id="avg-crane-resolution-time">00:00:00</span>
+              </div>
+              <div class="scada-kpi-subtext">
+                <i class="bi bi-hourglass-split text-warning"></i> Tiempo promedio de restablecimiento
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-md-4">
+            <div class="scada-telemetry-kpi-card kpi-success">
+              <div class="scada-kpi-top-row">
+                <h6 class="scada-kpi-header-lbl">
+                  <i class="bi bi-check-circle-fill text-success"></i> Resueltas Hoy
+                </h6>
+                <span class="scada-kpi-microbadge live">TURNO</span>
+              </div>
+              <div class="scada-kpi-value-row">
+                <span class="scada-kpi-big-num text-success" id="resolved-cranes-today">0</span>
+              </div>
+              <div class="scada-kpi-subtext">
+                <i class="bi bi-shield-check text-success"></i> Grúas operativas en jornada
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" id="cranesContainer">
+          <!-- Las tarjetas de grúas se generarán dinámicamente aquí -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Reportar Falla -->
+        <div class="modal fade" id="reportModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Reportar Falla de Grúa</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form id="reportForm">
+                  <input type="hidden" id="craneId" />
+                  <div class="mb-3">
+                    <label for="reportedBy" class="form-label"
+                      >Reportado por</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="reportedBy"
+                      list="userNamesList"
+                      placeholder="Ingrese su nombre o usuario"
+                      required
+                    />
+                    <datalist id="userNamesList">
+                      <!-- Las opciones se cargarán dinámicamente -->
+                    </datalist>
+                    <div class="form-text">
+                      Su nombre se guardará para futuros reportes
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label d-flex justify-content-between align-items-center">
+                      <span><i class="bi bi-tag text-info"></i> Motivo Rápido (Catálogo SCADA / ESP32)</span>
+                    </label>
+                    <div id="quickReasonsContainer" class="d-flex flex-wrap gap-1 mb-2">
+                      <!-- Badges generados dinámicamente desde config/failure_reasons -->
+                    </div>
+                    <label for="failureDescription" class="form-label"
+                      >Descripción de la Falla</label
+                    >
+                    <textarea
+                      class="form-control"
+                      id="failureDescription"
+                      rows="3"
+                      required
+                    ></textarea>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="submitReport">
+                  Reportar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal para Resolver Falla -->
+        <div class="modal fade" id="resolveModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Resolver Falla de Grúa</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form id="resolveForm">
+                  <input type="hidden" id="resolveCraneId" />
+                  <div class="mb-3">
+                    <label for="resolvedBy" class="form-label"
+                      >Resuelto por</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="resolvedBy"
+                      list="userNamesList"
+                      placeholder="Ingrese su nombre o usuario"
+                      required
+                    />
+                    <datalist id="userNamesList">
+                      <!-- Las opciones se cargarán dinámicamente -->
+                    </datalist>
+                    <div class="form-text">
+                      Su nombre se guardará para futuras resoluciones
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="resolution" class="form-label"
+                      >Descripción de la Solución</label
+                    >
+                    <textarea
+                      class="form-control"
+                      id="resolution"
+                      rows="3"
+                      required
+                    ></textarea>
+                  </div>
+                  <!-- Refacciones Utilizadas (Sprint 3) -->
+                  <div class="mb-3">
+                    <label class="form-label d-flex justify-content-between align-items-center">
+                      <span><i class="bi bi-tools text-warning"></i> Refacciones Utilizadas (Opcional)</span>
+                      <button type="button" class="btn btn-sm btn-link text-info text-decoration-none p-0" onclick="document.getElementById('refactionPickerSection').classList.toggle('d-none')">
+                        + Agregar pieza
+                      </button>
+                    </label>
+                    <div id="refactionPickerSection" class="p-3 rounded-3 mb-2 d-none" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                      <div class="row g-2 align-items-center">
+                        <div class="col-8">
+                          <select class="form-select form-select-sm" id="partsPickerSelect">
+                            <option value="">Seleccione una refacción del almacén...</option>
+                          </select>
+                        </div>
+                        <div class="col-4">
+                          <div class="input-group input-group-sm">
+                            <input type="number" id="partsPickerQty" class="form-control" value="1" min="1" max="99" />
+                            <button type="button" class="btn btn-primary" id="btnAddPartToOrder" onclick="window.addPartToResolution()">+</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div id="selectedPartsContainer" class="d-flex flex-wrap gap-1 mt-1"></div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-success"
+                  id="submitResolution"
+                >
+                  Resolver
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal para Historial de Grúa -->
+        <div class="modal fade" id="craneModal" tabindex="-1">
+          <div class="modal-dialog modal-dialog-scada-wide modal-xl">
+            <div class="modal-content">
+              <div class="modal-header d-flex justify-content-between align-items-center">
+                <h5 class="modal-title" id="craneModalTitle">
+                  Historial de Grúa
+                </h5>
+                <div class="d-flex align-items-center gap-2">
+                  <button type="button" class="btn btn-outline-info btn-sm rounded-pill font-monospace" onclick="exportTableToCSV('craneHistoryTableBody', 'historial_gruas.csv')">
+                    <i class="bi bi-download"></i> CSV
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                  ></button>
+                </div>
+              </div>
+              <div class="modal-body">
+                <div class="table-responsive">
+                  <table class="table history-table scada-table-dense">
+                    <thead>
+                      <tr>
+                        <th>Fecha Reporte</th>
+                        <th>Descripción</th>
+                        <th>Reportado por</th>
+                        <th>⏱ En Falla</th>
+                        <th>🔧 En Mant.</th>
+                        <th>⏱ Total</th>
+                        <th>Motivo Mant.</th>
+                        <th>👤 Resp. Mant.</th>
+                        <th>Resuelto por</th>
+                        <th>Acción Correctiva</th>
+                        <th>Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody id="craneHistoryTableBody">
+                      <!-- El historial se cargará dinámicamente aquí -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Modal para Solicitar Refacción -->
+        <div class="modal fade" id="refactionRequestModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Solicitar Refacción</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form id="refactionRequestForm">
+                  <input type="hidden" id="refactionCraneId" />
+                  <div class="mb-3">
+                    <label class="form-label">Categoría</label>
+                    <select class="form-select" id="refactionCategory" required>
+                      <option value="">Seleccionar categoría</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Refacción</label>
+                    <select class="form-select" id="refactionItem" required>
+                      <option value="">Seleccionar refacción</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Cantidad</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="refactionQuantity"
+                      min="1"
+                      value="1"
+                      required
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Motivo / Descripción</label>
+                    <textarea
+                      class="form-control"
+                      id="refactionReason"
+                      rows="2"
+                      required
+                    ></textarea>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  form="refactionRequestForm"
+                  class="btn btn-primary"
+                >
+                  Solicitar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal para Mantenimiento Directo -->
+        <div class="modal fade" id="maintenanceModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="maintModalTitle">Marcar en Mantenimiento</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form id="maintenanceForm2">
+                  <input type="hidden" id="maintCraneIdHidden" />
+                  
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Motivo de Mantenimiento:</label>
+                    <select class="form-select" id="maintReasonSelect">
+                      <option value="Sin refacción en inventario">Sin refacción en inventario</option>
+                      <option value="Mantenimiento mayor programado">Mantenimiento mayor programado</option>
+                      <option value="Esperando proveedor externo">Esperando proveedor externo</option>
+                      <option value="Daño estructural">Daño estructural</option>
+                      <option value="Otro">Otro (especificar abajo)</option>
+                    </select>
+                  </div>
+                  
+                  <div class="mb-3 d-none" id="maintCustomReasonDiv2">
+                    <label class="form-label fw-semibold">Especificar motivo:</label>
+                    <input type="text" class="form-control" id="maintCustomReason2" placeholder="Describe la razón...">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Técnico Responsable:</label>
+                    <input type="text" class="form-control" id="maintResponsible2" placeholder="Ingresa tu nombre...">
+                  </div>
+                  
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Clave de Autorización (requerido):</label>
+                    <input type="password" class="form-control" id="maintPasscode2" placeholder="Ingresa clave de autorización...">
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-warning"
+                  id="btnSubmitMaint2"
+                >
+                  Guardar Mantenimiento
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="site-nav.js?v=4.8"></script>
+    <!-- PocketBase SCADA Local Engine (Firebase Pausado) -->
+    <script src="pocketbase.umd.js"></script>
+    <script src="scada-config.js?v=4.8"></script>
+    <script src="sha256.js?v=4.8"></script>
+    <script src="pocketbase-adapter.js?v=4.8"></script>
+    <script src="auth-system.js?v=4.8"></script>
+    <script src="refaction-system.js?v=1.1"></script>
+    <script src="global-config.js?v=4.8"></script>
+    <script src="app.js?v=4.8"></script>
+    <script src="cranes.js?v=4.8"></script>
+    <script src="technician-alerts.js?v=4.8" defer></script>
+    <script src="scada-pro.js?v=4.8" defer></script>
+    <script src="inventory-deduction.js?v=4.8" defer></script>
+    <script src="pwa-register.js?v=4.8" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="network-health.js?v=4.8" defer></script>
+    <script src="shift-handover.js?v=4.8" defer></script>
+    <script src="predictive-alerts.js?v=4.8" defer></script>
+    <script src="command-palette.js?v=4.8" defer></script>
+  </body>
+</html>

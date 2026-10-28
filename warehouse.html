@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0f19" />
+    <title>Gestión de Almacén - Pick-to-Light - Monitor SCADA</title>
+    <script src="security-shield.js?v=4.8"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <link href="styles.css?v=4.0" rel="stylesheet" />
+    <link href="mobile.css?v=3.0" rel="stylesheet" />
+    <link href="scada-pro.css?v=2.2" rel="stylesheet" />
+    <script src="theme-init.js?v=4.8"></script>
+    <script src="mobile-nav.js?v=4.8" defer></script>
+  </head>
+  <body>
+    <!-- Barra de navegación móvil fija persistente -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav d-lg-none" aria-label="Navegación móvil">
+      <div class="mobile-bottom-nav-inner">
+        <a href="index.html" data-id="home" class="mobile-nav-item"><i class="bi bi-house-door-fill"></i><span>Inicio</span></a>
+        <a href="operations.html" data-id="ops" class="mobile-nav-item" data-module="operations"><i class="bi bi-gear-wide-connected"></i><span>Operaciones</span></a>
+        <a href="cranes.html" data-id="cranes" class="mobile-nav-item" data-module="cranes">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21" stroke-width="1.8"/><rect x="2" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/><rect x="11" y="8" width="2" height="2.2" rx="0.3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="0.8"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M7 10.5h3"/><path d="M7 14h3"/><path d="M7 17.5h3"/><path d="M5.5 20.5h6" stroke-width="1.8"/><path d="M17.5 7v7" stroke-dasharray="1.5 1"/><path d="M16.5 14h2" stroke-width="1.8"/><path d="M17.5 14.8c0 0.8 0.8 0.8 0.8 0.2"/><rect x="14.5" y="16.5" width="6" height="2" rx="0.4" fill="currentColor" stroke="none"/></svg>
+          <span>Grúas</span>
+        </a>
+        <a href="warehouse.html" data-id="warehouse" class="mobile-nav-item active" data-module="warehouse"><i class="bi bi-box-seam"></i><span>Almacén</span></a>
+        <a href="mobile.html" data-id="more" class="mobile-nav-item"><i class="bi bi-grid"></i><span>Más</span></a>
+      </div>
+    </nav>
+
+    <!-- ═══ PANTALLA DE CARGA ═══ -->
+    <div id="page-loader">
+      <div class="pl-brand">
+        <div class="pl-brand-icon">
+          <i class="bi bi-box-seam" style="font-size: 26px; color: #00e5ff;"></i>
+        </div>
+        <div class="pl-brand-text">
+          <span class="pl-brand-name">Gestión de Almacén</span>
+          <span class="pl-brand-sub">Pick-to-Light IoT SCADA</span>
+        </div>
+      </div>
+      <div class="pl-bar-wrap"><div class="pl-bar"></div></div>
+      <div class="pl-dots">
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <span class="pl-status">Sincronizando estanterías y ESP32...</span>
+      </div>
+    </div>
+    <!-- ══════════════════════════ -->
+
+    <!-- Contenido Principal -->
+    <div id="mainContent">
+      <nav id="siteNavbar" data-active="warehouse"></nav>
+
+      <div class="container mt-4">
+        <!-- Cabecera y Filtros -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <div>
+            <h2 class="mb-0 fw-bold d-flex align-items-center gap-2">
+              <i class="bi bi-box-seam text-info"></i> Gestión de Almacén
+              <span class="badge bg-info text-dark fs-6">Pick-to-Light</span>
+            </h2>
+            <div class="text-muted small">
+              Visualización de estanterías en vivo, localización de refacciones y confirmación de recogida sincronizada con ESP32 y WhatsApp Bot
+            </div>
+          </div>
+
+          <!-- Filtros de Racks -->
+          <div class="btn-group flex-wrap scada-area-filter-group" id="wh-racks-filter-group">
+            <button class="btn btn-outline-primary active" id="filterWhAll" data-rack="all">
+              <i class="bi bi-grid-fill"></i> Todos
+            </button>
+            <!-- Los botones de racks se generan dinámicamente con JS -->
+          </div>
+        </div>
+
+        <!-- Buscador Rápido de Refacciones -->
+        <div class="card mb-4 border-0" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+          <div class="card-body py-2 px-3">
+            <div class="row g-2 align-items-center">
+              <div class="col-md-8 col-12">
+                <div class="input-group">
+                  <span class="input-group-text bg-dark border-secondary text-info"><i class="bi bi-search"></i></span>
+                  <input
+                    type="text"
+                    class="form-control bg-dark text-white border-secondary"
+                    id="whSearchInput"
+                    placeholder="Buscar refacción o gaveta (ej. Tornillo M8, Levas, Sensor, A-101)..."
+                    autocomplete="off"
+                  />
+                  <button class="btn btn-outline-secondary" type="button" id="whClearSearchBtn">
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4 col-12 d-flex justify-content-md-end justify-content-between align-items-center gap-2">
+                <span class="text-muted small" id="whFilteredCountBadge">Mostrando 0 gavetas</span>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-secondary active" id="view-grid" title="Vista en Cuadrícula">
+                    <i class="bi bi-grid-3x3-gap"></i> Grid
+                  </button>
+                  <button class="btn btn-outline-secondary" id="view-list" title="Vista en Lista">
+                    <i class="bi bi-list-ul"></i> Lista
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarjetas de Estadísticas KPI -->
+        <div class="row mb-4 g-3">
+          <div class="col-md-4 col-12">
+            <div class="card border-0" style="background: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.3) !important;">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="card-title text-info mb-0 fw-bold"><i class="bi bi-lightbulb-fill"></i> Picks Activos (Luz Encendida)</h6>
+                  <span class="badge bg-info text-dark" id="whPicksLiveIndicator">En vivo</span>
+                </div>
+                <p class="card-text h2 mb-0 fw-bold text-white" id="activeWhPicksCount">0</p>
+                <small class="text-muted">Gavetas actualmente iluminadas en planta</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-12">
+            <div class="card border-0" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="card-title text-white mb-0 fw-bold"><i class="bi bi-inboxes"></i> Gavetas Registradas</h6>
+                  <span class="badge bg-secondary" id="whTotalRacksBadge">0 Racks</span>
+                </div>
+                <p class="card-text h2 mb-0 fw-bold text-white" id="totalWhBinsCount">0</p>
+                <small class="text-muted">Capacidad total en estanterías</small>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-12">
+            <div class="card border-0" style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.3) !important;">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="card-title text-success mb-0 fw-bold"><i class="bi bi-check2-circle"></i> Recogidas Realizadas Hoy</h6>
+                  <span class="badge bg-success">Turno Actual</span>
+                </div>
+                <p class="card-text h2 mb-0 fw-bold text-white" id="resolvedWhPicksToday">0</p>
+                <small class="text-muted">Refacciones confirmadas y descontadas</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenedor Principal de Gavetas y Estanterías -->
+        <div class="row">
+          <div class="col-12">
+            <div class="card border-0 shadow-lg" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08) !important;">
+              <div class="card-header py-3" style="background: rgba(255, 255, 255, 0.02); border-bottom: 1px solid rgba(255, 255, 255, 0.08);">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div class="d-flex align-items-center gap-2">
+                    <h5 class="card-title mb-0 fw-bold text-white">
+                      <i class="bi bi-hdd-rack text-info"></i> Estado de Gavetas y Estantes
+                    </h5>
+                    <span class="badge bg-dark border border-secondary text-info" id="activeRackTitleBadge">Todos los Racks</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-2">
+                    <a href="inventory.html" class="btn btn-sm btn-outline-info">
+                      <i class="bi bi-boxes"></i> Ver Catálogo de Inventario
+                    </a>
+                    <button class="btn btn-sm btn-outline-secondary" id="whBtnRefresh" title="Actualizar datos">
+                      <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body p-3 p-md-4">
+                <div id="warehouse-container" class="row g-3">
+                  <!-- Se generará dinámicamente con warehouse.js?v=4.8 -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Solicitar / Iluminar Gaveta (Pick-to-Light) -->
+    <div class="modal fade" id="whTriggerPickModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-info" style="background: #0d1117; color: #c9d1d9;">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-info">
+              <i class="bi bi-lightbulb-fill me-2"></i> Iluminar Gaveta (Pick-to-Light)
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="whTriggerPickForm">
+              <input type="hidden" id="modalPickBinId" />
+              <input type="hidden" id="modalPickItemId" />
+              <input type="hidden" id="modalPickRackKey" />
+
+              <div class="p-3 mb-3 rounded-3" style="background: rgba(6, 182, 212, 0.08); border: 1px solid rgba(6, 182, 212, 0.25);">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="fw-bold text-info" id="modalPickBinLabel">Gaveta A-101</span>
+                  <span class="badge bg-primary" id="modalPickRackLabel">Rack A</span>
+                </div>
+                <h5 class="text-white fw-bold mb-1" id="modalPickItemName">Artículo</h5>
+                <div class="text-muted small" id="modalPickItemCode">Código: —</div>
+                <div class="d-flex align-items-center gap-3 mt-2 pt-2 border-top border-secondary border-opacity-25 small">
+                  <div><strong>Stock:</strong> <span class="badge bg-success" id="modalPickCurrentStock">0 pzas</span></div>
+                  <div><strong>Ubicación:</strong> <span id="modalPickLocationText">—</span></div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="whRequesterName" class="form-label small fw-semibold">Solicitado por (Técnico / Operador):</label>
+                <input
+                  type="text"
+                  class="form-control bg-dark text-white border-secondary"
+                  id="whRequesterName"
+                  list="whUserNamesList"
+                  placeholder="ej. Juan Pérez (Mantenimiento)"
+                  required
+                />
+                <datalist id="whUserNamesList"></datalist>
+              </div>
+
+              <div class="mb-3">
+                <label for="whRequestedQty" class="form-label small fw-semibold">Cantidad Requerida:</label>
+                <input
+                  type="number"
+                  class="form-control bg-dark text-white border-secondary"
+                  id="whRequestedQty"
+                  min="1"
+                  value="1"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="whRequestNotes" class="form-label small fw-semibold">Orden de Trabajo / Motivo (Opcional):</label>
+                <input
+                  type="text"
+                  class="form-control bg-dark text-white border-secondary"
+                  id="whRequestNotes"
+                  placeholder="ej. Mantenimiento Preventivo Grúa 2"
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" form="whTriggerPickForm" class="btn btn-info fw-bold text-dark">
+              <i class="bi bi-lightbulb-fill me-1"></i> Encender Señal Luminosa en ESP32
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal para Confirmar Recolección y Descontar Stock (Recoger) -->
+    <div class="modal fade" id="whConfirmPickModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-warning" style="background: #0d1117; color: #c9d1d9;">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-warning">
+              <i class="bi bi-box-seam me-2"></i> Confirmar Recogida de Refacción (Recoger)
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="whConfirmPickForm">
+              <input type="hidden" id="modalConfirmPickId" />
+              <input type="hidden" id="modalConfirmItemId" />
+              <input type="hidden" id="modalConfirmBinId" />
+
+              <div class="p-3 mb-3 rounded-3" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3);">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="fw-bold text-warning" id="modalConfirmBinLabel">Gaveta</span>
+                  <span class="badge bg-warning text-dark"><i class="bi bi-lightbulb-fill"></i> Búsqueda Activa</span>
+                </div>
+                <h5 class="text-white fw-bold mb-1" id="modalConfirmItemName">Artículo</h5>
+                <div class="text-muted small" id="modalConfirmItemCode">Código: —</div>
+                <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-secondary border-opacity-25 small">
+                  <div>Stock actual: <strong class="text-info" id="modalConfirmCurrentStock">0 pzas</strong></div>
+                  <div>Solicitó: <strong class="text-white" id="modalConfirmRequester">—</strong></div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="whPickedQty" class="form-label small fw-semibold">Cantidad Recolectada a Descontar:</label>
+                <div class="input-group">
+                  <button class="btn btn-outline-secondary" type="button" onclick="const q = document.getElementById('whPickedQty'); if(q.value > 1) q.value--;">−</button>
+                  <input
+                    type="number"
+                    class="form-control bg-dark text-white text-center border-secondary fw-bold"
+                    id="whPickedQty"
+                    min="1"
+                    value="1"
+                    required
+                  />
+                  <button class="btn btn-outline-secondary" type="button" onclick="const q = document.getElementById('whPickedQty'); q.value++;">+</button>
+                </div>
+                <div class="form-text text-muted">El stock en inventario se descontará automáticamente de forma irreversible y con trazabilidad.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="whPickedBy" class="form-label small fw-semibold">Confirmado por (Nombre de quien recoge):</label>
+                <input
+                  type="text"
+                  class="form-control bg-dark text-white border-secondary"
+                  id="whPickedBy"
+                  list="whUserNamesList"
+                  placeholder="ej. Carlos Mendoza"
+                  required
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-outline-danger" id="btnCancelActiveLight" title="Apagar la luz sin descontar stock">
+              <i class="bi bi-lightbulb-off"></i> Cancelar Señal
+            </button>
+            <button type="submit" form="whConfirmPickForm" class="btn btn-warning fw-bold text-dark">
+              <i class="bi bi-check-circle-fill me-1"></i> Confirmar Recogida y Descontar Stock
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Historial de Movimientos de la Gaveta -->
+    <div class="modal fade" id="whHistoryModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-secondary" style="background: #0d1117; color: #c9d1d9;">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title text-info">
+              <i class="bi bi-clock-history me-2"></i> Historial de Movimientos y Recolecciones
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <strong class="text-white fs-6" id="historyModalItemTitle">—</strong>
+                <div class="text-muted small" id="historyModalBinSubtitle">Ubicación: —</div>
+              </div>
+              <span class="badge bg-success" id="historyModalStockBadge">Stock: 0 pzas</span>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover table-sm">
+                <thead>
+                  <tr class="text-muted small text-uppercase">
+                    <th>Fecha y Hora</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Responsable</th>
+                    <th>Motivo / Canal</th>
+                    <th>Stock Final</th>
+                  </tr>
+                </thead>
+                <tbody id="whHistoryTableBody">
+                  <tr>
+                    <td colspan="6" class="text-center py-3 text-muted">Cargando historial...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer border-secondary">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts Esenciales -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="site-nav.js?v=4.8"></script>
+    <!-- PocketBase SCADA Local Engine (Firebase Pausado) -->
+    <script src="pocketbase.umd.js"></script>
+    <script src="scada-config.js?v=4.8"></script>
+    <script src="sha256.js?v=4.8"></script>
+    <script src="pocketbase-adapter.js?v=4.8"></script>
+    <script src="auth-system.js?v=4.8"></script>
+    <script src="global-config.js?v=4.8"></script>
+    <script src="app.js?v=4.8"></script>
+    <script src="warehouse.js?v=4.8"></script>
+    <script src="scada-pro.js?v=4.8" defer></script>
+    <script src="technician-alerts.js?v=4.8" defer></script>
+    <script src="pwa-register.js?v=4.8" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="network-health.js?v=4.8" defer></script>
+    <script src="shift-handover.js?v=4.8" defer></script>
+    <script src="predictive-alerts.js?v=4.8" defer></script>
+    <script src="command-palette.js?v=4.8" defer></script>
+  </body>
+</html>

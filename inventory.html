@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0f19">
+    <title>Catálogo e Inventario Maestro - Monitor SCADA</title>
+    <script src="security-shield.js?v=4.8"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css?v=4.0">
+    <link rel="stylesheet" href="mobile.css?v=3.0">
+    <link rel="stylesheet" href="scada-pro.css?v=2.2">
+    <link rel="stylesheet" href="inventory.css?v=1.0">
+    <script src="theme-init.js?v=4.8"></script>
+    <script src="mobile-nav.js?v=4.8" defer></script>
+</head>
+<body>
+    <!-- Barra de navegación móvil persistente -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav d-lg-none" aria-label="Navegación móvil">
+      <div class="mobile-bottom-nav-inner">
+        <a href="index.html" data-id="home" class="mobile-nav-item"><i class="bi bi-house-door-fill"></i><span>Inicio</span></a>
+        <a href="operations.html" data-id="ops" class="mobile-nav-item" data-module="operations"><i class="bi bi-gear-wide-connected"></i><span>Operaciones</span></a>
+        <a href="cranes.html" data-id="cranes" class="mobile-nav-item" data-module="cranes">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21" stroke-width="1.8"/><rect x="2" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/><rect x="11" y="8" width="2" height="2.2" rx="0.3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="0.8"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M7 10.5h3"/><path d="M7 14h3"/><path d="M7 17.5h3"/><path d="M5.5 20.5h6" stroke-width="1.8"/><path d="M17.5 7v7" stroke-dasharray="1.5 1"/><path d="M16.5 14h2" stroke-width="1.8"/><path d="M17.5 14.8c0 0.8 0.8 0.8 0.8 0.2"/><rect x="14.5" y="16.5" width="6" height="2" rx="0.4" fill="currentColor" stroke="none"/></svg>
+          <span>Grúas</span>
+        </a>
+        <a href="warehouse.html" data-id="warehouse" class="mobile-nav-item" data-module="warehouse"><i class="bi bi-box-seam"></i><span>Almacén</span></a>
+        <a href="mobile.html" data-id="more" class="mobile-nav-item"><i class="bi bi-grid"></i><span>Más</span></a>
+      </div>
+    </nav>
+
+    <!-- ═══ PANTALLA DE CARGA SCADA PRO ═══ -->
+    <div id="page-loader">
+      <div class="pl-brand">
+        <div class="pl-brand-icon">
+          <i class="bi bi-boxes" style="font-size: 26px; color: #38bdf8;"></i>
+        </div>
+        <div class="pl-brand-text">
+          <span class="pl-brand-name">Catálogo de Inventario</span>
+          <span class="pl-brand-sub">SCADA Pro · IoT Warehouse Hub</span>
+        </div>
+      </div>
+      <div class="pl-bar-wrap"><div class="pl-bar"></div></div>
+      <div class="pl-dots">
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <span class="pl-status">Sincronizando inventario y balizas LED...</span>
+      </div>
+    </div>
+    <!-- ═══════════════════════════════════ -->
+
+    <div id="siteNavbarRightContent" style="display:none">
+        <ul class="navbar-nav align-items-center">
+            <li class="nav-item me-2 d-none d-sm-block">
+                <span class="badge bg-dark border border-secondary text-info d-flex align-items-center gap-1 py-2 px-2" style="font-size: 0.75rem;">
+                    <i class="bi bi-broadcast"></i> Sync Cloud
+                </span>
+            </li>
+            <li class="nav-item" id="inventoryLogoutBtn" style="display: none;">
+                <button class="btn btn-outline-danger btn-sm" onclick="logoutInventory()">
+                    <i class="bi bi-box-arrow-right"></i> Salir
+                </button>
+            </li>
+        </ul>
+    </div>
+    <nav id="siteNavbar" data-active="inventory" data-margin-bottom="false" data-container-fluid="false"></nav>
+
+    <!-- Contenido principal -->
+    <div id="mainContent" class="container mt-4" style="display:none;">
+
+        <!-- Cabecera Principal y Barra de Comandos SCADA -->
+        <div class="scada-inv-header p-4 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <h2 class="mb-0 fw-bold d-flex align-items-center gap-2 text-white">
+                            <i class="bi bi-boxes text-info"></i> Catálogo e Inventario Maestro
+                        </h2>
+                        <span class="badge" style="background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); font-size: 0.75rem;">ISA-101 Pro</span>
+                        <span class="badge" id="activePicksHeaderBadge" style="background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); font-size: 0.75rem; display:none;">
+                            <span class="pick-led-dot pick-led-dot--lit me-1"></span> <span id="activePicksHeaderCount">0</span> Pick(s) en Almacén
+                        </span>
+                    </div>
+                    <p class="text-muted small mb-0">Gestión de sensores, refacciones, levas y componentes industriales · Sincronización en tiempo real con ESP32 y WhatsApp Bot</p>
+                </div>
+                <!-- Barra de Comandos y Herramientas -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-primary btn-sm d-flex align-items-center gap-1 shadow-sm" data-bs-toggle="modal" data-bs-target="#addItemModal">
+                        <i class="bi bi-plus-lg"></i> <span>Nuevo Artículo</span>
+                    </button>
+                    <button class="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm" id="quickEntryBtn" title="Registrar entrada o ajuste de stock">
+                        <i class="bi bi-box-arrow-in-down"></i> <span>Movimiento</span>
+                    </button>
+                    <button class="btn btn-outline-info btn-sm d-flex align-items-center gap-1" id="openQRStudioBtn" title="Diseñador e Impresor de Etiquetas QR">
+                        <i class="bi bi-qr-code"></i> <span>Etiquetas QR</span>
+                    </button>
+                    <a href="warehouse.html" class="btn btn-outline-warning btn-sm d-flex align-items-center gap-1" title="Ir al centro Pick-to-Light de estanterías">
+                        <i class="bi bi-lightbulb"></i> <span>Almacén IoT</span>
+                    </a>
+                    <button class="btn btn-outline-secondary btn-sm position-relative d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#refactionRequestsModal" id="requestsBtn">
+                        <i class="bi bi-clipboard-check"></i> <span>Solicitudes</span>
+                        <span class="badge bg-danger rounded-pill ms-1" id="pendingRequestsBadge" style="display: none;">0</span>
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-three-dots-vertical"></i> Más
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow">
+                            <li>
+                                <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#manageCategoriesModal">
+                                    <i class="bi bi-tags me-2 text-info"></i> Categorías y Áreas
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" id="toggleChartsBtn">
+                                    <i class="bi bi-bar-chart-line me-2 text-warning"></i> <span id="toggleChartsBtnText">Ver Métricas y Gráficos</span>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider border-secondary border-opacity-50"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="exportInventoryConfig(); return false;">
+                                    <i class="bi bi-download me-2 text-success"></i> Exportar Respaldo JSON
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="importInventoryConfig(); return false;">
+                                    <i class="bi bi-upload me-2 text-primary"></i> Importar Catálogo JSON
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ 5 KPI METRICS CARDS (TELEMETRÍA SCADA) ═══ -->
+        <div class="row g-3 mb-4">
+            <div class="col-xl col-md-4 col-sm-6">
+                <div class="card scada-inv-kpi text-white h-100" style="border-left: 3px solid #38bdf8 !important;">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); display: flex; align-items: center; justify-content: center; color: #38bdf8;">
+                            <i class="bi bi-boxes fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h6 class="card-title mb-1 text-truncate">Total Artículos</h6>
+                            <h3 class="mb-0" id="totalItems" style="color: #f8fafc;">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl col-md-4 col-sm-6">
+                <div class="card scada-inv-kpi text-white h-100" style="border-left: 3px solid #10b981 !important;">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; justify-content: center; color: #10b981;">
+                            <i class="bi bi-check-circle fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h6 class="card-title mb-1 text-truncate">Disponibles</h6>
+                            <h3 class="mb-0" id="activeItems" style="color: #34d399;">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl col-md-4 col-sm-6">
+                <div class="card scada-inv-kpi text-white h-100" id="kpiLowStockCard" style="border-left: 3px solid #f59e0b !important;">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; color: #f59e0b;">
+                            <i class="bi bi-exclamation-triangle fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h6 class="card-title mb-1 text-truncate">Stock Crítico</h6>
+                            <h3 class="mb-0" id="lowStockItems" style="color: #fbbf24;">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl col-md-6 col-sm-6">
+                <div class="card scada-inv-kpi text-white h-100" style="border-left: 3px solid #a855f7 !important;">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); display: flex; align-items: center; justify-content: center; color: #c084fc;">
+                            <i class="bi bi-currency-dollar fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <h6 class="card-title mb-1 text-truncate">Valor Total</h6>
+                            <h3 class="mb-0 text-truncate" id="totalValue" style="color: #f8fafc;">$0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl col-md-6 col-sm-12">
+                <div class="card scada-inv-kpi text-white h-100" style="border-left: 3px solid #00e5ff !important;" title="Balizas LED encendidas para saber dónde colocar stock">
+                    <div class="card-body p-3 d-flex align-items-center">
+                        <div class="flex-shrink-0 me-3" style="width: 44px; height: 44px; border-radius: 10px; background: rgba(0, 229, 255, 0.12); border: 1px solid rgba(0, 229, 255, 0.35); display: flex; align-items: center; justify-content: center; color: #00e5ff;">
+                            <i class="bi bi-lightbulb-fill fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="d-flex align-items-center gap-1">
+                                <h6 class="card-title mb-1 text-truncate">Balizas Encendidas</h6>
+                                <span class="pick-led-dot pick-led-dot--lit" id="kpiPickLedDot" style="display:none;"></span>
+                            </div>
+                            <h3 class="mb-0" id="kpiActivePicksCount" style="color: #00e5ff;">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ SECCIÓN COLAPSABLE DE ANALÍTICA Y GRÁFICOS ═══ -->
+        <div class="collapse mb-4" id="inventoryChartsCollapse">
+            <div class="scada-card p-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 border-bottom border-secondary border-opacity-25 pb-2">
+                    <h5 class="mb-0 text-white d-flex align-items-center gap-2">
+                        <i class="bi bi-bar-chart-line text-info"></i> Análisis de Movimientos y Rotación de Inventario
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="chartPeriodSelect" class="text-muted small mb-0">Período:</label>
+                        <select class="form-select form-select-sm search-box-pro py-1 px-2" id="chartPeriodSelect" style="width: auto;">
+                            <option value="7">Últimos 7 días</option>
+                            <option value="30" selected>Últimos 30 días</option>
+                            <option value="90">Últimos 90 días</option>
+                        </select>
+                        <button type="button" class="btn btn-outline-info btn-sm py-1 px-2" onclick="refreshInventoryCharts()" title="Actualizar gráficos">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-lg-5 col-12">
+                        <div class="card h-100 border-0" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.06) !important;">
+                            <div class="card-header py-2 text-white small fw-bold bg-transparent border-bottom border-secondary border-opacity-25">
+                                <i class="bi bi-arrow-left-right text-primary me-1"></i> Entradas vs Salidas Históricas
+                            </div>
+                            <div class="card-body p-2" style="height: 240px; position: relative;">
+                                <canvas id="movementsBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 col-12">
+                        <div class="card h-100 border-0" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.06) !important;">
+                            <div class="card-header py-2 text-white small fw-bold bg-transparent border-bottom border-secondary border-opacity-25">
+                                <i class="bi bi-pie-chart text-success me-1"></i> Balance de Flujo
+                            </div>
+                            <div class="card-body p-2 d-flex align-items-center justify-content-center" style="height: 240px; position: relative;">
+                                <canvas id="movementSummaryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-12">
+                        <div class="card h-100 border-0" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.06) !important;">
+                            <div class="card-header py-2 text-white small fw-bold bg-transparent border-bottom border-secondary border-opacity-25">
+                                <i class="bi bi-exclamation-triangle text-warning me-1"></i> Artículos con Stock Crítico
+                            </div>
+                            <div class="card-body p-2" style="height: 240px; position: relative;">
+                                <canvas id="lowStockChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ BARRA DE BÚSQUEDA Y FILTROS AVANZADOS ═══ -->
+        <div class="scada-card p-3 mb-4">
+            <div class="row g-2 align-items-center">
+                <!-- Buscador de texto -->
+                <div class="col-xl-4 col-lg-4 col-md-12">
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary border-opacity-50 text-info">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control search-box-pro border-start-0" id="searchInput" placeholder="Buscar por código, nombre, gaveta, proveedor...">
+                    </div>
+                </div>
+                <!-- Filtro de Categoría -->
+                <div class="col-xl-2 col-lg-2 col-md-4 col-6">
+                    <select class="form-select search-box-pro" id="categoryFilter" aria-label="Filtrar por categoría">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
+                <!-- Filtro de Estado -->
+                <div class="col-xl-2 col-lg-2 col-md-4 col-6">
+                    <select class="form-select search-box-pro" id="statusFilter" aria-label="Filtrar por estado">
+                        <option value="">Todos los estados</option>
+                        <option value="active">En Stock (Normal)</option>
+                        <option value="low">Stock Bajo / Mínimo</option>
+                        <option value="empty">Sin Stock (Agotado)</option>
+                    </select>
+                </div>
+                <!-- Filtro de Área -->
+                <div class="col-xl-2 col-lg-2 col-md-4 col-6">
+                    <select class="form-select search-box-pro" id="areaFilter" aria-label="Filtrar por área de compatibilidad">
+                        <option value="">Todas las áreas</option>
+                        <option value="5">Área 5</option>
+                        <option value="10">Área 10</option>
+                        <option value="20">Área 20</option>
+                        <option value="30">Área 30</option>
+                        <option value="35">Área 35+</option>
+                    </select>
+                </div>
+                <!-- Filtro de Rack / Estantería -->
+                <div class="col-xl-2 col-lg-2 col-md-12 col-6">
+                    <select class="form-select search-box-pro" id="rackFilter" aria-label="Filtrar por Rack de almacén">
+                        <option value="">Todos los Racks</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Botones de Acción Rápida -->
+            <div class="d-flex flex-wrap align-items-center justify-content-between mt-3 pt-2 border-top border-secondary border-opacity-25 gap-2">
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1" id="quickLowStockBtn">
+                        <i class="bi bi-filter"></i> Solo Stock Crítico
+                    </button>
+                    <button class="btn btn-sm btn-outline-info d-flex align-items-center gap-1" id="quickActivePicksFilterBtn">
+                        <i class="bi bi-lightbulb"></i> Solo Balizas Activas
+                    </button>
+                    <button class="btn btn-sm btn-outline-secondary" id="clearFiltersBtn">
+                        <i class="bi bi-x-circle"></i> Limpiar Filtros
+                    </button>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-1" id="scanQRBtn">
+                        <i class="bi bi-qr-code-scan text-info"></i> <span>Escanear QR</span>
+                    </button>
+                    <button class="btn btn-sm btn-outline-success d-flex align-items-center gap-1" id="quickScanBtn" title="Escanear y descontar/sumar">
+                        <i class="bi bi-lightning-charge"></i> <span>Escaneo Rápido</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ BARRA DE ACCIÓN EN LOTE (APARECE AL SELECCIONAR CASILLAS) ═══ -->
+        <div id="batchActionBar" class="batch-action-bar p-3 mb-3 text-white align-items-center justify-content-between" style="display: none;">
+            <div class="d-flex align-items-center gap-3">
+                <span class="fw-bold d-flex align-items-center gap-2">
+                    <i class="bi bi-check2-circle fs-5"></i> <span id="batchSelectedCount">0</span> elemento(s) seleccionado(s)
+                </span>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <button class="btn btn-light btn-sm fw-bold text-dark d-flex align-items-center gap-1" id="batchPrintQRBtn">
+                    <i class="bi bi-printer"></i> Imprimir Etiquetas
+                </button>
+                <button class="btn btn-warning btn-sm fw-bold text-dark d-flex align-items-center gap-1" id="batchLightUpBtn">
+                    <i class="bi bi-lightbulb-fill"></i> Iluminar en Almacén
+                </button>
+                <button class="btn btn-outline-light btn-sm" id="batchClearBtn">
+                    <i class="bi bi-x"></i> Desmarcar
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══ TABLA MAESTRA DE INVENTARIO SCADA PRO ═══ -->
+        <div class="scada-card overflow-hidden mb-4">
+            <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary border-opacity-25 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="mb-0 text-white fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-table text-info"></i> Registros de Catálogo
+                    </h5>
+                    <span class="badge bg-secondary bg-opacity-50 text-white" id="visibleItemsCount">0 registros</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-info btn-sm d-flex align-items-center gap-1" id="tablePrintSelectedBtn">
+                        <i class="bi bi-printer"></i> Imprimir Seleccionados
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="tablePrintAllBtn">
+                        <i class="bi bi-printer-fill"></i> Imprimir Todos
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive" id="inventoryTableResponsive" style="max-height: 720px; overflow-y: auto;">
+                <table class="table table-hover align-middle mb-0 scada-table-dense" id="inventoryTable" style="color: #cbd5e1;">
+                    <thead style="position: sticky; top: 0; background: #0b0f19; z-index: 10; border-bottom: 2px solid rgba(56, 189, 248, 0.3);">
+                        <tr class="text-uppercase small" style="letter-spacing: 0.05em; color: #94a3b8; font-size: 0.75rem;">
+                            <th scope="col" style="width: 40px; text-align: center;">
+                                <input type="checkbox" class="form-check-input" id="selectAll" aria-label="Seleccionar todos los artículos">
+                            </th>
+                            <th scope="col" style="width: 50px; text-align: center;">QR</th>
+                            <th scope="col" style="width: 90px;">Código</th>
+                            <th scope="col">Artículo y Categoría</th>
+                            <th scope="col" style="width: 140px;">Áreas</th>
+                            <th scope="col" style="min-width: 190px;"><i class="bi bi-geo-alt-fill text-info"></i> Ubicación Almacén / Pick</th>
+                            <th scope="col" style="min-width: 160px; text-align: center;">Stock & Ajuste</th>
+                            <th scope="col" style="width: 110px; text-align: center;">Estado</th>
+                            <th scope="col" style="width: 120px;">Últ. Mov.</th>
+                            <th scope="col" style="width: 130px; text-align: end;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                        <!-- Las filas se renderizan dinámicamente con JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Botón flotante para móviles -->
+        <button class="btn btn-primary floating-btn d-lg-none" data-bs-toggle="modal" data-bs-target="#addItemModal" aria-label="Agregar nuevo artículo" title="Agregar artículo">
+            <i class="bi bi-plus-lg fs-4"></i>
+        </button>
+    </div>
+
+    <!-- ═══ MODAL: AGREGAR ARTÍCULO CON UBICACIÓN PICK-TO-LIGHT ═══ -->
+    <div class="modal fade" id="addItemModal" tabindex="-1" aria-labelledby="addItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="addItemModalLabel">
+                        <i class="bi bi-plus-circle text-info"></i> Registrar Nuevo Artículo en Catálogo
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="addItemForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="itemCode" class="form-label small text-uppercase text-muted fw-bold">Código SKU / Identificador <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control search-box-pro font-monospace" id="itemCode" required maxlength="50" pattern="[A-Za-z0-9\-_.]+" placeholder="Ej. SEN-IND-01">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="itemName" class="form-label small text-uppercase text-muted fw-bold">Nombre del Componente <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control search-box-pro" id="itemName" required maxlength="100" placeholder="Ej. Sensor Inductivo 24V M18">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="itemCategory" class="form-label small text-uppercase text-muted fw-bold">Categoría <span class="text-danger">*</span></label>
+                                <select class="form-select search-box-pro" id="itemCategory" required>
+                                    <option value="">Seleccionar categoría</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="itemAplicaA" class="form-label small text-uppercase text-muted fw-bold">Aplicación de Uso <span class="text-danger">*</span></label>
+                                <select class="form-select search-box-pro" id="itemAplicaA" required>
+                                    <option value="ambos" selected>Operaciones y Grúas (Ambos)</option>
+                                    <option value="operacion">Solo Operaciones</option>
+                                    <option value="grua">Solo Grúas</option>
+                                </select>
+                            </div>
+
+                            <!-- Áreas de compatibilidad -->
+                            <div class="col-12">
+                                <label class="form-label small text-uppercase text-muted fw-bold">Áreas Compatibles <span class="text-danger">*</span></label>
+                                <div class="p-3 rounded-3" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);">
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="area5" value="5">
+                                            <label class="form-check-label text-white small" for="area5">Área 5</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="area10" value="10">
+                                            <label class="form-check-label text-white small" for="area10">Área 10</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="area20" value="20">
+                                            <label class="form-check-label text-white small" for="area20">Área 20</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="area30" value="30">
+                                            <label class="form-check-label text-white small" for="area30">Área 30</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="area35" value="35">
+                                            <label class="form-check-label text-white small" for="area35">Área 35+</label>
+                                        </div>
+                                        <div class="form-check ms-auto">
+                                            <input class="form-check-input" type="checkbox" id="selectAllAreas">
+                                            <label class="form-check-label fw-bold text-info small" for="selectAllAreas">Todas las Áreas</label>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2 text-muted" style="font-size: 0.75rem;">
+                                        Seleccionadas: <span id="selectedAreasDisplay" class="text-info">Ninguna</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stock & Precios -->
+                            <div class="col-md-4 col-6">
+                                <label for="itemStock" class="form-label small text-uppercase text-muted fw-bold">Stock Inicial <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control search-box-pro" id="itemStock" min="0" value="0" required>
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <label for="itemMinStock" class="form-label small text-uppercase text-muted fw-bold">Stock Mínimo (Alerta) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control search-box-pro" id="itemMinStock" min="0" value="5" required>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label for="itemPrice" class="form-label small text-uppercase text-muted fw-bold">Precio Unitario ($ MXN / USD)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-dark border-secondary border-opacity-50 text-success">$</span>
+                                    <input type="number" class="form-control search-box-pro" id="itemPrice" min="0" step="0.01" value="0.00">
+                                </div>
+                            </div>
+
+                            <!-- Ubicación Almacén IoT (Pick-to-Light) -->
+                            <div class="col-12">
+                                <div class="p-3 rounded-3" style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.3);">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <h6 class="fw-bold mb-0 text-info d-flex align-items-center gap-2">
+                                            <i class="bi bi-geo-alt-fill"></i> Ubicación en Almacén IoT (Pick-to-Light)
+                                        </h6>
+                                        <span class="badge bg-info bg-opacity-25 text-info" style="font-size:0.7rem;">Sincronización ESP32</span>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-md-4 col-6">
+                                            <label for="itemRack" class="form-label small text-muted">Estantería / Rack</label>
+                                            <input type="text" class="form-control form-control-sm search-box-pro" id="itemRack" placeholder="ej. Rack A">
+                                        </div>
+                                        <div class="col-md-4 col-6">
+                                            <label for="itemBin" class="form-label small text-muted">Gaveta / Bin</label>
+                                            <input type="text" class="form-control form-control-sm search-box-pro" id="itemBin" placeholder="ej. Gaveta A1-01">
+                                        </div>
+                                        <div class="col-md-4 col-12">
+                                            <label for="itemLocation" class="form-label small text-muted">Etiqueta Completa</label>
+                                            <input type="text" class="form-control form-control-sm search-box-pro" id="itemLocation" placeholder="ej. Rack A - Gaveta A1-01">
+                                        </div>
+                                        <div class="col-md-4 col-6">
+                                            <label for="itemLedIndex" class="form-label small text-muted">Índice LED WS2812B</label>
+                                            <input type="number" class="form-control form-control-sm search-box-pro" id="itemLedIndex" min="0" placeholder="ej. 0">
+                                        </div>
+                                        <div class="col-md-4 col-6">
+                                            <label for="itemGpioPin" class="form-label small text-muted">Pin Botón Confirmación</label>
+                                            <input type="number" class="form-control form-control-sm search-box-pro" id="itemGpioPin" min="0" max="39" placeholder="ej. 16">
+                                        </div>
+                                        <div class="col-md-4 col-12">
+                                            <label for="itemEsp32Id" class="form-label small text-muted">Controlador ESP32 ID</label>
+                                            <input type="text" class="form-control form-control-sm search-box-pro" id="itemEsp32Id" value="ESP32-RACK-A" placeholder="ej. ESP32-RACK-A">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="itemSupplier" class="form-label small text-uppercase text-muted fw-bold">Proveedor / Fabricante</label>
+                                <input type="text" class="form-control search-box-pro" id="itemSupplier" maxlength="100" placeholder="ej. Siemens, Festo, Omron">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="itemDescription" class="form-label small text-uppercase text-muted fw-bold">Notas Técnicas / Descripción</label>
+                                <input type="text" class="form-control search-box-pro" id="itemDescription" maxlength="200" placeholder="Especificaciones adicionales">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="addItemForm" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+                        <i class="bi bi-check2-circle"></i> Guardar Artículo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL: EDITAR ARTÍCULO ═══ -->
+    <div class="modal fade" id="editItemModal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="editItemModalLabel">
+                        <i class="bi bi-pencil-square text-warning"></i> Modificar Artículo de Inventario
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="editItemForm">
+                        <input type="hidden" id="editItemId">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="editItemCode" class="form-label small text-uppercase text-muted fw-bold">Código SKU</label>
+                                <input type="text" class="form-control search-box-pro font-monospace" id="editItemCode" readonly style="opacity: 0.8;">
+                            </div>
+                            <div class="col-md-8">
+                                <label for="editItemName" class="form-label small text-uppercase text-muted fw-bold">Nombre del Componente <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control search-box-pro" id="editItemName" required maxlength="100">
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="editItemCategory" class="form-label small text-uppercase text-muted fw-bold">Categoría <span class="text-danger">*</span></label>
+                                <select class="form-select search-box-pro" id="editItemCategory" required></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editItemAplicaA" class="form-label small text-uppercase text-muted fw-bold">Aplicación de Uso</label>
+                                <select class="form-select search-box-pro" id="editItemAplicaA">
+                                    <option value="ambos">Operaciones y Grúas (Ambos)</option>
+                                    <option value="operacion">Solo Operaciones</option>
+                                    <option value="grua">Solo Grúas</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="editItemMinStock" class="form-label small text-uppercase text-muted fw-bold">Stock Mínimo (Alerta)</label>
+                                <input type="number" class="form-control search-box-pro" id="editItemMinStock" min="0" value="5">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editItemPrice" class="form-label small text-uppercase text-muted fw-bold">Precio Unitario ($)</label>
+                                <input type="number" class="form-control search-box-pro" id="editItemPrice" min="0" step="0.01">
+                            </div>
+
+                            <!-- Ubicación Almacén IoT -->
+                            <div class="col-12">
+                                <div class="p-3 rounded-3" style="background: rgba(14, 165, 233, 0.08); border: 1px solid rgba(14, 165, 233, 0.3);">
+                                    <h6 class="fw-bold mb-2 text-info"><i class="bi bi-geo-alt-fill"></i> Ubicación en Almacén IoT (Pick-to-Light)</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-4 col-6">
+                                            <label for="editItemRack" class="form-label small text-muted">Estantería / Rack</label>
+                                            <input type="text" class="form-control form-control-sm search-box-pro" id="editItemRack">
+                                        </div>
+                                        <div class="col-md-4 col-6">
+                                            <label for="editItemBin" class="form-label small text-muted">Gaveta / Bin</label>
+                                            <input type="text" class="form-control form-control-sm search-box-pro" id="editItemBin">
+                                        </div>
+                                        <div class="col-md-4 col-12">
+                                            <label for="editItemLocation" class="form-label small text-muted">Ubicación Completa</label>
+                                            <input type="text" class="form-control form-control-sm search-box-pro" id="editItemLocation">
+                                        </div>
+                                        <div class="col-md-4 col-6">
+                                            <label for="editItemLedIndex" class="form-label small text-muted">Índice LED WS2812B</label>
+                                            <input type="number" class="form-control form-control-sm search-box-pro" id="editItemLedIndex" min="0">
+                                        </div>
+                                        <div class="col-md-4 col-6">
+                                            <label for="editItemGpioPin" class="form-label small text-muted">Pin Botón Confirmación</label>
+                                            <input type="number" class="form-control form-control-sm search-box-pro" id="editItemGpioPin" min="0" max="39">
+                                        </div>
+                                        <div class="col-md-4 col-12">
+                                            <label for="editItemEsp32Id" class="form-label small text-muted">Controlador ESP32 ID</label>
+                                            <input type="text" class="form-control form-control-sm search-box-pro" id="editItemEsp32Id">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="editItemSupplier" class="form-label small text-uppercase text-muted fw-bold">Proveedor</label>
+                                <input type="text" class="form-control search-box-pro" id="editItemSupplier" maxlength="100">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editItemDescription" class="form-label small text-uppercase text-muted fw-bold">Descripción</label>
+                                <input type="text" class="form-control search-box-pro" id="editItemDescription" maxlength="200">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="editItemForm" class="btn btn-primary btn-sm">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL: REGISTRAR MOVIMIENTO (ENTRADA / SALIDA / AJUSTE) ═══ -->
+    <div class="modal fade" id="movementModal" tabindex="-1" aria-labelledby="movementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="movementModalLabel">
+                        <i class="bi bi-arrow-left-right text-success"></i> Registrar Movimiento de Stock
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="movementItemId">
+                    <!-- Selector opcional si se abre en modo general -->
+                    <div id="movementItemPicker" class="mb-3" style="display: none;">
+                        <label for="movementItemSelect" class="form-label small text-uppercase text-muted fw-bold">Seleccionar Artículo del Catálogo <span class="text-danger">*</span></label>
+                        <select class="form-select search-box-pro" id="movementItemSelect">
+                            <option value="">-- Buscar artículo --</option>
+                        </select>
+                    </div>
+
+                    <div class="row g-3 mb-3 p-3 rounded-3" style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.08);" id="movementItemInfo">
+                        <div class="col-md-6">
+                            <div class="text-muted small">Artículo:</div>
+                            <div class="fw-bold text-white fs-6" id="movementItemName">—</div>
+                            <div class="font-monospace text-info small" id="movementItemCode">—</div>
+                            <div class="mt-2">
+                                <span class="text-muted small">Stock en Sistema:</span>
+                                <span id="movementItemStock" class="badge bg-secondary font-monospace fs-6 ms-1">0</span>
+                            </div>
+                            <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                                <span class="text-muted small">Ubicación:</span>
+                                <span id="movementItemLocation" class="badge bg-dark border border-secondary text-info small">Sin Ubicación</span>
+                                <button type="button" class="btn btn-outline-info btn-sm py-0 px-2" id="movementLocateBtn" onclick="toggleBinLight(document.getElementById('movementItemId').value)" title="Iluminar gaveta física para saber dónde colocar el stock">
+                                    <i class="bi bi-lightbulb"></i> Iluminar para Guardar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div id="movementPreviewBox" class="alert alert-info w-100 mb-0 py-2 px-3 small border-0" style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+                                <i class="bi bi-info-circle me-1"></i> <span id="movementPreviewText">Completa los campos para proyectar el stock final</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="movementForm">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="movementType" class="form-label small text-uppercase text-muted fw-bold">Tipo de Operación <span class="text-danger">*</span></label>
+                                <select class="form-select search-box-pro" id="movementType" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="entrada">🟢 Entrada de Stock (+)</option>
+                                    <option value="salida">🔴 Salida / Retiro (-)</option>
+                                    <option value="ajuste">🟡 Ajuste de Auditoría (=)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="movementQuantity" class="form-label small text-uppercase text-muted fw-bold">Cantidad <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control search-box-pro" id="movementQuantity" min="1" value="1" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="movementReasonType" class="form-label small text-uppercase text-muted fw-bold">Motivo <span class="text-danger">*</span></label>
+                                <select class="form-select search-box-pro" id="movementReasonType" required>
+                                    <option value="">Seleccionar motivo</option>
+                                    <option value="Mantenimiento">Mantenimiento Preventivo</option>
+                                    <option value="Reparación">Reparación Correctiva</option>
+                                    <option value="Instalación">Instalación en Planta</option>
+                                    <option value="Compra">Reabastecimiento / Compra</option>
+                                    <option value="Ajuste de Inventario">Auditoría / Conteo Físico</option>
+                                    <option value="Pick-to-Light: Web">Recolección de Almacén</option>
+                                    <option value="Otro">Otro</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="movementResponsible" class="form-label small text-uppercase text-muted fw-bold">Responsable / Técnico</label>
+                                <input type="text" class="form-control search-box-pro" id="movementResponsible" placeholder="Nombre de quien recibe o entrega">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="movementDescription" class="form-label small text-uppercase text-muted fw-bold">Observaciones / Orden de Trabajo</label>
+                                <input type="text" class="form-control search-box-pro" id="movementDescription" placeholder="Ej. OT-409 Grúa 2 / Sensor quemado">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" form="movementForm" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+                        <i class="bi bi-check2-circle"></i> Confirmar Movimiento
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL: DETALLES DEL ARTÍCULO & HISTORIAL EN TIEMPO REAL ═══ -->
+    <div class="modal fade" id="itemDetailsModal" tabindex="-1" aria-labelledby="itemDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="itemDetailsModalLabel">
+                        <i class="bi bi-info-circle text-info"></i> Ficha Técnica e Historial del Componente
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-4" id="itemDetailsContent">
+                    <!-- Se carga dinámicamente con JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL: ESTUDIO DE ETIQUETAS QR & IMPRESIÓN INDUSTRIAL ═══ -->
+    <div class="modal fade" id="qrLabelStudioModal" tabindex="-1" aria-labelledby="qrStudioModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="qrStudioModalLabel">
+                        <i class="bi bi-qr-code text-info"></i> Generador e Impresor de Etiquetas QR Industriales
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label small text-uppercase text-muted fw-bold">Elementos a Imprimir:</label>
+                            <select class="form-select search-box-pro" id="qrStudioScopeSelect">
+                                <option value="selected">Artículos Seleccionados en Tabla</option>
+                                <option value="all">Todo el Catálogo de Inventario</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small text-uppercase text-muted fw-bold">Formato de Etiqueta:</label>
+                            <select class="form-select search-box-pro" id="qrStudioFormatSelect">
+                                <option value="thermal">Etiqueta Adhesiva Térmica / Gaveta (50x30 mm)</option>
+                                <option value="compact">Etiqueta Mini Micro-Bin (30x20 mm)</option>
+                                <option value="sheet">Ficha Técnica con QR (Hoja Carta / A4)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end gap-2">
+                            <button type="button" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2" id="executePrintLabelsBtn">
+                                <i class="bi bi-printer-fill fs-5"></i> <span>Imprimir Etiquetas Ahora</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="border border-secondary border-opacity-25 rounded-3 p-3" style="background: rgba(15, 23, 42, 0.6);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted small fw-bold text-uppercase">Vista Previa de Impresión:</span>
+                            <span class="badge bg-secondary text-white" id="qrPreviewItemCount">0 etiquetas</span>
+                        </div>
+                        <div id="qrLabelsPreviewGrid" class="row g-3" style="max-height: 480px; overflow-y: auto;">
+                            <!-- Etiquetas generadas -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL INDIVIDUAL PARA MOSTRAR QR ═══ -->
+    <div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-bottom border-secondary border-opacity-25">
+            <h5 class="modal-title text-white fw-bold d-flex align-items-center gap-2" id="qrModalLabel">
+                <i class="bi bi-qr-code text-info"></i> Código QR del Componente
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body text-center p-4">
+            <div id="qrModalContainer" class="d-flex justify-content-center mb-3"></div>
+            <div id="qrModalInfo" class="text-white mt-2"></div>
+            <div class="d-flex gap-2 justify-content-center mt-3">
+                <button type="button" class="btn btn-outline-info btn-sm" id="printSingleQRBtn">
+                    <i class="bi bi-printer me-1"></i> Imprimir Etiqueta
+                </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MODAL ESCÁNER QR DE CÁMARA ═══ -->
+    <div class="modal fade" id="qrScannerModal" tabindex="-1" aria-labelledby="qrScannerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title text-white fw-bold" id="qrScannerModalLabel">
+                        <i class="bi bi-camera text-info me-2"></i> Escanear Código QR / Código de Barras
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div id="qr-reader" style="width: 100%; max-width: 380px; min-height: 280px; margin: 0 auto; border-radius: 12px; overflow: hidden; background: #000;"></div>
+                    <p class="text-muted small mt-3 mb-0">Apunta la cámara al código QR de la refacción o estantería</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL ESCÁNER RÁPIDO PARA REGISTRAR MOVIMIENTO ═══ -->
+    <div class="modal fade" id="quickScanModal" tabindex="-1" aria-labelledby="quickScanModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title text-white fw-bold" id="quickScanModalLabel">
+                        <i class="bi bi-lightning-charge text-warning me-2"></i> Escaneo Rápido de Movimientos
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-4">
+                    <div id="quick-qr-reader" style="width: 100%; max-width: 380px; min-height: 280px; margin: 0 auto; border-radius: 12px; overflow: hidden; background: #000;"></div>
+                    <p class="text-muted small mt-3 mb-0">Escanea el código QR para abrir instantáneamente el formulario de entrada/salida</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL GESTIONAR CATEGORÍAS Y ÁREAS ═══ -->
+    <div class="modal fade" id="manageCategoriesModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title text-white fw-bold">
+                        <i class="bi bi-tags text-info me-2"></i> Gestión de Categorías y Áreas Industriales
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <ul class="nav nav-pills mb-3" id="configTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories-pane" type="button" role="tab">
+                                <i class="bi bi-tags"></i> Categorías
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="areas-tab" data-bs-toggle="tab" data-bs-target="#areas-pane" type="button" role="tab">
+                                <i class="bi bi-geo-alt"></i> Áreas
+                            </button>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content" id="configTabsContent">
+                        <!-- Pestaña Categorías -->
+                        <div class="tab-pane fade show active" id="categories-pane" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <h6 class="text-white small fw-bold text-uppercase mb-3">Nueva Categoría</h6>
+                                    <form id="addCategoryForm">
+                                        <div class="mb-3">
+                                            <label for="newCategoryName" class="form-label small text-muted">Nombre de la Categoría <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control search-box-pro" id="newCategoryName" required maxlength="50" placeholder="ej. Válvulas">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newCategoryColor" class="form-label small text-muted">Color Distintivo <span class="text-danger">*</span></label>
+                                            <select class="form-select search-box-pro" id="newCategoryColor" required>
+                                                <option value="primary">Azul (Primary)</option>
+                                                <option value="success">Verde (Success)</option>
+                                                <option value="warning">Amarillo (Warning)</option>
+                                                <option value="danger">Rojo (Danger)</option>
+                                                <option value="info">Cian (Info)</option>
+                                                <option value="purple">Morado (Purple)</option>
+                                                <option value="orange">Naranja (Orange)</option>
+                                                <option value="teal">Verde Azulado (Teal)</option>
+                                                <option value="custom">Personalizado...</option>
+                                            </select>
+                                            <div id="colorPickerContainer" class="mt-2" style="display: none;">
+                                                <input type="color" class="form-control form-control-color w-100" id="customColorInput" value="#007bff">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newCategoryDescription" class="form-label small text-muted">Descripción</label>
+                                            <input type="text" class="form-control search-box-pro" id="newCategoryDescription" maxlength="200" placeholder="Descripción breve">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                                            <i class="bi bi-plus-circle me-1"></i> Agregar Categoría
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="col-md-7">
+                                    <h6 class="text-white small fw-bold text-uppercase mb-3">Categorías Existentes</h6>
+                                    <div id="categoriesList" class="list-group" style="max-height: 320px; overflow-y: auto;">
+                                        <!-- Se cargan dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pestaña Áreas -->
+                        <div class="tab-pane fade" id="areas-pane" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <h6 class="text-white small fw-bold text-uppercase mb-3">Nueva Área</h6>
+                                    <form id="addAreaForm">
+                                        <div class="mb-3">
+                                            <label for="newAreaName" class="form-label small text-muted">Nombre del Área <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control search-box-pro" id="newAreaName" required maxlength="50" placeholder="ej. Área Hornos">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newAreaCode" class="form-label small text-muted">Código Identificador <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control search-box-pro" id="newAreaCode" required maxlength="10" placeholder="ej. 40">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newAreaDescription" class="form-label small text-muted">Descripción</label>
+                                            <input type="text" class="form-control search-box-pro" id="newAreaDescription" maxlength="200" placeholder="Descripción de zona">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary btn-sm w-100">
+                                            <i class="bi bi-plus-circle me-1"></i> Agregar Área
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="col-md-7">
+                                    <h6 class="text-white small fw-bold text-uppercase mb-3">Áreas Registradas</h6>
+                                    <div id="areasList" class="list-group" style="max-height: 320px; overflow-y: auto;">
+                                        <!-- Se cargan dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL AUTORIZACIÓN DE SOLICITUDES DE REFACCIÓN ═══ -->
+    <div class="modal fade" id="refactionRequestsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title text-white fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-clipboard-check text-warning"></i> Autorización de Solicitudes de Refacción
+                    </h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadRefactionRequests()" title="Actualizar lista">
+                            <i class="bi bi-arrow-clockwise"></i> Actualizar
+                        </button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="card p-3 border-0" style="background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(2, 132, 199, 0.3) !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted small text-uppercase mb-1"><i class="bi bi-clock me-1 text-info"></i> Solicitudes Pendientes</h6>
+                                        <h3 class="text-info fw-bold mb-0" id="pendingRequestsCount">0</h3>
+                                    </div>
+                                    <i class="bi bi-hourglass-split text-info fs-1 opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card p-3 border-0" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3) !important;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted small text-uppercase mb-1"><i class="bi bi-check-circle me-1 text-success"></i> Autorizadas Hoy</h6>
+                                        <h3 class="text-success fw-bold mb-0" id="approvedTodayCount">0</h3>
+                                    </div>
+                                    <i class="bi bi-check-all text-success fs-1 opacity-50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive" style="max-height: 420px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0 scada-table-dense" style="color: #cbd5e1;">
+                            <thead class="table-dark" style="position: sticky; top: 0; z-index: 5;">
+                                <tr class="small text-uppercase">
+                                    <th>Fecha</th>
+                                    <th>Equipo</th>
+                                    <th>Categoría</th>
+                                    <th>Refacción</th>
+                                    <th>Cant.</th>
+                                    <th>Motivo</th>
+                                    <th>Solicitante</th>
+                                    <th>Estado</th>
+                                    <th style="text-align: end;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="refactionRequestsTableBody">
+                                <!-- Filas de solicitudes -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i> Cerrar
+                    </button>
+                    <button type="button" class="btn btn-info btn-sm" onclick="exportRefactionRequestsReport()">
+                        <i class="bi bi-download me-1"></i> Exportar Reporte
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MODAL DETALLES DE SOLICITUD ═══ -->
+    <div class="modal fade" id="requestDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-bottom border-secondary border-opacity-25">
+                    <h5 class="modal-title text-white fw-bold">Detalles de Solicitud</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="requestDetailsContent"></div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-danger btn-sm" id="rejectRequestBtn">
+                        <i class="bi bi-x-circle me-1"></i> Rechazar
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm" id="approveRequestBtn">
+                        <i class="bi bi-check-circle me-1"></i> Autorizar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CONTENEDOR FLOTANTE DE BALIZAS DE UBICACIÓN (PUT-TO-LIGHT) ═══ -->
+    <div id="activePicksContainer" class="pick-to-light-banner p-3 text-white" style="display:none; position: fixed; bottom: 85px; right: 20px; z-index: 1050; width: 340px; border-radius: 12px; background: rgba(11, 15, 25, 0.95); border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 12px 36px rgba(0,0,0,0.8), 0 0 20px rgba(16, 185, 129, 0.2);">
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-secondary border-opacity-25">
+            <span class="fw-bold small text-success d-flex align-items-center gap-1">
+                <span class="pick-led-dot pick-led-dot--lit"></span> BALIZAS DE UBICACIÓN
+            </span>
+            <span class="badge bg-success text-white" id="activePicksBadgeCount">0 encendidas</span>
+        </div>
+        <div id="activePicksList" class="d-flex flex-column gap-2" style="max-height: 220px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- ═══ ÁREA OCULTA PARA IMPRESIÓN LIMPIA DE ETIQUETAS (@media print) ═══ -->
+    <div id="printArea" style="display: none;"></div>
+
+    <!-- Scripts Esenciales -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="site-nav.js?v=4.8"></script>
+    <!-- PocketBase SCADA Local Engine (Firebase Pausado) -->
+    <script src="pocketbase.umd.js"></script>
+    <script src="scada-config.js?v=4.8"></script>
+    <script src="sha256.js?v=4.8"></script>
+    <script src="pocketbase-adapter.js?v=4.8"></script>
+    <script src="auth-system.js?v=4.8"></script>
+    <script src="global-config.js?v=4.8"></script>
+    <script src="refaction-system.js?v=1.1"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="inventory.js?v=4.8"></script>
+    <script src="scada-pro.js?v=4.8" defer></script>
+    <script src="technician-alerts.js?v=4.8" defer></script>
+    <script src="pwa-register.js?v=4.8" defer></script>
+    <script src="network-health.js?v=4.8" defer></script>
+    <script src="shift-handover.js?v=4.8" defer></script>
+    <script src="predictive-alerts.js?v=4.8" defer></script>
+    <script src="command-palette.js?v=4.8" defer></script>
+</body>
+</html>

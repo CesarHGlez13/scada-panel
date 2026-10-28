@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Análisis Ejecutivo SCADA • Monitor de Operaciones</title>
+    <script src="security-shield.js?v=4.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PocketBase SCADA Local Engine (Firebase Pausado) -->
+    <script src="pocketbase.umd.js"></script>
+    <script src="scada-config.js?v=4.8"></script>
+    <script src="sha256.js?v=4.8"></script>
+    <script src="pocketbase-adapter.js?v=4.8"></script>
+    <script src="auth-system.js?v=4.8"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="styles.css?v=4.0" />
+    <link rel="stylesheet" href="mobile.css?v=3.0" />
+    <link rel="stylesheet" href="scada-pro.css?v=2.1" />
+    <link rel="stylesheet" href="analisis-detallado.css?v=1.0">
+    <script src="theme-init.js?v=4.8"></script>
+  </head>
+  <body class="scada-pro-theme">
+    <!-- Barra de navegación móvil fija persistente (cero parpadeo al cambiar de pestaña) -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav d-lg-none" aria-label="Navegación móvil">
+      <div class="mobile-bottom-nav-inner">
+        <a href="index.html" data-id="home" class="mobile-nav-item"><i class="bi bi-house-door-fill"></i><span>Inicio</span></a>
+        <a href="operations.html" data-id="ops" class="mobile-nav-item" data-module="operations"><i class="bi bi-gear-wide-connected"></i><span>Operaciones</span></a>
+        <a href="cranes.html" data-id="cranes" class="mobile-nav-item" data-module="cranes">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21" stroke-width="1.8"/><rect x="2" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/><rect x="11" y="8" width="2" height="2.2" rx="0.3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="0.8"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M7 10.5h3"/><path d="M7 14h3"/><path d="M7 17.5h3"/><path d="M5.5 20.5h6" stroke-width="1.8"/><path d="M17.5 7v7" stroke-dasharray="1.5 1"/><path d="M16.5 14h2" stroke-width="1.8"/><path d="M17.5 14.8c0 0.8 0.8 0.8 0.8 0.2"/><rect x="14.5" y="16.5" width="6" height="2" rx="0.4" fill="currentColor" stroke="none"/></svg>
+          <span>Grúas</span>
+        </a>
+        <a href="inventory.html" data-id="inventory" class="mobile-nav-item"><i class="bi bi-box-seam"></i><span>Inventario</span></a>
+        <a href="mobile.html" data-id="more" class="mobile-nav-item"><i class="bi bi-grid"></i><span>Más</span></a>
+      </div>
+    </nav>
+
+    <!-- ═══ PANTALLA DE CARGA ═══ -->
+    <div id="page-loader">
+      <div class="pl-brand">
+        <div class="pl-brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        </div>
+        <div class="pl-brand-text">
+          <span class="pl-brand-name">Análisis Detallado</span>
+          <span class="pl-brand-sub">Industrial SCADA</span>
+        </div>
+      </div>
+      <div class="pl-bar-wrap"><div class="pl-bar"></div></div>
+      <div class="pl-dots">
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <span class="pl-status">Procesando telemetría...</span>
+      </div>
+    </div>
+    <!-- ══════════════════════════ -->
+
+    <!-- Barra de Navegación -->
+    <nav id="siteNavbar" data-active="analysis" data-show-legend="true"></nav>
+
+    <!-- Modal para detalles -->
+    <div class="modal fade" id="detallesModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="detallesModalTitle">Detalles</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body" id="detallesModalBody">
+            <!-- El contenido se cargará dinámicamente -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal del Asistente -->
+    <div class="modal fade" id="aiAssistantModal" tabindex="-1">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title"><i class="bi bi-robot"></i> Asistente</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-8">
+                <div
+                  id="chatContainer"
+                  style="
+                    height: 400px;
+                    overflow-y: auto;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    padding: 1rem;
+                    background: #f8f9fa;
+                  "
+                >
+                  <div id="chatMessages">
+                    <!-- Los mensajes se cargarán aquí -->
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      id="userInput"
+                      class="form-control"
+                      placeholder="Pregunta sobre equipos, mantenimiento, productividad..."
+                    />
+                    <button class="btn btn-info" id="sendMessageBtn">
+                      <i class="bi bi-send"></i> Enviar
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <h6>💡 Preguntas Sugeridas:</h6>
+                <div class="list-group">
+                  <button
+                    class="list-group-item list-group-item-action"
+                    onclick="
+                      askAI(
+                        '¿Cuáles son las principales causas de fallas en el área 10?',
+                      )
+                    "
+                  >
+                    <small>🔍 Análisis de área específica</small>
+                  </button>
+                  <button
+                    class="list-group-item list-group-item-action"
+                    onclick="
+                      askAI('¿Qué mantenimiento preventivo recomiendas?')
+                    "
+                  >
+                    <small>🔧 Mantenimiento preventivo</small>
+                  </button>
+                  <button
+                    class="list-group-item list-group-item-action"
+                    onclick="askAI('¿Cómo mejorar la productividad?')"
+                  >
+                    <small>📈 Optimización productividad</small>
+                  </button>
+                  <button
+                    class="list-group-item list-group-item-action"
+                    onclick="
+                      askAI('¿Cuáles equipos necesitan atención inmediata?')
+                    "
+                  >
+                    <small>🚨 Prioridades urgentes</small>
+                  </button>
+                  <button
+                    class="list-group-item list-group-item-action"
+                    onclick="askAI('¿Qué patrones de fallas has identificado?')"
+                  >
+                    <small>📊 Análisis de patrones</small>
+                  </button>
+                  <button
+                    class="list-group-item list-group-item-action"
+                    onclick="
+                      askAI('¿Recomendaciones para reducir tiempos de paro?')
+                    "
+                  >
+                    <small>⏱️ Reducción de paros</small>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-container">
+      <div class="scada-exec-header">
+        <div>
+          <h1 class="scada-exec-title">
+            <i class="bi bi-bar-chart-line-fill" style="color: #38bdf8;"></i>
+            <span>Análisis Ejecutivo de Fallas y Confiabilidad</span>
+          </h1>
+          <p class="scada-exec-subtitle">Telemetría histórica, MTTR, disponibilidad por jornada y trazabilidad de refacciones en tiempo real</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-dark border border-secondary text-light px-3 py-2 d-inline-flex align-items-center gap-2" style="border-radius: 99px; font-family: 'JetBrains Mono', monospace;">
+            <span class="scada-led led-green"></span> MOTOR ANALÍTICO EN VIVO
+          </span>
+        </div>
+      </div>
+      <div class="filters">
+        <label
+          >Área:
+          <select id="areaFilter">
+            <option value="all">Todas</option>
+            <option value="5">Operación Inicial</option>
+            <option value="10">Área 10</option>
+            <option value="20">Área 20</option>
+            <option value="30">Área 30</option>
+            <option value="35">Área 35+</option>
+          </select>
+        </label>
+        <label
+          >Tipo:
+          <select id="tipoFilter">
+            <option value="all">Todos</option>
+            <option value="operacion">Operaciones</option>
+            <option value="grua">Grúas</option>
+          </select>
+        </label>
+
+        <label
+          >Jornada:
+          <select id="jornadaFilter">
+            <option value="actual">Actual</option>
+            <option value="A">Jornada A</option>
+            <option value="B">Jornada B</option>
+            <option value="C">Jornada C</option>
+            <option value="D">Jornada D</option>
+            <option value="todas">Todas</option>
+          </select>
+        </label>
+        <label
+          >Comparar con:
+          <select id="comparisonFilter">
+            <option value="none">Sin comparación</option>
+            <option value="A">Jornada A</option>
+            <option value="B">Jornada B</option>
+            <option value="C">Jornada C</option>
+            <option value="D">Jornada D</option>
+          </select>
+        </label>
+        <label
+          >Fecha Inicial:
+          <input type="date" id="dateFromFilter" class="form-control" />
+        </label>
+        <label
+          >Fecha Final:
+          <input type="date" id="dateToFilter" class="form-control" />
+        </label>
+        <button id="mejorasBtn" class="btn btn-outline-warning btn-sm">
+          <i class="bi bi-lightbulb"></i> Sugerencias
+        </button>
+        <button id="aiAssistantBtn" class="btn btn-outline-info btn-sm">
+          <i class="bi bi-robot"></i> Asistente IA
+        </button>
+        <button id="setTodayRangeBtn" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-calendar-day"></i> Hoy
+        </button>
+        <button id="setWeekRangeBtn" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-calendar-week"></i> 7 Días
+        </button>
+        <button id="setMonthRangeBtn" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-calendar-month"></i> 30 Días
+        </button>
+      </div>
+      <div class="kpi-cards" id="kpiCards"></div>
+
+      <!-- Mensaje cuando no hay módulos habilitados -->
+      <div
+        id="noModulesMessage"
+        class="alert alert-warning"
+        style="display: none; text-align: center; margin: 2rem 0"
+      >
+        <h4>
+          <i class="bi bi-exclamation-triangle"></i> No hay módulos habilitados
+        </h4>
+        <p>
+          Actualmente no hay módulos de operaciones o grúas habilitados en la
+          configuración global.
+        </p>
+        <p>Contacta al administrador para habilitar los módulos necesarios.</p>
+      </div>
+
+      <!-- Grid de Gráficos -->
+      <div class="charts-grid">
+        <!-- Gráfico de Tendencias Temporales -->
+        <div class="chart-card" style="grid-column: 1 / -1">
+          <div class="chart-title"><i class="bi bi-activity"></i> Tendencias de Fallas por Día</div>
+
+          <!-- Filtro específico para el gráfico de tendencias -->
+          <div class="tendencias-filter-container">
+            <div class="row align-items-center">
+              <div class="col-md-3">
+                <label for="tendenciasDateFrom" class="form-label"
+                  ><strong>Fecha Inicial:</strong></label
+                >
+                <input
+                  type="date"
+                  id="tendenciasDateFrom"
+                  class="form-control form-control-sm"
+                />
+              </div>
+              <div class="col-md-3">
+                <label for="tendenciasDateTo" class="form-label"
+                  ><strong>Fecha Final:</strong></label
+                >
+                <input
+                  type="date"
+                  id="tendenciasDateTo"
+                  class="form-control form-control-sm"
+                />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label"
+                  ><strong>Acciones Rápidas:</strong></label
+                >
+                <div class="btn-group btn-group-sm" role="group">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick="setTendenciasRange('today')"
+                  >
+                    Hoy
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick="setTendenciasRange('week')"
+                  >
+                    Semana Actual
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    onclick="setTendenciasRange('month')"
+                  >
+                    Último Mes
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <div>
+                  <button
+                    type="button"
+                    class="btn btn-primary btn-sm"
+                    onclick="applyTendenciasFilter()"
+                  >
+                    <i class="bi bi-graph-up"></i> Aplicar Filtro
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-sm"
+                    onclick="resetTendenciasFilter()"
+                  >
+                    <i class="bi bi-arrow-clockwise"></i> Resetear
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-container">
+            <canvas id="tendenciasChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico de Fallas por Estado -->
+        <div class="chart-card">
+          <div class="chart-title"><i class="bi bi-pie-chart-fill"></i> Distribución por Estado</div>
+          <div class="chart-container">
+            <canvas id="estadoChart"></canvas>
+          </div>
+          <div
+            id="estadoChartMsg"
+            style="text-align: center; color: #94a3b8; font-size: 0.85rem"
+          ></div>
+        </div>
+
+        <!-- Gráfico de Fallas por Área -->
+        <div class="chart-card">
+          <div class="chart-title"><i class="bi bi-diagram-3-fill"></i> Fallas por Área</div>
+          <div class="chart-container">
+            <canvas id="areaChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico de Tiempos de Resolución -->
+        <div class="chart-card">
+          <div class="chart-title"><i class="bi bi-stopwatch-fill"></i> Tiempos de Resolución</div>
+          <div class="chart-container">
+            <canvas id="tiempoResolucionChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico de Tiempo de Parada por Máquina -->
+        <div class="chart-card">
+          <div class="chart-title" id="tiempoParadaChartTitle">
+            <i class="bi bi-exclamation-octagon-fill text-danger"></i> Máquinas con Mayor Tiempo de Parada
+          </div>
+          <div class="chart-container">
+            <canvas id="tiempoParadaChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico de Eficiencia por Jornada -->
+        <div class="chart-card">
+          <div class="chart-title"><i class="bi bi-clock-history"></i> Eficiencia por Jornada</div>
+          <div class="chart-container">
+            <canvas id="jornadaChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Top 10 Fallas Más Recurrentes -->
+        <div class="chart-card" style="grid-column: 1 / -1">
+          <div class="chart-title"><i class="bi bi-tools"></i> Top 10 Fallas Más Recurrentes</div>
+          <div class="chart-container">
+            <canvas id="topFallasChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Top 5 Operaciones -->
+        <div class="chart-card" data-module="operations">
+          <div class="chart-title"><i class="bi bi-gear-wide-connected"></i> Top 5 Operaciones</div>
+          <div class="chart-container">
+            <canvas id="topOpsChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Top 5 Grúas -->
+        <div class="chart-card" data-module="cranes">
+          <div class="chart-title">
+            <i class="bi bi-cone-striped"></i> Top 5 Grúas con Más Incidencias
+          </div>
+          <div class="chart-container">
+            <canvas id="topCranesChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico de Comparación Operaciones vs Grúas -->
+        <div class="chart-card" data-module="operations" data-module="cranes">
+          <div class="chart-title"><i class="bi bi-intersect"></i> Operaciones vs Grúas</div>
+          <div class="chart-container">
+            <canvas id="comparisonChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Gráfico de Patrones de Fallas -->
+        <div class="chart-card">
+          <div class="chart-title"><i class="bi bi-bezier2"></i> Patrones Horarios de Fallas</div>
+          <div class="chart-container">
+            <canvas id="patronesChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Sección de Comparación entre Jornadas -->
+        <div class="chart-card" id="comparisonSection" style="display: none">
+          <div class="chart-title"><i class="bi bi-bar-chart-steps"></i> Comparación entre Jornadas</div>
+          <div class="chart-container">
+            <canvas id="comparisonJornadasChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabla Detallada -->
+      <div class="table-section" data-module="operations" data-module="cranes">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <h5 class="mb-0"><i class="bi bi-table text-info me-2"></i>Bitácora Analítica de Fallas y Tiempos</h5>
+          <button
+            id="exportTableBtn"
+            class="btn btn-outline-info btn-sm"
+          >
+            <i class="bi bi-download"></i> Exportar a Excel / CSV
+          </button>
+        </div>
+        <div style="overflow-x: auto">
+          <table id="tablaFallas" class="table table-hover scada-table-dense">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Área</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Descripción</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Resolución</th>
+                <th>⏱ Falla Activa</th>
+                <th>🔧 Mantenimiento</th>
+                <th>⏱ Tiempo Total</th>
+                <th>Motivo / Resp. Mant.</th>
+                <th>📦 Refacciones (Inventario)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script src="analisis-detallado.js?v=4.8"></script>
+    <!-- Bootstrap JS para el dropdown -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="site-nav.js?v=4.8"></script>
+    <script src="global-config.js?v=4.8"></script>
+    <script src="app.js?v=4.8"></script>
+    <script src="mobile-nav.js?v=4.8"></script>
+    <script src="scada-pro.js?v=4.8" defer></script>
+    <script src="technician-alerts.js?v=4.8" defer></script>
+    <script src="pwa-register.js?v=4.8" defer></script>
+    <script src="network-health.js?v=4.8" defer></script>
+    <script src="shift-handover.js?v=4.8" defer></script>
+    <script src="predictive-alerts.js?v=4.8" defer></script>
+    <script src="command-palette.js?v=4.8" defer></script>
+  </body>
+</html>

@@ -1,0 +1,1958 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Administración - Monitor de Operaciones</title>
+    <script src="security-shield.js?v=4.8"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="styles.css?v=4.0" />
+    <link rel="stylesheet" href="mobile.css?v=3.0" />
+    <link rel="stylesheet" href="scada-pro.css?v=2.1" />
+    <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+    <link rel="stylesheet" href="admin.css?v=1.0">
+  </head>
+  <body>
+    <div id="siteNavbarRightContent" style="display:none">
+      <ul class="navbar-nav align-items-center">
+        <li class="nav-item" id="adminLogoutBtn" style="display: none">
+          <button class="btn btn-outline-danger btn-sm" onclick="logoutAdmin()">
+            <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+          </button>
+        </li>
+      </ul>
+    </div>
+    <nav id="siteNavbar" data-active="admin" data-margin-bottom="false" data-container-fluid="false"></nav>
+
+    <!-- Modal de Login -->
+    <div
+      class="modal fade"
+      id="loginModal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: #0d1117; border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 24px 64px rgba(0,0,0,0.85);">
+          <div class="modal-header d-flex justify-content-between align-items-center" style="background: rgba(15, 23, 42, 0.95); border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <h5 class="modal-title mb-0" style="font-weight: 700; font-size: 1rem;">
+              <i class="bi bi-shield-lock text-info me-2"></i>Consola de Administración SCADA
+            </h5>
+            <a href="index.html" class="btn btn-sm btn-outline-light" style="border-radius: 8px; font-size: 0.78rem;">
+              <i class="bi bi-arrow-left"></i> Monitor
+            </a>
+          </div>
+          <div class="modal-body" style="padding: 1.5rem;">
+            <p class="text-muted small mb-3">Autenticación de nivel supervisor requerida para configurar áreas, grúas, técnicos y base de datos.</p>
+            <form id="adminLoginForm">
+              <div class="mb-3">
+                <label for="username" class="form-label small text-uppercase fw-bold" style="letter-spacing: 0.05em; color: #94a3b8;">Usuario</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="username"
+                  placeholder="Usuario administrador"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label small text-uppercase fw-bold" style="letter-spacing: 0.05em; color: #94a3b8;">Contraseña</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+              <div
+                class="alert alert-danger py-2 small"
+                id="loginError"
+                style="display: none"
+              >
+                <i class="bi bi-exclamation-triangle me-1"></i> Usuario o contraseña
+                incorrectos
+              </div>
+              <div class="d-grid gap-2 mt-4">
+                <button type="submit" class="btn btn-primary fw-semibold" style="background: linear-gradient(135deg, #0284c7, #2563eb); border: 1px solid rgba(56,189,248,0.4);">
+                  <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar Sesión
+                </button>
+                <a href="index.html" class="btn btn-outline-secondary mt-1" style="border-radius: 8px; font-size: 0.85rem;">
+                  <i class="bi bi-speedometer2 me-1"></i> Volver al Monitor de Operaciones
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido del panel (inicialmente oculto) -->
+    <div id="mainContent" style="display: none">
+      <!-- Header del Admin -->
+      <div class="admin-header">
+        <div class="container">
+          <div class="row align-items-center g-3">
+            <div class="col-md-7">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge" style="background: rgba(56, 189, 248, 0.14); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;">SYS-ADMIN // CONFIG</span>
+                <a href="index.html" class="btn btn-outline-light btn-sm py-0 px-2" style="font-size: 0.75rem; border-radius: 6px;">
+                  <i class="bi bi-arrow-left"></i> Volver al Monitor
+                </a>
+              </div>
+              <h1 class="mb-0" style="font-size: 1.65rem; font-weight: 700; letter-spacing: -0.02em;">
+                <i class="bi bi-sliders2-vertical text-info me-2"></i>Panel de Administración Industrial
+              </h1>
+              <p class="mb-0 mt-1 text-muted small">
+                Control de módulos globales, flota de grúas, catálogo de técnicos, telemetría IoT y respaldo de base de datos
+              </p>
+            </div>
+            <div class="col-md-5">
+              <div class="stats-card">
+                <div class="row text-center g-2">
+                  <div class="col-4">
+                    <div class="stats-number" id="totalOperations">-</div>
+                    <small>Operaciones</small>
+                  </div>
+                  <div class="col-4" style="border-left: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08);">
+                    <div class="stats-number" id="totalCranes">-</div>
+                    <small>Grúas</small>
+                  </div>
+                  <div class="col-4">
+                    <div class="stats-number" id="totalLogs">-</div>
+                    <small>Registros</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <!-- Navegación por pestañas -->
+        <ul
+          class="nav nav-pills justify-content-center mb-4"
+          id="adminTabs"
+          role="tablist"
+        >
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="bot-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#bot"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-robot"></i> Bot & Logs
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="database-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#database"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-database"></i> Base de Datos
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="notifications-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#notifications"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-bell"></i> Notificaciones
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="settings-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#settings"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-gear"></i> Configuración
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="cranes-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#cranes-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-gear-wide-connected"></i> Gestión de Grúas
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="operations-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#operations-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-sliders"></i> Gestión de Operaciones
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="warehouse-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#warehouse-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-box-seam"></i> Gestión de Almacén (Pick-to-Light)
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="technicians-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#technicians-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-people"></i> Técnicos y Operadores
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="bot-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#bot-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-robot"></i> Gestión de Bot
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="failure-reasons-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#failure-reasons"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-exclamation-triangle"></i> Motivos de Paro (ESP32/SCADA)
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="topology-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#topology-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-diagram-3-fill text-info"></i> Topología & Textos de Planta
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="users-mgmt-tab"
+              data-bs-toggle="pill"
+              data-bs-target="#users-mgmt"
+              type="button"
+              role="tab"
+            >
+              <i class="bi bi-shield-lock-fill text-warning"></i> Usuarios & Accesos
+            </button>
+          </li>
+        </ul>
+
+        <!-- Contenido de las pestañas -->
+        <div class="tab-content" id="adminTabsContent">
+          <!-- Pestaña Bot & Logs -->
+          <div class="tab-pane fade show active" id="bot" role="tabpanel">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <div class="feature-icon bot">
+                      <i class="bi bi-robot"></i>
+                    </div>
+                    <h5 class="card-title">Bot WhatsApp</h5>
+                    <p class="card-text">
+                      Gestiona el bot de WhatsApp y sus logs
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-9">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="mb-0">
+                      <i class="bi bi-list-ul"></i> Logs del Bot
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row mb-3">
+                      <div class="col-md-6">
+                        <label for="eventTypeFilter" class="form-label"
+                          >Filtrar por tipo de evento:</label
+                        >
+                        <select id="eventTypeFilter" class="form-select">
+                          <option value="">Todos</option>
+                          <option value="received">Recibidos</option>
+                          <option value="sent">Enviados</option>
+                          <option value="error">Errores</option>
+                          <option value="accion_correctiva">
+                            Acciones Correctivas
+                          </option>
+                        </select>
+                      </div>
+                      <div class="col-md-6 d-flex align-items-end">
+                        <button id="refreshLogs" class="btn btn-primary me-2">
+                          <i class="bi bi-arrow-clockwise"></i> Refrescar
+                        </button>
+                        <button id="exportCSV" class="btn btn-success me-2">
+                          <i class="bi bi-download"></i> Exportar CSV
+                        </button>
+                        <button id="clearLogs" class="btn btn-danger">
+                          <i class="bi bi-trash"></i> Limpiar
+                        </button>
+                      </div>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table table-striped">
+                        <thead>
+                          <tr>
+                            <th>Timestamp</th>
+                            <th>Usuario</th>
+                            <th>Mensaje Recibido</th>
+                            <th>Mensaje Enviado</th>
+                            <th>Tipo de Evento</th>
+                            <th>Detalles Extra</th>
+                          </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                          <!-- Los logs se cargarán aquí dinámicamente -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña Base de Datos -->
+          <div class="tab-pane fade" id="database" role="tabpanel">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <div class="feature-icon database">
+                      <i class="bi bi-database"></i>
+                    </div>
+                    <h5 class="card-title">Base de Datos</h5>
+                    <p class="card-text">Gestiona y limpia la base de datos</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-9">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="mb-0">
+                      <i class="bi bi-database-gear"></i> Gestión de Base de
+                      Datos
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="alert alert-warning">
+                      <i class="bi bi-exclamation-triangle"></i>
+                      <strong>Advertencia:</strong> Las operaciones de limpieza
+                      son irreversibles. Asegúrate de hacer un respaldo antes de
+                      proceder.
+                    </div>
+
+                    <div class="row">
+                      <div class="col-md-6">
+                        <h6>
+                          <i class="bi bi-calendar-week"></i> Limpieza por
+                          Jornadas
+                        </h6>
+                        <p class="text-muted">Conserva fallas pendientes</p>
+                        <div class="d-grid gap-2">
+                          <button
+                            type="button"
+                            class="btn btn-warning btn-sm"
+                            onclick="cleanShiftData('A')"
+                          >
+                            <i class="bi bi-sun-fill"></i> Limpiar Jornada A
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-warning btn-sm"
+                            onclick="cleanShiftData('B')"
+                          >
+                            <i class="bi bi-sun-fill"></i> Limpiar Jornada B
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-info btn-sm"
+                            onclick="cleanShiftData('C')"
+                          >
+                            <i class="bi bi-moon-stars-fill"></i> Limpiar
+                            Jornada C
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-info btn-sm"
+                            onclick="cleanShiftData('D')"
+                          >
+                            <i class="bi bi-moon-stars-fill"></i> Limpiar
+                            Jornada D
+                          </button>
+                        </div>
+                        <small class="text-muted mt-2 d-block">
+                          <i class="bi bi-info-circle"></i>
+                          Jornada A: Dom-Mar 6AM-6PM | Jornada B: Mié-Sáb
+                          6AM-6PM<br />
+                          Jornada C: Dom-Mar 6PM-6AM | Jornada D: Mié-Sáb
+                          6PM-6AM
+                        </small>
+                      </div>
+                      <div class="col-md-6">
+                        <h6>
+                          <i class="bi bi-calendar-range"></i> Limpieza por
+                          Fecha
+                        </h6>
+                        <p class="text-muted">Selecciona un rango específico</p>
+                        <div class="mb-3">
+                          <label for="cleanDateFrom" class="form-label"
+                            >Desde:</label
+                          >
+                          <input
+                            type="date"
+                            class="form-control"
+                            id="cleanDateFrom"
+                          />
+                        </div>
+                        <div class="mb-3">
+                          <label for="cleanDateTo" class="form-label"
+                            >Hasta:</label
+                          >
+                          <input
+                            type="date"
+                            class="form-control"
+                            id="cleanDateTo"
+                          />
+                        </div>
+                        <div class="d-grid gap-2">
+                          <button
+                            type="button"
+                            class="btn btn-secondary btn-sm"
+                            onclick="cleanDateRange()"
+                          >
+                            <i class="bi bi-calendar-range"></i> Limpiar Rango
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-sm"
+                            onclick="cleanSpecificDate()"
+                          >
+                            <i class="bi bi-calendar-x"></i> Limpiar Fecha
+                            Específica
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <hr />
+
+                    <h6 class="mb-2">
+                      <i class="bi bi-box-seam"></i> Inventario
+                    </h6>
+                    <p class="text-muted small">
+                      Borra solo el módulo de inventario: artículos, movimientos,
+                      categorías, áreas y solicitudes de refacción. No afecta
+                      operaciones ni grúas.
+                    </p>
+                    <button
+                      type="button"
+                      class="btn btn-outline-warning mb-4"
+                      data-bs-toggle="modal"
+                      data-bs-target="#cleanInventoryModal"
+                    >
+                      <i class="bi bi-box-seam"></i> Solo limpiar inventario
+                    </button>
+
+                    <hr />
+
+                    <div class="text-center">
+                      <button
+                        class="btn btn-danger btn-lg"
+                        data-bs-toggle="modal"
+                        data-bs-target="#cleanDbModal"
+                      >
+                        <i class="bi bi-trash3"></i> Limpiar Toda la Base de
+                        Datos
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña Notificaciones -->
+          <div class="tab-pane fade" id="notifications" role="tabpanel">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <div class="feature-icon notifications">
+                      <i class="bi bi-bell"></i>
+                    </div>
+                    <h5 class="card-title">Notificaciones</h5>
+                    <p class="card-text">
+                      Configura notificaciones automáticas y escalamientos Andon
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-9">
+                <!-- Card Control de Escalamiento Andon por WhatsApp -->
+                <div class="card mb-4 border-warning">
+                  <div class="card-header bg-warning-subtle text-warning-emphasis d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                      <i class="bi bi-whatsapp me-1"></i> Escalamiento Automático Andon (WhatsApp)
+                    </h5>
+                    <span id="andonEscalationStatusBadge" class="badge bg-secondary">Cargando...</span>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-muted small mb-3">
+                      Controla los avisos automáticos que el bot envía por WhatsApp cuando una grúa permanece en falla sin atención o en paro prolongado. Los cambios se aplican en tiempo real sin reiniciar el bot.
+                    </p>
+                    <div class="form-check form-switch mb-3">
+                      <input class="form-check-input" type="checkbox" role="switch" id="andonEscalationMasterToggle">
+                      <label class="form-check-label fw-bold" for="andonEscalationMasterToggle">
+                        Activar Motor de Escalamiento Automático Andon
+                      </label>
+                    </div>
+                    <div class="row g-3 ms-1 mb-3">
+                      <div class="col-md-6">
+                        <div class="p-3 border rounded bg-body-tertiary">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="andonEscalationLevel2Toggle">
+                            <label class="form-check-label fw-semibold" for="andonEscalationLevel2Toggle">
+                              🚨 Nivel 2: Urgente (&gt;5 min sin atención)
+                            </label>
+                          </div>
+                          <small class="text-muted d-block mt-1">
+                            Notifica cuando ningún técnico ha registrado llegada en piso tras 5 minutos.
+                          </small>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="p-3 border rounded bg-body-tertiary">
+                          <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="andonEscalationLevel3Toggle">
+                            <label class="form-check-label fw-semibold" for="andonEscalationLevel3Toggle">
+                              🔴 Nivel 3: Paro Crítico (&gt;15 min acumulados)
+                            </label>
+                          </div>
+                          <small class="text-muted d-block mt-1">
+                            Notifica por paro prolongado que compromete el OEE del turno.
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                      <button type="button" id="saveAndonEscalationBtn" class="btn btn-warning fw-bold text-dark">
+                        <i class="bi bi-save"></i> Guardar Configuración de Escalamiento
+                      </button>
+                      <button type="button" id="silenceActiveCranesEscalationBtn" class="btn btn-outline-secondary">
+                        <i class="bi bi-bell-slash"></i> Silenciar Fallas Activas Actuales
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="mb-0">
+                      <i class="bi bi-bell-gear"></i> Configuración de
+                      Notificaciones
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <form id="notificationForm">
+                      <div class="row">
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="notificationType" class="form-label"
+                              >Tipo de Notificación:</label
+                            >
+                            <select id="notificationType" class="form-select">
+                              <option value="daily">Reporte Diario</option>
+                              <option value="weekly">Reporte Semanal</option>
+                              <option value="custom">Personalizado</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="notificationTime" class="form-label"
+                              >Hora de Envío:</label
+                            >
+                            <input
+                              type="time"
+                              id="notificationTime"
+                              class="form-control"
+                              required
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Guardar Notificación
+                      </button>
+                    </form>
+                  </div>
+                </div>
+
+                <div class="card mt-4">
+                  <div class="card-header">
+                    <h5 class="mb-0">
+                      <i class="bi bi-exclamation-triangle"></i> Gestión de
+                      Errores
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <label for="errorMessage" class="form-label"
+                        >Mensaje de Error:</label
+                      >
+                      <input
+                        type="text"
+                        id="errorMessage"
+                        class="form-control"
+                        placeholder="Ingrese un mensaje de error"
+                      />
+                    </div>
+                    <button id="saveError" class="btn btn-primary">
+                      <i class="bi bi-save"></i> Guardar Error
+                    </button>
+                    <div id="errorList" class="mt-3">
+                      <!-- Lista de errores guardados -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña Configuración -->
+          <div class="tab-pane fade" id="settings" role="tabpanel">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <div class="feature-icon settings">
+                      <i class="bi bi-gear"></i>
+                    </div>
+                    <h5 class="card-title">Configuración</h5>
+                    <p class="card-text">Ajustes del sistema</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-9">
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="mb-0">
+                      <i class="bi bi-globe"></i> Configuración de Idioma
+                    </h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="mb-3">
+                          <label for="languageSelect" class="form-label"
+                            >Seleccione el idioma:</label
+                          >
+                          <select id="languageSelect" class="form-select">
+                            <option value="es">Español</option>
+                            <option value="en">English</option>
+                            <option value="fr">Français</option>
+                          </select>
+                        </div>
+                        <button id="changeLanguage" class="btn btn-primary">
+                          <i class="bi bi-translate"></i> Cambiar Idioma
+                        </button>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="alert alert-info">
+                          <i class="bi bi-info-circle"></i>
+                          <strong>Nota:</strong> El cambio de idioma se aplicará
+                          a toda la interfaz del sistema.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card mt-4">
+                  <div class="card-header">
+                    <h5 class="mb-0">
+                      <i class="bi bi-arrow-left"></i> Navegación
+                    </h5>
+                  </div>
+                  <div class="card-body text-center">
+                    <a href="index.html" class="btn btn-secondary btn-lg">
+                      <i class="bi bi-arrow-left"></i> Volver a la Página
+                      Principal
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pestaña Gestión de Grúas -->
+          <div class="tab-pane fade" id="cranes-mgmt" role="tabpanel">
+            <div class="row">
+              <div class="col-md-3" id="cranesSideCardCol">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <div class="feature-icon settings" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                      <i class="bi bi-gear-wide-connected"></i>
+                    </div>
+                    <h5 class="card-title">Gestión de Grúas</h5>
+                    <p class="card-text">Agrega, edita o elimina grúas y áreas del sistema.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-9" id="cranesMainContentCol">
+
+                <!-- =====================================================
+                     BARRA DE PESTAÑAS POR ÁREA INDUSTRIAL
+                     ===================================================== -->
+                <div class="area-tabs-wrapper mb-3">
+                  <div class="d-flex align-items-center gap-2 flex-wrap justify-content-between">
+                    <!-- Tabs dinámicos generados por renderCranesMgmtUI() -->
+                    <div class="d-flex align-items-center gap-2 flex-wrap" id="areaTabsNav" role="tablist">
+                      <div class="text-muted small py-2">
+                        <div class="spinner-border spinner-border-sm me-2 text-warning"></div>
+                        Cargando áreas...
+                      </div>
+                    </div>
+                    <!-- Botón Nueva Área siempre visible -->
+                    <button class="btn btn-sm btn-success fw-semibold shadow-sm flex-shrink-0" id="addAreaBtn" data-bs-toggle="modal" data-bs-target="#newAreaModal">
+                      <i class="bi bi-plus-circle"></i> Nueva Área
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Panel del área activa (generado dinámicamente) -->
+                <div id="areaTabsContent"></div>
+
+                <!-- Panel Monitor Global ESP32 (oculto por defecto) -->
+                <div id="globalEsp32Panel" style="display:none;">
+                  <!-- Tarjeta Unificada de Hardware ESP32, Flasheo Web & Configuración USB Multi-Rol -->
+                  <div class="card mb-4" id="esp32UniversalHardwareCard" style="background: rgba(13, 17, 23, 0.95); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(56, 189, 248, 0.08); border-bottom: 1px solid rgba(56, 189, 248, 0.2);">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-cpu-fill text-info fs-5"></i>
+                        <h6 class="mb-0 fw-bold text-white">Centro de Hardware ESP32 & Flasheo Universal (v3.0.0)</h6>
+                        <span class="badge bg-primary" id="esp32ActiveRoleBadge">Multi-Rol: Grúas • Operaciones • Almacén</span>
+                      </div>
+                      <span class="badge bg-dark border border-info text-info"><i class="bi bi-lightning-charge-fill me-1"></i>Web Serial & ESP Web Tools</span>
+                    </div>
+                    <div class="card-body">
+                      <p class="small text-muted mb-4">
+                        Conecta cualquier ESP32 nuevo por cable USB a Google Chrome o Edge para flashearle el <strong>Firmware Universal v3.0.0</strong> en 45 segundos. Puedes configurarlo y alternarlo en caliente entre <strong>Grúas</strong>, <strong>Operaciones</strong> y <strong>Almacén IoT</strong> sin compilar nada.
+                      </p>
+                      <div class="row g-4">
+                        <!-- Columna 1: Flasheo Web por Rol de Hardware -->
+                        <div class="col-lg-5">
+                          <div class="p-3 rounded-3 h-100" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                            <div class="d-flex align-items-center gap-2 mb-3">
+                              <span class="badge bg-primary fs-6">1</span>
+                              <h6 class="mb-0 fw-bold text-white"><i class="bi bi-cloud-arrow-down"></i> Flasheo Web Directo (1 Clic)</h6>
+                            </div>
+                            <p class="small text-muted mb-2">
+                              Selecciona el rol de hardware que conectarás por USB para cargarle su firmware específico:
+                            </p>
+
+                            <!-- Selector de Firmware: Centro de Mando vs Nodo Satélite -->
+                            <div class="btn-group w-100 mb-3" role="group" id="firmwareTypeSwitch">
+                              <input type="radio" class="btn-check" name="firmwareSelection" id="fwSelectCentroMando" autocomplete="off" checked>
+                              <label class="btn btn-outline-info btn-sm fw-bold py-2" for="fwSelectCentroMando" id="labelFwCentroMando">
+                                <i class="bi bi-display me-1"></i> Centro de Mando<br><span style="font-size:0.68rem; font-weight:normal;">LCD GC9A01 • Multinodo</span>
+                              </label>
+
+                              <input type="radio" class="btn-check" name="firmwareSelection" id="fwSelectSatellite" autocomplete="off">
+                              <label class="btn btn-outline-primary btn-sm fw-bold py-2" for="fwSelectSatellite" id="labelFwSatellite">
+                                <i class="bi bi-cpu me-1"></i> Nodo Satélite<br><span style="font-size:0.68rem; font-weight:normal;">1 Grúa por Nodo (ej: 30A)</span>
+                              </label>
+                            </div>
+
+                            <!-- Panel Info: Centro de Mando -->
+                            <div id="fwInfoCentroMando" class="p-2 rounded bg-dark border border-info border-opacity-25 mb-3 small" style="font-size:0.77rem; line-height: 1.4;">
+                              <div class="fw-bold text-info mb-1"><i class="bi bi-check-circle-fill me-1"></i>Centro de Mando SCADA (Pantalla Circular GC9A01):</div>
+                              <ul class="mb-1 ps-3 text-muted">
+                                <li><strong>Hardware:</strong> ESP32 Clásico DevKit V1 (30 Pines).</li>
+                                <li><strong>Periféricos:</strong> Display GC9A01 SPI 240x240, Tira WS2815, Botón Metálico.</li>
+                                <li><strong>Función:</strong> Supervisa toda la sección (30A, 30B, 30C, 30D), cálculo OEE y semáforo 360°.</li>
+                              </ul>
+                            </div>
+
+                            <!-- Panel Info: Nodo Satélite -->
+                            <div id="fwInfoSatellite" class="p-2 rounded bg-dark border border-primary border-opacity-25 mb-3 small" style="display:none; font-size:0.77rem; line-height: 1.4;">
+                              <div class="fw-bold text-primary mb-1"><i class="bi bi-check-circle-fill me-1"></i>Nodo Satélite Secundario (1 Grúa por Nodo):</div>
+                              <ul class="mb-1 ps-3 text-muted">
+                                <li><strong>Hardware:</strong> ESP32 Clásico o ESP32-C3 SuperMini.</li>
+                                <li><strong>Periféricos:</strong> Pulsador arcade/metálico, Baliza WS2815 y OLED (opcional).</li>
+                                <li><strong>Función:</strong> Asignado a <strong>1 sola grúa</strong> (ej. 30A). Al pulsar reporta falla a WhatsApp; mantener 4s la resuelve.</li>
+                              </ul>
+                            </div>
+
+                            <!-- Botones de Flasheo Web -->
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                              <!-- Botón para Centro de Mando GC9A01 -->
+                              <div id="installWrapperCentroMando">
+                                <esp-web-install-button manifest="/firmware/manifest-centro-mando.json" id="espWebInstallCentroMando">
+                                  <button slot="activate" class="btn btn-info shadow-sm py-2 px-3 fw-bold text-dark">
+                                    <i class="bi bi-lightning-charge-fill"></i> Instalar Centro de Mando (GC9A01)
+                                  </button>
+                                  <span slot="unsupported" class="text-danger small">
+                                    <i class="bi bi-exclamation-triangle"></i> Tu navegador no soporta Web Serial. Usa Chrome o Edge.
+                                  </span>
+                                  <span slot="not-allowed" class="text-warning small">
+                                    <i class="bi bi-shield-lock"></i> Se requiere conexión segura (HTTPS o localhost).
+                                  </span>
+                                </esp-web-install-button>
+                              </div>
+
+                              <!-- Botón para Nodo Satélite Secundario -->
+                              <div id="installWrapperSatellite" style="display:none;">
+                                <esp-web-install-button manifest="/firmware/manifest-satellite.json" id="espWebInstallSatellite">
+                                  <button slot="activate" class="btn btn-primary shadow-sm py-2 px-3 fw-bold">
+                                    <i class="bi bi-lightning-charge-fill"></i> Instalar Nodo Satélite (ESP32 / C3)
+                                  </button>
+                                  <span slot="unsupported" class="text-danger small">
+                                    <i class="bi bi-exclamation-triangle"></i> Tu navegador no soporta Web Serial. Usa Chrome o Edge.
+                                  </span>
+                                  <span slot="not-allowed" class="text-warning small">
+                                    <i class="bi bi-shield-lock"></i> Se requiere conexión segura (HTTPS o localhost).
+                                  </span>
+                                </esp-web-install-button>
+                              </div>
+
+                              <a href="/firmware/esp32_centro_mando_gc9a01.ino" download="esp32_centro_mando_gc9a01.ino" id="downloadInoLink" class="btn btn-outline-secondary btn-sm" title="Descargar código fuente Arduino">
+                                <i class="bi bi-file-code"></i> Código .ino
+                              </a>
+                            </div>
+
+                            <div class="p-2 rounded bg-dark border border-warning border-opacity-25 mb-2 small text-warning" style="font-size:0.77rem; line-height: 1.4;">
+                              <i class="bi bi-lightbulb-fill me-1"></i><strong>Modo Flasheo ESP32-C3 / SuperMini:</strong><br>
+                              Si aparece <em>TIMEOUT</em> o no avanza, pon el C3 en modo bootloader manual:<br>
+                              1. Mantén presionado el botón <strong>BOOT</strong>.<br>
+                              2. Presiona y suelta <strong>RST</strong> (o desconecta y conecta el cable USB manteniendo presionado BOOT).<br>
+                              3. Suelta <strong>BOOT</strong> y presiona <em>Instalar</em> nuevamente.
+                            </div>
+                            <div class="small text-muted p-2 rounded bg-dark border border-secondary border-opacity-25 font-monospace" style="font-size:0.78rem;">
+                              <i class="bi bi-check2-all text-success"></i> Ambos firmwares soportan Wi-Fi Manager (Portal Cautivo al sostener 20s) y sincronización con Firestore.
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Columna 2: USB Directo Multi-Rol -->
+                        <div class="col-lg-7">
+                          <div class="p-3 rounded-3 h-100" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                              <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success fs-6">2</span>
+                                <h6 class="mb-0 fw-bold text-white"><i class="bi bi-usb-plug-fill"></i> Configurar Rol, Destino y Wi-Fi por USB</h6>
+                              </div>
+                              <span id="usbStatusBadge" class="badge bg-secondary d-inline-flex align-items-center">No conectado</span>
+                            </div>
+                            <p class="small text-muted mb-3">
+                              Conecta el ESP32 para seleccionar a qué módulo de la fábrica servirá y grabar la configuración permanentemente en su memoria Flash NVS.
+                            </p>
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                              <button class="btn btn-outline-success btn-sm fw-semibold" id="usbConnectBtn">
+                                <i class="bi bi-plug"></i> Conectar por USB
+                              </button>
+                              <button class="btn btn-outline-secondary btn-sm" id="usbDisconnectBtn" style="display:none;">
+                                <i class="bi bi-x-circle"></i> Desconectar
+                              </button>
+                            </div>
+                            <!-- Overlay visible cuando ESP32 NO está conectado -->
+                            <div id="usbDisconnectedOverlay" class="p-3 rounded border border-secondary border-dashed text-center mb-2" style="background:rgba(0,0,0,0.25); border-style:dashed!important;">
+                              <i class="bi bi-usb-plug text-secondary" style="font-size:2rem; opacity:0.5;"></i>
+                              <p class="small text-muted mb-2 mt-2">Conecta el ESP32 por USB y presiona <strong class="text-white">"Conectar por USB"</strong> para asignarle su función (Grúas, Operaciones o Almacén) en segundos.</p>
+                            </div>
+
+                            <!-- Controles interactivos USB -->
+                            <div id="usbConfigControls" class="p-3 rounded bg-dark mb-2" style="display:none; border: 1px solid rgba(255,255,255,0.08);">
+                              <div class="row g-2 mb-2">
+                                <div class="col-sm-6">
+                                  <label class="small text-uppercase fw-bold text-info mb-1" style="font-size: 0.72rem;">Tipo de Dispositivo / Rol:</label>
+                                  <select class="form-select form-select-sm" id="usbDeviceRoleSelect">
+                                    <option value="cranes" selected>🌟 Centro de Mando SCADA (Sección Completa)</option>
+                                    <option value="satellite_crane">🎯 Nodo Satélite (1 Grúa por Nodo: ej. 30A)</option>
+                                    <option value="operations">⚙️ Gestión de Operaciones (Paros de Estación)</option>
+                                    <option value="warehouse">📦 Gestión de Almacén (Pick/Put-to-Light)</option>
+                                  </select>
+                                </div>
+                                <div class="col-sm-6">
+                                  <label class="small text-uppercase fw-bold text-info mb-1" id="usbTargetIdLabel" style="font-size: 0.72rem;">Área de Grúas Asignada:</label>
+                                  <select class="form-select form-select-sm" id="usbTargetAreaSelect"></select>
+                                </div>
+                                <div class="col-sm-6">
+                                  <label class="small text-muted mb-1" style="font-size: 0.72rem;">Red Wi-Fi (SSID):</label>
+                                  <input type="text" class="form-control form-control-sm" id="usbWifiSsidInput" placeholder="Nombre de Red Wi-Fi">
+                                </div>
+                                <div class="col-sm-6">
+                                  <label class="small text-muted mb-1" style="font-size: 0.72rem;">Contraseña Wi-Fi:</label>
+                                  <input type="password" class="form-control form-control-sm" id="usbWifiPassInput" placeholder="Contraseña Wi-Fi">
+                                </div>
+
+                                <!-- Controles y Vista Previa Micro-OLED 0.42" (Solo visible para Nodo Satélite C3) -->
+                                <div class="col-12" id="usbOledConfigCard" style="display:none;">
+                                  <div class="p-2 rounded border border-info border-opacity-25" style="background: rgba(6, 182, 212, 0.05);">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                      <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-info text-dark font-monospace" style="font-size:0.7rem;"><i class="bi bi-display"></i> Micro-OLED 0.42"</span>
+                                        <span class="small fw-bold text-light" style="font-size:0.78rem;">Pantalla Integrada SSD1306 (72x40 px)</span>
+                                      </div>
+                                      <span class="badge bg-secondary font-monospace" id="usbOledCurrentRotBadge" style="font-size:0.7rem;">Rotación: 0° (Normal)</span>
+                                    </div>
+                                    <div class="row align-items-center g-2">
+                                      <!-- Vista previa visual pixel-art del micro-OLED -->
+                                      <div class="col-auto">
+                                        <div id="usbOledPreviewBox" style="width: 144px; height: 80px; background: #000; border: 2px solid #334155; border-radius: 6px; padding: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.25); transition: transform 0.3s ease;">
+                                          <div id="usbOledPreviewCrane" class="font-monospace fw-bold text-info" style="font-size: 1.45rem; line-height: 1; letter-spacing: 1px;">20C</div>
+                                          <div id="usbOledPreviewStatus" class="font-monospace text-light" style="font-size: 0.65rem; margin-top: 4px; letter-spacing: 0.5px;">OPERATIVA</div>
+                                        </div>
+                                        <div class="text-center mt-1">
+                                          <small class="text-muted font-monospace" style="font-size:0.65rem;"><i class="bi bi-eye"></i> Simulación 72x40</small>
+                                        </div>
+                                      </div>
+                                      <div class="col">
+                                        <p class="small text-muted mb-2" style="font-size:0.75rem;">
+                                          Configura la orientación de la pantalla si el módulo C3 se instala invertido (180°) dentro del gabinete 3D o en riel DIN.
+                                        </p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                          <button class="btn btn-outline-info btn-sm py-1 px-2" id="usbRotateOledBtn" type="button">
+                                            <i class="bi bi-arrow-repeat me-1"></i> Rotar 180°
+                                          </button>
+                                          <button class="btn btn-outline-warning btn-sm py-1 px-2" id="usbTestOledBtn" type="button">
+                                            <i class="bi bi-aspect-ratio me-1"></i> Probar Pantalla
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div class="col-12 mt-3">
+                                  <button class="btn btn-success btn-sm w-100 fw-bold shadow-sm" id="usbWriteAreaBtn">
+                                    <i class="bi bi-save me-1"></i> Guardar Configuración en Flash NVS del ESP32
+                                  </button>
+                                </div>
+                              </div>
+                              <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-2 border-top border-secondary border-opacity-25 mt-2">
+                                <div class="d-flex align-items-center gap-1">
+                                  <button class="btn btn-outline-info btn-sm py-0 px-2" id="usbGetInfoBtn"><i class="bi bi-info-circle"></i> Info</button>
+                                  <button class="btn btn-outline-warning btn-sm py-0 px-2" id="usbTestLedsBtn"><i class="bi bi-lightbulb"></i> Probar Tira LED</button>
+                                  <button class="btn btn-outline-secondary btn-sm py-0 px-2" id="usbRebootBtn"><i class="bi bi-arrow-clockwise"></i> Reiniciar</button>
+                                </div>
+                                <small class="text-success font-monospace" style="font-size:0.75rem;"><i class="bi bi-shield-check"></i> 100% Permanente en NVS</small>
+                              </div>
+                              <div class="small text-info font-monospace p-2 rounded bg-black border border-secondary border-opacity-25 mt-2" id="usbTerminalOutput" style="max-height:120px;overflow-y:auto;white-space:pre-wrap;font-size:0.78rem;">Puerto USB abierto. Esperando datos del ESP32...</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Tabla Global de Dispositivos Multi-Rol -->
+                        <div class="col-12">
+                          <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                              <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-info text-dark fs-6">3</span>
+                                <h6 class="mb-0 fw-bold text-white"><i class="bi bi-hdd-network"></i> Dispositivos ESP32 Registrados en la Fábrica</h6>
+                              </div>
+                              <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-dark border border-secondary" id="totalEsp32DevicesBadge">0 dispositivos detectados</span>
+                                <button class="btn btn-primary btn-sm fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#manualAddEsp32Modal" id="openManualEsp32ModalBtn">
+                                  <i class="bi bi-plus-circle me-1"></i> + Agregar ESP32
+                                </button>
+                              </div>
+                            </div>
+                            <p class="small text-muted mb-3">
+                              Todos los microcontroladores encendidos en la planta se listan aquí en tiempo real con su rol actual (Grúas, Operaciones o Almacén). Puedes reasignar su función remotamente desde la nube sin necesidad de reprogramarlos.
+                            </p>
+                            <div class="table-responsive">
+                              <table class="table table-dark table-hover align-middle mb-0 small" style="width: 100%;">
+                                <thead>
+                                  <tr class="text-muted">
+                                    <th style="width: 110px;">Estado</th>
+                                    <th style="width: 110px;">Módulo / Rol</th>
+                                    <th style="min-width: 230px; width: 240px;">Destino Asignado</th>
+                                    <th style="width: 130px;">IP / MAC</th>
+                                    <th style="min-width: 580px; width: 600px;">Acciones Remotas (Reasignar / Pantalla OLED / Red / Borrar)</th>
+                                  </tr>
+                                </thead>
+                                <tbody id="esp32DevicesTableBody">
+                                  <tr><td colspan="5" class="text-center py-3 text-muted">
+                                    <div class="spinner-border spinner-border-sm text-info me-2"></div>
+                                    Buscando dispositivos ESP32 en Firestore...
+                                  </td></tr>
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Modal: Agregar Dispositivo ESP32 Manualmente -->
+            <div class="modal fade" id="manualAddEsp32Modal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content" style="background:#0f172a;color:#f8fafc;border:1px solid rgba(255,255,255,0.15);">
+                  <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-hdd-network text-info"></i> Agregar ESP32 Manualmente</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p class="small text-muted mb-3">Registra un microcontrolador ESP32 conectado por Wi-Fi para vincularlo inmediatamente a la supervisión SCADA.</p>
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold">Dirección IP Local en Planta:</label>
+                      <input type="text" class="form-control form-control-sm font-monospace bg-dark text-white border-secondary" id="manualEsp32Ip" placeholder="Ej. 192.168.100.29" value="192.168.100.29">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold">Dirección MAC:</label>
+                      <input type="text" class="form-control form-control-sm font-monospace bg-dark text-white border-secondary" id="manualEsp32Mac" placeholder="Ej. E0:8C:FE:F9:93:70" value="E0:8C:FE:F9:93:70">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold">Módulo / Rol:</label>
+                      <select class="form-select form-select-sm bg-dark text-white border-secondary" id="manualEsp32Role">
+                        <option value="cranes" selected>Grúas (Centro de Mando / Satélite)</option>
+                        <option value="operations">Operaciones (Paro de Estación)</option>
+                        <option value="warehouse">Almacén (Pick-to-Light)</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-bold">Destino / Área / Grúa Asignada:</label>
+                      <select class="form-select form-select-sm bg-dark text-white border-secondary" id="manualEsp32TargetSelect">
+                        <optgroup label="Centros de Mando SCADA (Pantalla GC9A01)">
+                          <option value="area30" data-label="Centro de Mando SCADA (Área 30)" selected>Centro de Mando SCADA (Área 30)</option>
+                          <option value="area20" data-label="Centro de Mando SCADA (Área 20)">Centro de Mando SCADA (Área 20)</option>
+                          <option value="area10" data-label="Centro de Mando SCADA (Área 10)">Centro de Mando SCADA (Área 10)</option>
+                        </optgroup>
+                        <optgroup label="Nodos Satélite Individuales (1 Grúa)">
+                          <option value="30A" data-label="Grúa 30A (Nodo Satélite)">Grúa 30A</option>
+                          <option value="30B" data-label="Grúa 30B (Nodo Satélite)">Grúa 30B</option>
+                          <option value="30C" data-label="Grúa 30C (Nodo Satélite)">Grúa 30C</option>
+                          <option value="30D" data-label="Grúa 30D (Nodo Satélite)">Grúa 30D</option>
+                          <option value="10A" data-label="Grúa 10A (Nodo Satélite)">Grúa 10A</option>
+                          <option value="10B" data-label="Grúa 10B (Nodo Satélite)">Grúa 10B</option>
+                          <option value="10C" data-label="Grúa 10C (Nodo Satélite)">Grúa 10C</option>
+                          <option value="10D" data-label="Grúa 10D (Nodo Satélite)">Grúa 10D</option>
+                          <option value="20A" data-label="Grúa 20A (Nodo Satélite)">Grúa 20A</option>
+                          <option value="20B" data-label="Grúa 20B (Nodo Satélite)">Grúa 20B</option>
+                          <option value="20C" data-label="Grúa 20C (Nodo Satélite)">Grúa 20C</option>
+                          <option value="20D" data-label="Grúa 20D (Nodo Satélite)">Grúa 20D</option>
+                        </optgroup>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success btn-sm fw-bold" id="saveManualEsp32Btn">
+                      <i class="bi bi-check-circle me-1"></i> Guardar y Vincular Dispositivo
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal: Firmware ESP32 -->
+            <div class="modal fade" id="esp32CodeModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content" style="background:#0f172a;color:#f8fafc;border:1px solid rgba(255,255,255,0.15);">
+                  <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-cpu text-warning"></i> Firmware ESP32 para Área Seleccionada</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p class="small text-muted">Copia este código y cárgalo directamente en el ESP32 con el Arduino IDE o Arduino CLI. Ya incluye las credenciales WiFi, la asignación de pines y la sincronización con Firestore.</p>
+                    <div class="position-relative">
+                      <button class="btn btn-sm btn-outline-light position-absolute top-0 end-0 m-2" id="copyEsp32CodeBtn">
+                        <i class="bi bi-clipboard"></i> Copiar Código
+                      </button>
+                      <pre class="p-3 rounded bg-black text-light font-monospace small" style="max-height:450px;overflow:auto;" id="esp32CodePre"></pre>
+                    </div>
+                  </div>
+                  <div class="modal-footer border-secondary">
+                    <a href="/esp32-crane-button.ino" download="esp32-crane-button.ino" class="btn btn-outline-info">
+                      <i class="bi bi-download"></i> Descargar Archivo .ino
+                    </a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal: Nueva Área Industrial -->
+            <div class="modal fade" id="newAreaModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content" style="background:#0f172a;color:#f8fafc;border:1px solid rgba(255,255,255,0.15);box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                  <div class="modal-header border-secondary">
+                    <h5 class="modal-title"><i class="bi bi-building-add text-success"></i> Crear Nueva Área Industrial</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <form id="newAreaForm">
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Número de Área:</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-dark text-white border-secondary">Área</span>
+                          <input type="number" class="form-control bg-dark text-white border-secondary" id="newAreaNumberInput" placeholder="Ej. 40, 50, 60" required min="1" max="999">
+                        </div>
+                        <div class="form-text text-muted">Ejemplo: Escribe <strong>40</strong> para crear el Área 40.</div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Grúas Iniciales (Opcional):</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="newAreaCranesInput" placeholder="Ej. 40A, 40B, 40C, 40D">
+                        <div class="form-text text-muted">Separa las grúas por comas. Si lo dejas vacío, se crearán automáticamente las 4 grúas estándar (A, B, C y D).</div>
+                      </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                      <button type="submit" class="btn btn-success fw-bold" id="confirmCreateAreaBtn">
+                        <i class="bi bi-plus-circle"></i> Crear Área
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Fin cranes-mgmt -->
+
+          <!-- Pestaña Gestión de Operaciones -->
+          <div class="tab-pane fade" id="operations-mgmt" role="tabpanel">
+            <div class="row">
+              <div class="col-md-3">
+                <div class="card text-center mb-3">
+                  <div class="card-body">
+                    <div class="feature-icon settings" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                      <i class="bi bi-sliders text-white fs-3"></i>
+                    </div>
+                    <h5 class="card-title mt-2">Gestión de Operaciones</h5>
+                    <p class="card-text text-muted small">Control de áreas industriales, estaciones de ensamble, botones físicos ESP32 y torretas Andon.</p>
+                  </div>
+                </div>
+
+                <div class="card mb-3">
+                  <div class="card-header py-2" style="background: rgba(16,185,129,0.08); border-bottom: 1px solid rgba(16,185,129,0.2);">
+                    <h6 class="mb-0 small fw-bold text-uppercase text-white"><i class="bi bi-speedometer2 text-success me-1"></i> Estado en Planta</h6>
+                  </div>
+                  <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="small text-muted">Total Operaciones:</span>
+                      <strong class="font-monospace text-info fs-6" id="opStatsTotalOps">-</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="small text-muted">En Falla Activa:</span>
+                      <span class="badge bg-danger fs-6" id="opStatsActiveFailures">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="small text-muted">Operativas:</span>
+                      <span class="badge bg-success fs-6" id="opStatsOperational">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="small text-muted">Total Áreas:</span>
+                      <span class="badge bg-secondary font-monospace" id="opStatsTotalAreas">-</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-3 mb-3 border border-success border-opacity-30" style="background: rgba(16,185,129,0.08);">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-success small fw-bold text-uppercase"><i class="bi bi-cpu-fill me-1"></i> ESP32 Operaciones</span>
+                    <span class="badge bg-success text-white">v3.0.0 Web</span>
+                  </div>
+                  <p class="small text-muted mb-3" style="font-size: 0.78rem;">
+                    Conecta cualquier ESP32 para flashearlo con 1 clic o asignarle esta línea de operaciones por USB directo.
+                  </p>
+                  <button class="btn btn-sm btn-success w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center gap-1 mb-2" onclick="openHardwareCenter('operations')">
+                    <i class="bi bi-usb-plug-fill"></i> Flashear / Configurar ESP32
+                  </button>
+                  <button class="btn btn-sm btn-outline-light w-100" data-bs-toggle="modal" data-bs-target="#esp32OpCodeModal">
+                    <i class="bi bi-file-code"></i> Ver Código C++ .ino
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-9">
+                <!-- Barra de pestañas dinámicas por Área Industrial de Operaciones -->
+                <div class="area-tabs-wrapper mb-3">
+                  <div class="d-flex align-items-center gap-2 flex-wrap justify-content-between">
+                    <div class="d-flex align-items-center gap-2 flex-wrap" id="opAreaTabsNav" role="tablist">
+                      <div class="text-muted small py-2">
+                        <div class="spinner-border spinner-border-sm me-2 text-success"></div>
+                        Cargando áreas de operaciones...
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-success fw-semibold shadow-sm flex-shrink-0" id="addOpAreaBtn" data-bs-toggle="modal" data-bs-target="#newOpAreaModal">
+                      <i class="bi bi-plus-circle"></i> Nueva Área
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Panel dinámico del área activa de operaciones -->
+                <div id="opAreaTabsContent"></div>
+              </div>
+            </div>
+
+            <!-- Modal: Firmware ESP32 para Operaciones -->
+            <div class="modal fade" id="esp32OpCodeModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <div class="modal-content" style="background:#0f172a;color:#f8fafc;border:1px solid rgba(16,185,129,0.3);box-shadow: 0 20px 60px rgba(0,0,0,0.8);">
+                  <div class="modal-header border-secondary" style="background: rgba(16,185,129,0.1);">
+                    <div class="d-flex align-items-center gap-2">
+                      <i class="bi bi-cpu-fill text-success fs-5"></i>
+                      <h5 class="modal-title mb-0" id="esp32OpModalTitle">Firmware ESP32 — Operaciones</h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="alert alert-success d-flex align-items-center justify-content-between p-2 mb-3 border-0" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3) !important;">
+                      <div class="small">
+                        <i class="bi bi-lightning-charge-fill text-success me-1"></i> <strong>Recomendado:</strong> Flashea este ESP32 en 45 segundos directamente desde el navegador sin necesidad de Arduino IDE.
+                      </div>
+                      <button type="button" class="btn btn-sm btn-success fw-bold flex-shrink-0 ms-2" data-bs-dismiss="modal" onclick="openHardwareCenter('operations')">
+                        <i class="bi bi-usb-plug-fill me-1"></i> Ir al Flasheador Web
+                      </button>
+                    </div>
+                    <p class="small text-muted mb-3">
+                      Código C++ listo para Arduino IDE / Arduino CLI. Configura pines GPIO para botones físicos de paro de línea, sincroniza fallas en tiempo real con Firestore y controla tiras LED WS2815/WS2812B para señalización Andon.
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 p-2 rounded" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="small fw-bold text-muted text-uppercase">Modo de Operación:</span>
+                        <div class="btn-group btn-group-sm" role="group">
+                          <input type="radio" class="btn-check" name="esp32OpModeRadio" id="esp32OpModeMulti" autocomplete="off" checked>
+                          <label class="btn btn-outline-success" for="esp32OpModeMulti"><i class="bi bi-input-cursor-text"></i> Pulsador Dedicado por Estación</label>
+                          <input type="radio" class="btn-check" name="esp32OpModeRadio" id="esp32OpModeSingle" autocomplete="off">
+                          <label class="btn btn-outline-success" for="esp32OpModeSingle"><i class="bi bi-joystick"></i> Terminal Selector Cíclico</label>
+                        </div>
+                      </div>
+                      <button class="btn btn-sm btn-outline-light" id="copyOpEsp32CodeBtn">
+                        <i class="bi bi-clipboard"></i> Copiar Código
+                      </button>
+                    </div>
+                    <pre class="p-3 rounded bg-black text-light font-monospace small" style="max-height:450px;overflow:auto;" id="esp32OpCodePre"></pre>
+                  </div>
+                  <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-success" id="downloadOpEsp32InoBtn">
+                      <i class="bi bi-download"></i> Descargar Archivo .ino
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal: Nueva Área Industrial de Operaciones -->
+            <div class="modal fade" id="newOpAreaModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content" style="background:#0f172a;color:#f8fafc;border:1px solid rgba(16,185,129,0.3);box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+                  <div class="modal-header border-secondary" style="background: rgba(16,185,129,0.1);">
+                    <h5 class="modal-title"><i class="bi bi-building-add text-success"></i> Crear Nueva Área de Operaciones</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <form id="newOpAreaForm">
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Número o Identificador de Área:</label>
+                        <div class="input-group">
+                          <span class="input-group-text bg-dark text-white border-secondary">Área</span>
+                          <input type="text" class="form-control bg-dark text-white border-secondary" id="newOpAreaNumberInput" placeholder="Ej. 40, 50, 60" required>
+                        </div>
+                        <div class="form-text text-muted">Ejemplo: Escribe <strong>40</strong> para crear el Área 40 de operaciones.</div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Operaciones Iniciales (Opcional):</label>
+                        <input type="text" class="form-control bg-dark text-white border-secondary" id="newOpAreaOpsInput" placeholder="Ej. 40.01, 40.02, 40.03">
+                        <div class="form-text text-muted">Separa las operaciones por comas. Si lo dejas vacío, podrás agregarlas después una a una.</div>
+                      </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                      <button type="submit" class="btn btn-success fw-bold" id="confirmCreateOpAreaBtn">
+                        <i class="bi bi-plus-circle"></i> Crear Área de Operaciones
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña Gestión de Almacén (Pick-to-Light) -->
+          <div class="tab-pane fade" id="warehouse-mgmt" role="tabpanel">
+            <div class="row">
+              <!-- Lateral Izquierdo: Telemetría y KPIs de Almacén -->
+              <div class="col-md-3">
+                <div class="card text-center mb-3">
+                  <div class="card-body">
+                    <div class="feature-icon settings" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                      <i class="bi bi-box-seam text-white"></i>
+                    </div>
+                    <h5 class="card-title">Almacén Inteligente</h5>
+                    <p class="card-text small text-muted">
+                      Control de racks Pick-to-Light, localización visual con tiras LED WS2812B y confirmación por botón físico ESP32 o WhatsApp.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header py-2" style="background:rgba(2,132,199,0.08); border-bottom:1px solid rgba(2,132,199,0.2);">
+                    <i class="bi bi-cpu text-info"></i> Telemetría de Almacén
+                  </div>
+                  <div class="card-body p-2">
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background:rgba(255,255,255,0.03);">
+                      <span class="small">Total Gavetas/Bins:</span>
+                      <strong class="fs-6 text-info" id="whStatsTotalBins">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.3);">
+                      <span class="small">Picks Activos (Luz):</span>
+                      <strong class="fs-6 text-warning" id="whStatsActivePicks">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 rounded" style="background:rgba(16,185,129,0.05);">
+                      <span class="small">Picks Realizados:</span>
+                      <strong class="fs-6 text-success" id="whStatsTotalPicked">0</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background:rgba(255,255,255,0.03);">
+                      <span class="small">Racks Configurados:</span>
+                      <strong class="fs-6 text-light" id="whStatsTotalRacks">0</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-3 mt-3 border border-info border-opacity-30" style="background: rgba(14,165,233,0.08);">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-info small fw-bold text-uppercase"><i class="bi bi-cpu-fill me-1"></i> ESP32 Almacén</span>
+                    <span class="badge bg-info text-dark">v3.0.0 Web</span>
+                  </div>
+                  <p class="small text-muted mb-3" style="font-size: 0.78rem;">
+                    Flashea controladores de estantería en 1 clic o asígnales este Rack por USB directo para Pick &amp; Put-to-Light.
+                  </p>
+                  <button class="btn btn-sm btn-info fw-bold text-dark w-100 shadow-sm d-flex align-items-center justify-content-center gap-1 mb-2" onclick="openHardwareCenter('warehouse')">
+                    <i class="bi bi-usb-plug-fill"></i> Flashear / Configurar ESP32
+                  </button>
+                  <button class="btn btn-sm btn-outline-light w-100" data-bs-toggle="modal" data-bs-target="#esp32WhCodeModal">
+                    <i class="bi bi-file-code"></i> Ver Código C++ .ino
+                  </button>
+                </div>
+              </div>
+
+              <!-- Contenido Principal: Racks, Simulador 2D y Configuración Hardware -->
+              <div class="col-md-9">
+                <!-- Barra Horizontal de Racks / Estantes -->
+                <div class="d-flex align-items-center gap-2 mb-3 overflow-auto pb-1" style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                  <div class="d-flex align-items-center gap-2 flex-grow-1" id="whRackTabsNav">
+                    <!-- Racks dinámicos generados por JS -->
+                  </div>
+                  <button class="btn btn-sm btn-outline-info flex-shrink-0" id="addWhRackBtn" data-bs-toggle="modal" data-bs-target="#newWhRackModal">
+                    <i class="bi bi-plus-lg"></i> Nuevo Rack
+                  </button>
+                </div>
+
+                <!-- Contenedor del Rack Activo -->
+                <div id="whRackTabsContent">
+                  <!-- Se renderiza dinámicamente con JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Firmware ESP32 Almacén -->
+            <div class="modal fade" id="esp32WhCodeModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content border-info" style="background: #0d1117; color: #c9d1d9;">
+                  <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info" id="esp32WhModalTitle">
+                      <i class="bi bi-cpu-fill me-1"></i> Firmware ESP32 — Almacén Pick-to-Light
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="alert alert-info d-flex align-items-center justify-content-between p-2 mb-3 border-0" style="background: rgba(14,165,233,0.15); border: 1px solid rgba(14,165,233,0.3) !important;">
+                      <div class="small text-white">
+                        <i class="bi bi-lightning-charge-fill text-info me-1"></i> <strong>Recomendado:</strong> Flashea este ESP32 en 45 segundos directamente desde el navegador sin necesidad de Arduino IDE.
+                      </div>
+                      <button type="button" class="btn btn-sm btn-info fw-bold text-dark flex-shrink-0 ms-2" data-bs-dismiss="modal" onclick="openHardwareCenter('warehouse')">
+                        <i class="bi bi-usb-plug-fill me-1"></i> Ir al Flasheador Web
+                      </button>
+                    </div>
+                    <p class="text-muted small mb-3">
+                      Firmware C++ industrial listo para compilar con Arduino IDE / PlatformIO.
+                      Sincroniza en tiempo real con Firestore para iluminar la gaveta correspondiente y captura el botón físico para confirmar recogida (Recoger) con autodeducción de stock.
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <span class="badge bg-info text-dark">WS2812B / WS2815 + Firestore REST</span>
+                      <button class="btn btn-sm btn-outline-info" id="copyWhEsp32CodeBtn">
+                        <i class="bi bi-clipboard"></i> Copiar Código
+                      </button>
+                    </div>
+                    <pre id="esp32WhCodePre" style="background: #161b22; color: #58a6ff; padding: 1rem; border-radius: 8px; font-size: 0.82rem; max-height: 480px; overflow-y: auto;"></pre>
+                  </div>
+                  <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-info fw-bold text-dark" id="downloadWhEsp32InoBtn">
+                      <i class="bi bi-download"></i> Descargar Archivo .ino
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Nuevo Rack de Almacén -->
+            <div class="modal fade" id="newWhRackModal" tabindex="-1" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content" style="background: #0d1117; color: #c9d1d9; border: 1px solid rgba(14,165,233,0.3);">
+                  <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info"><i class="bi bi-diagram-3"></i> Crear Nuevo Rack de Almacén</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                  </div>
+                  <form id="newWhRackForm">
+                    <div class="modal-body">
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Nombre o Identificador del Rack:</label>
+                        <input type="text" class="form-control" id="newWhRackNameInput" placeholder="ej. Rack A, Estantería Mecánica" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">ID Controlador ESP32:</label>
+                        <input type="text" class="form-control" id="newWhRackEsp32Input" placeholder="ej. ESP32-RACK-A" value="ESP32-RACK-A">
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold">Número de Gavetas Iniciales:</label>
+                        <input type="number" class="form-control" id="newWhRackBinsCountInput" min="1" max="50" value="8">
+                      </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                      <button type="submit" class="btn btn-info fw-bold text-dark">
+                        <i class="bi bi-plus-circle"></i> Crear Rack
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña Técnicos y Operadores -->
+          <div class="tab-pane fade" id="technicians-mgmt" role="tabpanel">
+            <div class="text-center text-muted py-4">
+              <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+              Cargando panel de técnicos y operadores...
+            </div>
+          </div>
+
+          <!-- Pestaña Gestión de Bot -->
+          <div class="tab-pane fade" id="bot-mgmt" role="tabpanel">
+            <div class="row">
+              <div class="col-md-4">
+                <div class="card text-center mb-4">
+                  <div class="card-body">
+                    <div class="feature-icon bot" style="background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);">
+                      <i class="bi bi-robot text-white fs-3"></i>
+                    </div>
+                    <h5 class="card-title mt-2">Bot de WhatsApp</h5>
+                    <p class="card-text text-muted">Estado del servidor remoto y conexión.</p>
+                  </div>
+                </div>
+                <div class="card mb-4">
+                  <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-info-circle"></i> Estado de Conexión</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <span>Estado:</span>
+                      <span id="bot-connection-badge" class="badge bg-secondary">Cargando...</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <span>Número:</span>
+                      <strong id="bot-number-val">-</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <span>Uptime:</span>
+                      <span id="bot-uptime-val">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <span>Memoria:</span>
+                      <span id="bot-memory-val">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <span>Versión Baileys:</span>
+                      <span id="bot-baileys-val">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                      <span>Servidor (Host):</span>
+                      <span id="bot-host-val" class="badge bg-secondary text-truncate" style="max-width: 140px;">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span>Último Reporte:</span>
+                      <small id="bot-heartbeat-val" class="text-muted">-</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-8">
+                <div class="card mb-4" id="bot-qr-card" style="display: none;">
+                  <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-qr-code-scan"></i> Vincular WhatsApp</h5>
+                  </div>
+                  <div class="card-body text-center">
+                    <p class="mb-3">Escanea este código QR desde tu teléfono en <strong>WhatsApp > Dispositivos vinculados > Vincular dispositivo</strong>.</p>
+                    <div class="p-3 border rounded subcard-custom d-inline-block">
+                      <img id="bot-qr-img" src="" alt="Código QR de WhatsApp" style="max-width: 300px; display: none;">
+                      <div id="bot-qr-placeholder" class="py-5 px-4 text-muted">
+                        <div class="spinner-border text-warning mb-2" role="status"></div>
+                        <p class="mb-0 small">Esperando que el bot genere un nuevo código QR...</p>
+                      </div>
+                    </div>
+                    <div class="mt-3 text-muted small">
+                      Generado a las: <span id="bot-qr-time">-</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="card mb-4" id="bot-connected-card" style="display: none;">
+                  <div class="card-header bg-success-subtle text-success-emphasis">
+                    <h5 class="mb-0"><i class="bi bi-check-circle-fill"></i> Conectado con Éxito</h5>
+                  </div>
+                  <div class="card-body text-center py-5">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">El bot está activo y listo</h4>
+                    <p class="text-muted">Recibiendo y reportando fallas de grúas y operaciones en tiempo real en los grupos de WhatsApp.</p>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-cpu"></i> Controles del Servidor</h5>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-muted small mb-4">Usa estos controles para administrar el bot remotamente. Las acciones se enviarán en tiempo real a la máquina virtual.</p>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <button class="btn btn-warning w-100 py-3" onclick="triggerBotCommand('restart')">
+                          <i class="bi bi-arrow-clockwise d-block fs-4 mb-1"></i> Reiniciar Bot
+                        </button>
+                      </div>
+                      <div class="col-md-4">
+                        <button class="btn btn-primary w-100 py-3" onclick="triggerBotCommand('update_baileys')">
+                          <i class="bi bi-cloud-arrow-up d-block fs-4 mb-1"></i> Actualizar Baileys
+                        </button>
+                      </div>
+                      <div class="col-md-4">
+                        <button class="btn btn-danger w-100 py-3" onclick="triggerBotCommand('clear_session')">
+                          <i class="bi bi-trash d-block fs-4 mb-1"></i> Cerrar Sesión (Nuevo QR)
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña Motivos de Falla / Paro (ESP32 / SCADA) -->
+          <div class="tab-pane fade" id="failure-reasons" role="tabpanel">
+            <div class="row">
+              <div class="col-lg-7">
+                <div class="card mb-4">
+                  <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-list-check"></i> Catálogo Dinámico de Motivos de Paro</h5>
+                    <button class="btn btn-sm btn-outline-warning" onclick="resetDefaultFailureReasons()">
+                      <i class="bi bi-arrow-counterclockwise"></i> Restaurar Defectos
+                    </button>
+                  </div>
+                  <div class="card-body">
+                    <p class="text-muted small">
+                      Este catálogo alimenta directamente la pantalla circular <strong>GC9A01</strong> del <strong>Centro de Mando ESP32</strong> y los formularios web de reporte. Al guardar aquí, se sincroniza en Firestore (<code>config/failure_reasons</code>) y los ESP32 lo almacenan en su memoria Flash NVS (no volátil) para operar sin conexión a Internet.
+                    </p>
+                    
+                    <div class="input-group mb-3">
+                      <input type="text" id="newFailureReasonInput" class="form-control" placeholder="Ej: 1 Leva rota, Fuga neumática, Tornillería floja..." maxlength="35">
+                      <button class="btn btn-success" type="button" onclick="addFailureReason()">
+                        <i class="bi bi-plus-lg"></i> Agregar Motivo
+                      </button>
+                    </div>
+
+                    <div id="failureReasonsListContainer" class="list-group mb-3">
+                      <!-- Renderizado dinámico -->
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                      <span id="failureReasonsCountBadge" class="badge bg-primary">0 motivos configurados</span>
+                      <button class="btn btn-primary" onclick="saveFailureReasonsToCloud()">
+                        <i class="bi bi-cloud-arrow-up"></i> Guardar y Sincronizar en la Nube
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card de Explicación de Expansión Dinámica -->
+                <div class="card mb-4 border-info">
+                  <div class="card-header bg-info-subtle text-info-emphasis">
+                    <h6 class="mb-0"><i class="bi bi-diagram-3"></i> Arquitectura Dinámica Multinodo (Grúas, Operaciones y Racks)</h6>
+                  </div>
+                  <div class="card-body">
+                    <p class="small text-muted mb-2">
+                      ¿Qué sucede cuando agregas nuevas áreas, operaciones, grúas o racks de almacén desde este panel?
+                    </p>
+                    <ul class="small text-muted ps-3 mb-0">
+                      <li><strong>Sin recompilar C++:</strong> El Centro de Mando ESP32 consulta vía REST la lista de equipos activos y divide automáticamente su dial perimetral 360° en <code>N</code> sectores iguales.</li>
+                      <li><strong>Supervisión Global No Bloqueante:</strong> Si un equipo entra en falla, <em>únicamente su sector perimetral se ilumina en rojo</em>. La pantalla central jamás se congela ni se pinta completamente en rojo, permitiendo monitorear o reportar sobre cualquier otro equipo.</li>
+                      <li><strong>Confirmación por Inactividad (2 seg):</strong> Al pulsar el botón metálico, se navega entre equipos; 2 segundos sin presionar confirman el equipo e inmediatamente abren el carrusel de motivos de paro con texto grande y legible.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Vista Previa en Vivo de la Pantalla Circular GC9A01 -->
+              <div class="col-lg-5">
+                <div class="card mb-4 text-center">
+                  <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-display"></i> Simulador GC9A01 (Pantalla Redonda 240x240)</h6>
+                  </div>
+                  <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                    <div style="width: 250px; height: 250px; border-radius: 50%; background: #07090e; border: 5px solid #2d3748; box-shadow: 0 0 25px rgba(0,255,255,0.15); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 25px;">
+                      <!-- Perímetro circular simulado con sectores -->
+                      <div id="simGc9a01Ring" style="position: absolute; inset: 4px; border-radius: 50%; border: 4px solid #00ff88; pointer-events: none;"></div>
+                      
+                      <!-- Header de la pantalla -->
+                      <div style="font-size: 0.65rem; color: #00ffff; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px;">
+                        SELECCIONE MOTIVO
+                      </div>
+                      <div id="simGc9a01Index" style="font-size: 0.65rem; color: #94a3b8; margin-bottom: 8px;">
+                        [ 1 / 4 ]
+                      </div>
+
+                      <!-- Hero Box Centrado con Texto Grande -->
+                      <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; width: 100%; min-height: 80px; display: flex; align-items: center; justify-content: center; padding: 10px; text-align: center;">
+                        <span id="simGc9a01ReasonText" style="font-size: 1.15rem; font-weight: 700; color: #ffffff; line-height: 1.25;">
+                          1. Leva rota
+                        </span>
+                      </div>
+
+                      <!-- Footer / Instrucción -->
+                      <div style="margin-top: 10px; font-size: 0.6rem; color: #cbd5e1; text-align: center;">
+                        <div>CLIC: SIGUIENTE</div>
+                        <div style="color: #38bdf8; font-weight: 600;">2s INACTIVO: CONFIRMA</div>
+                      </div>
+                    </div>
+
+                    <!-- Controles interactivos del simulador -->
+                    <div class="mt-3 d-flex gap-2 justify-content-center">
+                      <button class="btn btn-sm btn-outline-secondary" onclick="prevSimReason()"><i class="bi bi-chevron-left"></i> Anterior</button>
+                      <button class="btn btn-sm btn-primary" onclick="nextSimReason()">Pulsar Botón 16mm <i class="bi bi-hand-index-thumb"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary" onclick="nextSimReason()">Siguiente <i class="bi bi-chevron-right"></i></button>
+                    </div>
+                    <small class="text-muted mt-2">Prueba cómo se centra el texto dinámicamente según el tamaño de cada motivo.</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña Topología & Textos de Planta (ISA-101 / SCADA) -->
+          <div class="tab-pane fade" id="topology-mgmt" role="tabpanel">
+            <div class="row">
+              <div class="col-12">
+                <div class="card mb-4 border-info">
+                  <div class="card-header bg-dark d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div>
+                      <h5 class="mb-0 text-info"><i class="bi bi-diagram-3-fill me-2"></i>Topología & Nomenclatura Global de Planta</h5>
+                      <small class="text-muted">Administración centralizada de Naves Industriales (ISA-101) y Catálogo de 41 Operaciones</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-warning" onclick="resetAdminTopologyDefaults()">
+                        <i class="bi bi-arrow-counterclockwise"></i> Restaurar Defectos
+                      </button>
+                      <button class="btn btn-sm btn-primary" id="btnSaveAdminTopology" onclick="saveAdminTopology()">
+                        <i class="bi bi-cloud-arrow-up"></i> Guardar Cambios Globales
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="alert alert-dark border-secondary d-flex align-items-center justify-content-between py-2 mb-4">
+                      <div class="small">
+                        <i class="bi bi-broadcast text-success me-2"></i>
+                        <span>Sincronización en tiempo real vía <code>config/plant_topology_config</code>. Impacta en: Monitor SCADA, Gemelo Digital 2.5D, Vista Móvil, Andon TV 4K y Paleta de Comandos.</span>
+                      </div>
+                      <span class="badge bg-success-subtle text-success border border-success px-2 py-1" id="topologySyncStatusBadge">En Línea</span>
+                    </div>
+
+                    <!-- SECCIÓN 1: NAVES & ÁREAS INDUSTRIALES -->
+                    <div class="mb-4">
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="text-uppercase text-info tracking-wider fw-bold mb-0">
+                          <i class="bi bi-buildings me-2"></i>Naves & Bahías de Producción (5 Áreas ISA-101)
+                        </h6>
+                        <span class="badge bg-secondary-subtle text-info border border-secondary font-mono">5 Naves Activas</span>
+                      </div>
+                      <div class="row g-3" id="adminTopologyAreasContainer">
+                        <!-- Renderizado dinámico de las 5 áreas -->
+                      </div>
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <!-- SECCIÓN 2: CATÁLOGO DE 41 OPERACIONES -->
+                    <div>
+                      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <div>
+                          <h6 class="text-uppercase text-info tracking-wider fw-bold mb-0">
+                            <i class="bi bi-cpu me-2"></i>Estaciones y Operaciones Industriales
+                          </h6>
+                          <small class="text-muted">Personaliza la etiqueta de cada una de las 41 operaciones de la línea de producción</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                          <div class="input-group input-group-sm" style="width: 260px;">
+                            <span class="input-group-text bg-dark border-secondary text-muted"><i class="bi bi-search"></i></span>
+                            <input type="text" id="adminTopologyOpSearch" class="form-control bg-dark text-light border-secondary" placeholder="Buscar operación..." oninput="filterAdminTopologyOps()">
+                          </div>
+                          <select id="adminTopologyAreaFilter" class="form-select form-select-sm bg-dark text-light border-secondary" style="width: 170px;" onchange="filterAdminTopologyOps()">
+                            <option value="all">Todas las Naves</option>
+                            <option value="area5">Área 5 (Recepción)</option>
+                            <option value="area10">Área 10 (Pailería)</option>
+                            <option value="area20">Área 20 (Maquinado)</option>
+                            <option value="area30">Área 30 (Pintura)</option>
+                            <option value="area35">Área 35+ (Ensamble)</option>
+                          </select>
+                          <span class="badge bg-info-subtle text-info border border-info" id="adminTopologyOpsCountBadge">41 operaciones</span>
+                        </div>
+                      </div>
+
+                      <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+                        <table class="table table-dark table-hover table-bordered border-secondary align-middle mb-0">
+                          <thead class="table-dark sticky-top" style="z-index: 10;">
+                            <tr>
+                              <th style="width: 80px;" class="text-center font-mono text-muted">ID</th>
+                              <th style="width: 150px;">Nave / Área</th>
+                              <th>Nombre de la Operación / Estación</th>
+                              <th style="width: 240px;" class="text-muted small">Subtítulo / Propósito</th>
+                              <th style="width: 100px;" class="text-center">Estado</th>
+                            </tr>
+                          </thead>
+                          <tbody id="adminTopologyOpsTableBody">
+                            <!-- Renderizado dinámico de las 41 operaciones -->
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pestaña Gestión de Usuarios, Roles & Seguridad SCADA -->
+          <div class="tab-pane fade" id="users-mgmt" role="tabpanel">
+            <!-- Renderizado dinámico vía admin-users.js?v=4.8 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación para limpiar la base de datos -->
+    <div class="modal fade" id="cleanDbModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-exclamation-triangle text-danger"></i> Confirmar
+              Limpieza de Base de Datos
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle"></i>
+              <strong>¡ADVERTENCIA!</strong> Esta acción eliminará
+              <strong>TODA</strong> la información de operaciones, grúas,
+              historial, notificaciones, logs y configuración del sistema.
+              <strong>Por defecto NO borra inventario.</strong> Esta acción NO se
+              puede deshacer.
+            </div>
+
+            <div class="form-check mb-3 p-3 border rounded subcard-custom">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="includeInventoryClean"
+              />
+              <label class="form-check-label" for="includeInventoryClean">
+                <strong>Incluir inventario</strong> — artículos, movimientos,
+                categorías, áreas y solicitudes de refacción
+              </label>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="cleanDbUser" class="form-label">Usuario:</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="cleanDbUser"
+                    autocomplete="username"
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="cleanDbPassword" class="form-label"
+                    >Contraseña:</label
+                  >
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="cleanDbPassword"
+                    autocomplete="current-password"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              <i class="bi bi-x-circle"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" id="confirmCleanDb">
+              <i class="bi bi-trash3"></i> Limpiar Todo
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: limpiar solo inventario -->
+    <div class="modal fade" id="cleanInventoryModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-box-seam text-warning"></i> Limpiar solo inventario
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle"></i>
+              Se eliminarán <strong>todas</strong> las colecciones de inventario:
+              artículos, movimientos (entradas/salidas), categorías, áreas y
+              solicitudes de refacción. <strong>No</strong> se borran operaciones,
+              grúas ni configuración de técnicos.
+            </div>
+            <ul class="small text-muted mb-3">
+              <li><code>inventory</code> — catálogo y stock</li>
+              <li><code>inventory_movements</code> — historial y gráficos</li>
+              <li><code>inventory_categories</code> — categorías</li>
+              <li><code>inventory_areas</code> — áreas</li>
+              <li><code>refaction_requests</code> — solicitudes</li>
+            </ul>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="cleanInventoryUser" class="form-label">Usuario:</label>
+                  <input type="text" class="form-control" id="cleanInventoryUser" autocomplete="username" />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="cleanInventoryPassword" class="form-label">Contraseña:</label>
+                  <input type="password" class="form-control" id="cleanInventoryPassword" autocomplete="current-password" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="bi bi-x-circle"></i> Cancelar
+            </button>
+            <button type="button" class="btn btn-warning" id="confirmCleanInventory">
+              <i class="bi bi-box-seam"></i> Limpiar inventario
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="site-nav.js?v=4.8"></script>
+    <!-- PocketBase SCADA Local Engine (Firebase Pausado) -->
+    <script src="pocketbase.umd.js"></script>
+    <script src="scada-config.js?v=4.8"></script>
+    <script src="sha256.js?v=4.8"></script>
+    <script src="pocketbase-adapter.js?v=4.8"></script>
+    <script src="auth-system.js?v=4.8"></script>
+    <script src="global-config.js?v=4.8"></script>
+    <script src="admin.js?v=4.8"></script>
+    <script src="admin-technicians.js?v=2.5"></script>
+    <script src="admin-users.js?v=4.8"></script>
+    <script src="mobile-nav.js?v=4.8"></script>
+    <script src="scada-pro.js?v=4.8" defer></script>
+    <script src="technician-alerts.js?v=4.8" defer></script>
+    <script src="pwa-register.js?v=4.8" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="network-health.js?v=4.8" defer></script>
+    <script src="shift-handover.js?v=4.8" defer></script>
+    <script src="predictive-alerts.js?v=4.8" defer></script>
+    <script src="command-palette.js?v=4.8" defer></script>
+  </body>
+</html>

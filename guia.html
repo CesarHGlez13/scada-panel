@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07090e">
+  <title>Guía Interactiva Scrollytelling • Monitor de Operaciones SCADA</title>
+  <script src="security-shield.js?v=1.0"></script>
+  
+  <!-- Bootstrap 5 & Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- CSS del Sistema y Guía Apple Pro -->
+  <link rel="stylesheet" href="styles.css?v=4.0">
+  <link rel="stylesheet" href="scada-pro.css?v=4.0">
+  <link rel="stylesheet" href="guia.css?v=8.5">
+
+  <!-- Invocador Inmediato Global para Keynote Cinemático -->
+  <script>
+    window.triggerHeroKeynote = function() {
+      if (typeof window.startKeynoteTour === 'function') {
+        window.startKeynoteTour(0);
+      }
+    };
+  </script>
+</head>
+<body class="apple-scrolly-body">
+
+  <!-- Barra de Lectura Cinemática Superior (2px Apple Style) -->
+  <div id="appleReadingBar" class="reading-bar"></div>
+
+  <!-- Ambient Luxury Glow -->
+  <div class="ambient-glow"></div>
+
+  <!-- ═══ NAVBAR SUPERIOR SCADA PRO (REACTIVO GLOBAL) ═══ -->
+  <nav id="siteNavbar" data-active="guia"></nav>
+
+  <!-- ═══ HERO SECTION KEYNOTE ═══ -->
+  <section class="guia-hero">
+    <div class="hero-pill-badge" data-reveal>
+      <span class="pulse-dot"></span>
+      <span>Arquitectura SCADA Industrial • Guía Cinemática</span>
+    </div>
+
+    <h1 class="guia-hero-title">Precisión extrema para la nave siderúrgica.</h1>
+
+    <p class="guia-hero-subtitle apple-scrub-text">
+      Un recorrido cinematográfico por cada capa del sistema: desde el pulsador arcade en cabina a 12 metros de altura y la telemetría en tiempo real, hasta el bot de WhatsApp en Oracle Cloud y la deducción atómica de refacciones.
+    </p>
+
+    <div class="d-flex justify-content-center align-items-center gap-3 my-3" data-reveal>
+      <button id="btnHeroKeynote" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-lg font-mono btn-hero-cinematic" onclick="triggerHeroKeynote()">
+        <i class="bi bi-play-circle-fill me-2 fs-5"></i> Iniciar Recorrido Cinemático
+      </button>
+      <a href="index.html" class="btn btn-outline-light rounded-pill px-4 py-2 font-mono">
+        <i class="bi bi-speedometer2 me-1"></i> Ir al SCADA Vivo
+      </a>
+    </div>
+
+    <!-- Métricas del Sistema -->
+    <div class="hero-telemetry-strip" data-reveal>
+      <div class="hero-stat-item">
+        <span class="hero-stat-val text-success">60 FPS</span>
+        <span class="hero-stat-lbl">Cinemática Fluida</span>
+      </div>
+      <div class="hero-stat-item">
+        <span class="hero-stat-val text-primary">5 Naves</span>
+        <span class="hero-stat-lbl">Área 5 a 35+</span>
+      </div>
+      <div class="hero-stat-item">
+        <span class="hero-stat-val text-info">41 Operaciones</span>
+        <span class="hero-stat-lbl">Estaciones en Línea</span>
+      </div>
+      <div class="hero-stat-item">
+        <span class="hero-stat-val text-cyan" style="color: #38bdf8;">Gemelo Digital</span>
+        <span class="hero-stat-lbl">ISA-101 2.5D</span>
+      </div>
+      <div class="hero-stat-item">
+        <span class="hero-stat-val text-warning">Andon TV 4K</span>
+        <span class="hero-stat-lbl">Megafonía por Voz</span>
+      </div>
+    </div>
+
+    <div class="hero-scroll-cue">
+      <span>Desplázate hacia abajo para ver el flujo en vivo</span>
+      <i class="bi bi-chevron-down"></i>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ESCENARIO STICKY DE SCROLLYTELLING (APPLE AIRPODS PRO 500VH)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section id="scrollyStage" class="apple-scrolly-track">
+    <div class="apple-scrolly-sticky">
+
+      <!-- Barra superior de estado dentro de la escena sticky -->
+      <div class="sticky-stage-topbar">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-primary" id="stagePhaseTag">FASE 1 DE 8</span>
+          <span class="sticky-phase-subtext text-truncate" id="stagePhaseSubtext">Pizarrón de Grúas • Área 10</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button id="btnScrollyPrev" class="btn btn-sm btn-outline-secondary py-0 px-2 font-mono" style="font-size: 0.72rem; border-radius: 980px;" title="Fase Anterior">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button id="btnScrollyNext" class="btn btn-sm btn-outline-secondary py-0 px-2 font-mono" style="font-size: 0.72rem; border-radius: 980px;" title="Siguiente Fase">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+          <button id="btnScrollyAutoplay" class="btn btn-sm btn-outline-info py-0 px-2 font-mono" style="font-size: 0.72rem; border-radius: 980px;">
+            <i class="bi bi-play-fill me-1" id="autoplayBtnIcon"></i><span id="autoplayBtnText">Presentación</span>
+          </button>
+          <button id="btnScrollyAudio" class="btn btn-sm btn-outline-secondary py-0 px-2 font-mono" style="font-size: 0.72rem; border-radius: 980px;" title="Audio FX Keynote">
+            <i class="bi bi-volume-up-fill text-info" id="audioBtnIcon"></i>
+          </button>
+          <span class="badge bg-success pulse-badge d-none d-sm-inline-block" id="stageLiveBadge">SCADA EN VIVO</span>
+        </div>
+      </div>
+
+      <!-- ESCENARIO DÚO: INTERFAZ REAL + LLAMADAS CONTINUAS (60FPS CONTINUOUS LERP) -->
+      <div class="scrolly-stage-duo">
+
+        <!-- ─── VENTANA VISUAL: INTERFACES REALES DE LA WEB ─── -->
+        <div class="scrolly-visual-window">
+          <div class="stage-window-frame">
+            <div class="stage-window-topbar">
+              <div class="window-dots">
+                <span class="dot-red"></span>
+                <span class="dot-yellow"></span>
+                <span class="dot-green"></span>
+              </div>
+              <span class="window-title-text" id="windowTitleText">
+                <i class="bi bi-speedometer2 text-primary"></i> cranes.html • Pizarrón Reactivo
+              </span>
+              <span class="badge bg-dark border border-secondary text-light font-monospace" style="font-size: 0.65rem;">
+                UTC-6 Chihuahua
+              </span>
+            </div>
+
+            <div class="stage-window-body">
+
+              <!-- FASE 1: PIZARRÓN REAL (cranes.html) -->
+              <div class="visual-phase-item active" data-phase="0">
+                <div class="p-2 p-sm-3 w-100">
+                  <div class="row g-2">
+                    <!-- Grúa 10A: Operativa -->
+                    <div class="col-6">
+                      <div class="demo-card-real border-success">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="fw-bold text-white fs-6 d-flex align-items-center">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#38bdf8" stroke-width="1.8" class="me-1"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M5.5 20.5h6"/></svg>
+                            Grúa 10A
+                          </span>
+                          <span class="badge bg-success" style="font-size: 0.62rem;">Operativa</span>
+                        </div>
+                        <div class="text-muted" style="font-size: 0.70rem;">Área 10 • Operativa</div>
+                        <div class="d-flex gap-1 mt-2">
+                          <button class="btn btn-warning btn-sm py-0 px-1 w-100" style="font-size: 0.60rem;"><i class="bi bi-exclamation-triangle"></i> Reportar</button>
+                          <button class="btn btn-info btn-sm py-0 px-1" style="font-size: 0.60rem;"><i class="bi bi-clock-history"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Grúa 10C: Falla Activa (Real de Firestore: leva rota) -->
+                    <div class="col-6">
+                      <div class="demo-card-real border-danger failure-glow">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="fw-bold text-white fs-6 d-flex align-items-center">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ef4444" stroke-width="1.8" class="me-1"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M5.5 20.5h6"/></svg>
+                            Grúa 10C
+                          </span>
+                          <span class="badge bg-danger pulse-badge" style="font-size: 0.62rem;">Falla</span>
+                        </div>
+                        <div class="text-danger fw-medium" style="font-size: 0.70rem;">se rompió la leva</div>
+                        <div class="font-monospace text-danger fw-bold scrolly-live-timer my-1" style="font-size: 0.85rem;">00:04:12</div>
+                        <div class="d-flex gap-1">
+                          <button class="btn btn-success btn-sm py-0 px-1 w-100" style="font-size: 0.60rem;"><i class="bi bi-check-circle"></i> Resolver</button>
+                          <button class="btn btn-outline-warning btn-sm py-0 px-1" style="font-size: 0.60rem;" title="Solicitar Refacción"><i class="bi bi-tools"></i></button>
+                          <button class="btn btn-warning btn-sm py-0 px-1" style="font-size: 0.60rem;" title="Marcar en Mantenimiento"><i class="bi bi-wrench-adjustable"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Grúa 20A: Mantenimiento (Real con dual timer) -->
+                    <div class="col-6">
+                      <div class="demo-card-real border-warning">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="fw-bold text-white fs-6 d-flex align-items-center">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="1.8" class="me-1"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M5.5 20.5h6"/></svg>
+                            Grúa 20A
+                          </span>
+                          <span class="badge bg-warning text-dark" style="font-size: 0.62rem;">Mantenimiento</span>
+                        </div>
+                        <div class="text-warning small" style="font-size: 0.68rem;">
+                          <i class="bi bi-tools"></i> Sin refacción en inventario
+                        </div>
+                        <div class="font-monospace text-muted mt-1" style="font-size: 0.66rem; line-height: 1.2;">
+                          <span class="text-danger">🔴 Falla: 00:15:20</span><br>
+                          <span class="text-warning">🔧 Mant: 00:08:45</span>
+                        </div>
+                        <div class="small text-muted mt-1" style="font-size: 0.62rem;">👤 Resp: lopez</div>
+                      </div>
+                    </div>
+                    <!-- Grúa 30A: Operativa (Área 30) -->
+                    <div class="col-6">
+                      <div class="demo-card-real border-success">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="fw-bold text-white fs-6 d-flex align-items-center">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#38bdf8" stroke-width="1.8" class="me-1"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M5.5 20.5h6"/></svg>
+                            Grúa 30A
+                          </span>
+                          <span class="badge bg-success" style="font-size: 0.62rem;">Operativa</span>
+                        </div>
+                        <div class="text-muted" style="font-size: 0.70rem;">Área 30 • Operativa</div>
+                        <div class="d-flex gap-1 mt-2">
+                          <button class="btn btn-warning btn-sm py-0 px-1 w-100" style="font-size: 0.60rem;"><i class="bi bi-exclamation-triangle"></i> Reportar</button>
+                          <button class="btn btn-info btn-sm py-0 px-1" style="font-size: 0.60rem;"><i class="bi bi-clock-history"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 2: HARDWARE EN NAVE (ESP32 + WS2815 + OLED) -->
+              <div class="visual-phase-item" data-phase="1">
+                <div class="p-2 p-sm-3 w-100 text-center">
+                  <div class="stage-oled-box mx-auto mb-2 p-2">
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.65rem;">
+                      <span>SISTEMA GRUAS</span>
+                      <span>area10</span>
+                    </div>
+                    <div class="stage-oled-title my-1">GRÚA: 10C</div>
+                    <div class="d-flex justify-content-between text-danger" style="font-size: 0.72rem;">
+                      <span class="fw-bold">ESTADO: EN FALLA</span>
+                      <span class="scrolly-live-timer font-monospace">00:04:12</span>
+                    </div>
+                    <div class="text-info mt-1" style="font-size: 0.62rem;">[SOSTÉN 5s PARA RESOLVER]</div>
+                  </div>
+
+                  <div class="stage-led-strip mb-2">
+                    <div class="d-flex justify-content-between text-muted mb-1 px-1" style="font-size: 0.68rem;">
+                      <span>WS2815 (Pin D5 • 7 LEDs/grúa + 2 gap)</span>
+                      <span class="text-danger fw-bold">DESTELLO ALARMA 300ms</span>
+                    </div>
+                    <div class="stage-led-nodes">
+                      <span class="led-dot red-pulse"></span>
+                      <span class="led-dot red-pulse"></span>
+                      <span class="led-dot red-pulse"></span>
+                      <span class="led-dot red-pulse"></span>
+                      <span class="led-dot red-pulse"></span>
+                      <span class="led-dot red-pulse"></span>
+                      <span class="led-dot red-pulse"></span>
+                      <span class="led-dot red-pulse"></span>
+                    </div>
+                  </div>
+
+                  <div class="stage-arcade-btn red-glow">
+                    <i class="bi bi-power"></i>
+                  </div>
+                  <div class="small text-muted mt-1" style="font-size: 0.70rem;">Pulsador Arcade Industrial (Pin D4 Pullup a GND)</div>
+                </div>
+              </div>
+
+              <!-- FASE 3: NOTIFICACIÓN WHATSAPP BOT SCADA -->
+              <div class="visual-phase-item" data-phase="2">
+                <div class="p-2 p-sm-3 w-100">
+                  <div class="stage-wa-bubble">
+                    <div class="d-flex align-items-center gap-2 mb-2 pb-1 border-bottom border-secondary">
+                      <div class="stage-wa-avatar"><i class="bi bi-robot"></i></div>
+                      <div class="text-start">
+                        <div class="fw-bold text-white" style="font-size: 0.82rem;">Bot SCADA Operations Monitor</div>
+                        <div class="text-success" style="font-size: 0.65rem;">Servidor Cloud 24/7 • Gateway WhatsApp Industrial</div>
+                      </div>
+                    </div>
+                    <div class="stage-wa-body text-light text-start font-monospace" style="font-size: 0.74rem; line-height: 1.45;">
+                      <div class="text-danger fw-bold mb-1">🚨 *FALLA GRÚA (BOTÓN FÍSICO)* 🚨</div>
+                      <div>*ID:* 10C</div>
+                      <div>*Desc:* se rompió la leva</div>
+                      <div>*Reporta:* Boton fisico</div>
+                      <div>*Área:* Área 10</div>
+                      <div class="text-info mt-1 pt-1 border-top border-secondary" style="font-size: 0.65rem; font-family: sans-serif;">
+                        <i class="bi bi-shield-check"></i> Enrutado a César González (+5216142137321) • Delay anti-ban: 8.2s ✓✓
+                      </div>
+                    </div>
+                    <div class="text-end text-muted mt-1" style="font-size: 0.65rem;">10:29 • Entregado ✓✓</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 4: HISTORIAL MULTI-JORNADA (AnalisisDetallado.html) -->
+              <div class="visual-phase-item" data-phase="3">
+                <div class="p-2 p-sm-3 w-100">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small text-muted" style="font-size: 0.68rem;">Auditoría SCADA: tablaFallas (11 Cols)</span>
+                    <span class="badge bg-primary" style="font-size: 0.60rem;"><i class="bi bi-download"></i> CSV / Excel</span>
+                  </div>
+                  <div class="table-responsive">
+                    <table class="table table-dark table-sm mb-0 align-middle" style="font-size: 0.68rem;">
+                      <thead>
+                        <tr class="text-muted border-bottom border-secondary">
+                          <th>ID</th>
+                          <th>Área</th>
+                          <th>Estado</th>
+                          <th>Descripción</th>
+                          <th>⏱ Total</th>
+                          <th>Resuelto</th>
+                          <th>📦 Refac.</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td class="fw-bold text-white">10C</td>
+                          <td class="text-muted">Área 10</td>
+                          <td><span class="badge bg-success" style="font-size: 0.58rem;">Resuelto</span></td>
+                          <td class="text-truncate" style="max-width: 90px;">se rompió la leva</td>
+                          <td class="text-danger font-monospace">00:16:12</td>
+                          <td class="text-muted">lopez</td>
+                          <td class="text-warning">1x Levas</td>
+                        </tr>
+                        <tr>
+                          <td class="fw-bold text-white">20A</td>
+                          <td class="text-muted">Área 20</td>
+                          <td><span class="badge bg-success" style="font-size: 0.58rem;">Resuelto</span></td>
+                          <td class="text-truncate" style="max-width: 90px;">leva rota</td>
+                          <td class="text-warning font-monospace">00:22:00</td>
+                          <td class="text-muted">cesar</td>
+                          <td class="text-warning">1x Levas</td>
+                        </tr>
+                        <tr>
+                          <td class="fw-bold text-white">30A</td>
+                          <td class="text-muted">Área 30</td>
+                          <td><span class="badge bg-success" style="font-size: 0.58rem;">Resuelto</span></td>
+                          <td class="text-truncate" style="max-width: 90px;">Boton fisico</td>
+                          <td class="text-info font-monospace">00:09:16</td>
+                          <td class="text-muted">Boton</td>
+                          <td class="text-muted">-</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 5: INVENTARIO DE REFACCIONES (inventory.html) -->
+              <div class="visual-phase-item" data-phase="4">
+                <div class="p-2 p-sm-3 w-100 d-flex flex-column gap-2">
+                  <div class="stage-part-card p-2 rounded">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <div class="fw-bold text-white" style="font-size: 0.80rem;">Levas (Código: 1)</div>
+                      <span class="badge bg-success" style="font-size: 0.75rem;">Stock: 997 pzas</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.68rem;">
+                      <span>Cat: Levas • Proveedor: mag</span>
+                      <span>Mínimo: 10 pzas • $500 c/u</span>
+                    </div>
+                    <div class="text-info small mt-1" style="font-size: 0.65rem;">
+                      Aplica a: Grúas (Áreas 10, 20, 30, 35)
+                    </div>
+                  </div>
+
+                  <div class="stage-part-card p-2 rounded border border-warning" style="background: rgba(255, 193, 7, 0.06);">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="text-start">
+                        <div class="fw-bold text-warning" style="font-size: 0.74rem;"><i class="bi bi-clock-history"></i> Solicitud Aprobada (refaction_requests)</div>
+                        <div class="text-light" style="font-size: 0.68rem;">Grúa 10C: 1x Levas • "se rompió la leva"</div>
+                      </div>
+                      <span class="badge bg-success" style="font-size: 0.62rem;">approved</span>
+                    </div>
+                    <div class="text-muted text-end mt-1" style="font-size: 0.62rem;">Aprobado por: Admin Inventario • -1 Stock</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 6: MATRIZ DE TURNOS Y ROTACIÓN -->
+              <div class="visual-phase-item" data-phase="5">
+                <div class="p-2 p-sm-3 w-100">
+                  <div class="row g-2 text-center">
+                    <div class="col-6">
+                      <div class="stage-turno-box active-box p-2 rounded">
+                        <div class="fw-bold text-white" style="font-size: 0.78rem;">Jornada A (ACTIVA)</div>
+                        <div class="small text-success fw-bold" style="font-size: 0.64rem;">Dom 6AM → Mar 6PM</div>
+                        <div class="text-muted" style="font-size: 0.60rem;">Diurno • Cuadrilla A</div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="stage-turno-box p-2 rounded">
+                        <div class="fw-bold text-muted" style="font-size: 0.78rem;">Jornada B</div>
+                        <div class="small text-muted" style="font-size: 0.64rem;">Mié 6AM → Sáb 6PM</div>
+                        <div class="text-muted" style="font-size: 0.60rem;">Diurno • 4 días</div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="stage-turno-box p-2 rounded">
+                        <div class="fw-bold text-muted" style="font-size: 0.78rem;">Jornada C</div>
+                        <div class="small text-muted" style="font-size: 0.64rem;">Dom 6PM → Mar 6AM</div>
+                        <div class="text-muted" style="font-size: 0.60rem;">Nocturno • 3 noches</div>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="stage-turno-box p-2 rounded">
+                        <div class="fw-bold text-muted" style="font-size: 0.78rem;">Jornada D</div>
+                        <div class="small text-muted" style="font-size: 0.64rem;">Mié 6PM → Dom 6AM</div>
+                        <div class="text-muted" style="font-size: 0.60rem;">Nocturno • 4 noches</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-center text-muted mt-2" style="font-size: 0.64rem;">
+                    Reloj sincronizado a hora Chihuahua (UTC-6) • Historial dinámico: <code>crane_history_2026-09-16_JornadaA</code>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 7: GEMELO DIGITAL & PISTAS DE RODADURA ISA-101 (plant-map.js) -->
+              <div class="visual-phase-item" data-phase="6">
+                <div class="p-2 p-sm-3 w-100 d-flex flex-column gap-2" style="height: 100%;">
+                  <!-- Mini Barra Superior del Gemelo Digital -->
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge bg-info-subtle text-info border border-info font-mono" style="font-size: 0.65rem;">
+                        <i class="bi bi-diagram-3-fill me-1"></i>VIGA CARRILERA 2.5D
+                      </span>
+                      <span class="text-white fw-bold small">Pistas de Rodadura Naves 10, 20 y 30</span>
+                    </div>
+                    <div class="d-flex gap-1 font-mono" style="font-size: 0.65rem;">
+                      <span class="text-success"><i class="bi bi-shield-check"></i> Anti-Colisión OK</span>
+                      <span class="text-muted">|</span>
+                      <span class="text-info">Pos X: 42.8m</span>
+                    </div>
+                  </div>
+
+                  <!-- Mini Pista de Rodadura Interactiva Real ISA-101 (plant-map.js / scada-pro.css) -->
+                  <div class="digital-twin-mini-stage rounded border border-secondary border-opacity-50 p-2 position-relative overflow-hidden" style="background: radial-gradient(circle at 50% 50%, #0d1527 0%, #060911 100%); flex: 1;">
+                    <!-- NAVE 10 (ÁREA 10) -->
+                    <div class="mb-2">
+                      <div class="d-flex justify-content-between align-items-center px-1 mb-1" style="font-size: 0.68rem;">
+                        <span class="text-white font-mono fw-bold"><i class="bi bi-geo-alt-fill text-info me-1"></i>ÁREA 10 • NAVE NORTE (MECANIZADO & SUBENSAMBLE)</span>
+                        <span class="badge bg-danger-subtle text-danger border border-danger font-mono" style="font-size: 0.60rem;">🚨 1 PARO • BLOQUEO PISTA</span>
+                      </div>
+                      <div class="scada-runway-track-wrap runway-lockout py-2 my-0">
+                        <div class="scada-runway-rail top"></div>
+                        <div class="scada-runway-rail bottom"></div>
+                        <div class="scada-runway-cranes-lane">
+                          <div class="scada-runway-crane-node operational">
+                            <div class="crane-node-endtruck top"></div>
+                            <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                            <div class="crane-node-endtruck bottom"></div>
+                            <div class="crane-node-tag font-mono"><span class="crane-node-id">10A</span></div>
+                          </div>
+                          <div class="scada-runway-crane-node operational">
+                            <div class="crane-node-endtruck top"></div>
+                            <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                            <div class="crane-node-endtruck bottom"></div>
+                            <div class="crane-node-tag font-mono"><span class="crane-node-id">10B</span></div>
+                          </div>
+                          <div class="scada-runway-crane-node failure">
+                            <div class="crane-node-endtruck top"></div>
+                            <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                            <div class="crane-node-endtruck bottom"></div>
+                            <div class="crane-node-tag font-mono"><span class="crane-node-id">10C</span></div>
+                          </div>
+                          <div class="scada-runway-crane-node operational">
+                            <div class="crane-node-endtruck top"></div>
+                            <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                            <div class="crane-node-endtruck bottom"></div>
+                            <div class="crane-node-tag font-mono"><span class="crane-node-id">10D</span></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- NAVE 30 (ÁREA 30) -->
+                    <div>
+                      <div class="d-flex justify-content-between align-items-center px-1 mb-1" style="font-size: 0.68rem;">
+                        <span class="text-white font-mono fw-bold"><i class="bi bi-geo-alt-fill text-info me-1"></i>ÁREA 30 • NAVE SUR (ENSAMBLE FINAL & PRUEBAS)</span>
+                        <span class="badge bg-warning-subtle text-warning border border-warning font-mono" style="font-size: 0.60rem;">⚡ FIRST-OUT FALLA RAÍZ</span>
+                      </div>
+                      <div class="scada-runway-track-wrap runway-lockout py-2 my-0">
+                        <div class="scada-runway-rail top"></div>
+                        <div class="scada-runway-rail bottom"></div>
+                        <div class="scada-runway-cranes-lane">
+                          <div class="scada-runway-crane-node failure">
+                            <div class="crane-node-endtruck top"></div>
+                            <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                            <div class="crane-node-endtruck bottom"></div>
+                            <div class="crane-node-tag font-mono"><span class="crane-node-id">30A</span></div>
+                          </div>
+                          <div class="scada-runway-crane-node first-out">
+                            <div class="crane-node-endtruck top"></div>
+                            <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                            <div class="crane-node-endtruck bottom"></div>
+                            <div class="crane-node-tag font-mono"><span class="crane-node-id">30B</span><span class="crane-first-out-pill">⚡ FO</span></div>
+                          </div>
+                          <div class="scada-runway-crane-node operational">
+                            <div class="crane-node-endtruck top"></div>
+                            <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                            <div class="crane-node-endtruck bottom"></div>
+                            <div class="crane-node-tag font-mono"><span class="crane-node-id">30C</span></div>
+                          </div>
+                          <div class="scada-runway-crane-node failure">
+                            <div class="crane-node-endtruck top"></div>
+                            <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                            <div class="crane-node-endtruck bottom"></div>
+                            <div class="crane-node-tag font-mono"><span class="crane-node-id">30D</span></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Telemetría Flotante Overlay -->
+                    <div class="position-absolute bottom-0 start-0 p-1 px-2 m-1 bg-black bg-opacity-75 rounded border border-secondary font-mono small d-flex gap-2" style="font-size: 0.62rem;">
+                      <span class="text-info"><i class="bi bi-geo-alt"></i> Sensor Láser: OK</span>
+                      <span class="text-success"><i class="bi bi-activity"></i> 60 FPS ISA-101 Topología</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 8: SALA DE CONTROL ANDON TV 4K & VOZ INDUSTRIAL (andon-tv.js) -->
+              <div class="visual-phase-item" data-phase="7">
+                <div class="p-2 p-sm-3 w-100 d-flex flex-column gap-2" style="height: 100%;">
+                  <!-- Header Andon TV -->
+                  <div class="d-flex justify-content-between align-items-center flex-wrap gap-1">
+                    <div class="d-flex align-items-center gap-2">
+                      <span class="badge font-mono" style="font-size: 0.65rem; background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
+                        <i class="bi bi-display me-1"></i>SALA DE CONTROL 4K
+                      </span>
+                      <span class="text-white fw-bold small">Andon TV Dashboard • Pantallas 65"-85"</span>
+                    </div>
+                    <div class="d-flex gap-1 font-mono" style="font-size: 0.65rem;">
+                      <span class="text-success">OEE: 94.2%</span>
+                      <span class="text-muted">|</span>
+                      <span class="text-warning">1 Alerta Activa</span>
+                    </div>
+                  </div>
+
+                  <!-- Matriz Andon 4K Reducida -->
+                  <div class="row g-1 text-center font-mono">
+                    <div class="col-3">
+                      <div class="p-1 rounded bg-black border border-secondary">
+                        <div class="text-muted" style="font-size: 0.58rem;">NAVE 5</div>
+                        <div class="text-success fw-bold" style="font-size: 0.72rem;">100% DISP</div>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="p-1 rounded bg-black border border-danger">
+                        <div class="text-danger" style="font-size: 0.58rem;">NAVE 10</div>
+                        <div class="text-danger fw-bold" style="font-size: 0.72rem;">PARO (10C)</div>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="p-1 rounded bg-black border border-warning">
+                        <div class="text-warning" style="font-size: 0.58rem;">NAVE 20</div>
+                        <div class="text-warning fw-bold" style="font-size: 0.72rem;">TALLER (20A)</div>
+                      </div>
+                    </div>
+                    <div class="col-3">
+                      <div class="p-1 rounded bg-black border border-secondary">
+                        <div class="text-muted" style="font-size: 0.58rem;">NAVE 30</div>
+                        <div class="text-success fw-bold" style="font-size: 0.72rem;">100% DISP</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Megafonía por Voz Widget en Vivo -->
+                  <div class="p-2 rounded border border-info border-opacity-50 mt-1" style="background: rgba(15, 23, 42, 0.85);">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="text-info font-mono fw-bold" style="font-size: 0.68rem;">
+                          <i class="bi bi-mic-fill me-1 text-warning"></i>MEGAFONÍA INDUSTRIAL TTS ACTIVA
+                        </span>
+                      </div>
+                      <span class="badge bg-info text-dark font-mono" style="font-size: 0.60rem;">AUDIO 48kHz</span>
+                    </div>
+                    <div class="text-light fst-italic p-1 px-2 rounded bg-black font-mono" style="font-size: 0.66rem; border-left: 3px solid #38bdf8;">
+                      "Atención Cuadrilla A: Grúa 10C en Nave 10 reporta leva rota. Técnico César González asignado."
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── CONTENEDOR DE CALLOUTS CINEMÁTICOS FLOTANTES (APPLE LERP CONTINUO) ─── -->
+        <div class="scrolly-narrative-window">
+          <div class="scrolly-callouts-container">
+
+            <!-- CALLOUT FASE 0 -->
+            <div class="scrolly-callout active" data-phase="0">
+              <span class="callout-pill pill-green">
+                <i class="bi bi-speedometer2"></i> FASE 1 • PIZARRÓN EN TIEMPO REAL
+              </span>
+              <h2 class="callout-heading">Pizarrón de Grúas (cranes.html)</h2>
+              <p class="callout-body apple-scrub-text">
+                Supervisión industrial por áreas (Área 10, Área 20 y Área 30). Las grúas transicionan entre tres estados oficiales: Operativa (verde con reporte de falla e historial), Falla activa (borde rojo parpadeante con descripción real, como "se rompió la leva", y cronómetro en segundos) y Mantenimiento (ámbar con desglose dual de tiempo en falla y tiempo en taller). Desde cada tarjeta se reporta, resuelve o solicita refacción a almacén.
+              </p>
+              <div class="callout-tags">
+                <span class="callout-tag">Áreas 10, 20 y 30</span>
+                <span class="callout-tag">Falla / Mantenimiento / Operativa</span>
+                <span class="callout-tag">Acción Correctiva</span>
+              </div>
+            </div>
+
+            <!-- CALLOUT FASE 1 -->
+            <div class="scrolly-callout" data-phase="1">
+              <span class="callout-pill pill-blue">
+                <i class="bi bi-cpu"></i> FASE 2 • BOTÓN FÍSICO INDUSTRIAL
+              </span>
+              <h2 class="callout-heading">Pulsador Arcade ESP32 y WS2815</h2>
+              <p class="callout-body apple-scrub-text">
+                En cabina o pie de bahía, el firmware del ESP32 gestiona un pulsador arcade industrial (Pin D4 pullup) y una tira WS2815 (Pin D5, 7 LEDs por grúa). Un clic corto (&lt;1.2s) cicla entre grúas en la pantalla OLED; si no se pulsa durante 5 segundos, se auto-confirma el reporte enviando la falla a Firestore; y al sostener 5 segundos completos, el técnico resuelve la falla en piso.
+              </p>
+              <div class="callout-tags">
+                <span class="callout-tag">Pin D4 Arcade</span>
+                <span class="callout-tag">WS2815 Alarma 300ms</span>
+                <span class="callout-tag">OLED SSD1306</span>
+              </div>
+            </div>
+
+            <!-- CALLOUT FASE 2 -->
+            <div class="scrolly-callout" data-phase="2">
+              <span class="callout-pill pill-orange">
+                <i class="bi bi-whatsapp"></i> FASE 3 • DESPACHO INTELIGENTE
+              </span>
+              <h2 class="callout-heading">Bot WhatsApp 24/7 de Misión Crítica</h2>
+              <p class="callout-body apple-scrub-text">
+                El motor de notificaciones opera ininterrumpidamente en infraestructura cloud de alta disponibilidad. Al registrarse una incidencia en Firestore, identifica al técnico de guardia asignado a la cuadrilla activa (config/technicians), consulta la jornada de Chihuahua (UTC-6) y despacha la alerta de inmediato con botones interactivos de acuse y protocolo anti-saturación de seguridad.
+              </p>
+              <div class="callout-tags">
+                <span class="callout-tag">Servidor Cloud 24/7</span>
+                <span class="callout-tag">Gateway SCADA</span>
+                <span class="callout-tag">Despacho Inmediato &lt;800ms</span>
+              </div>
+            </div>
+
+            <!-- CALLOUT FASE 3 -->
+            <div class="scrolly-callout" data-phase="3">
+              <span class="callout-pill pill-blue">
+                <i class="bi bi-clock-history"></i> FASE 4 • AUDITORÍA SCADA
+              </span>
+              <h2 class="callout-heading">Historial y Métricas (AnalisisDetallado.html)</h2>
+              <p class="callout-body apple-scrub-text">
+                Cada incidencia resuelta se archiva con 11 columnas de datos: ID de grúa, área, tipo, descripción, fecha de inicio y cierre, tiempo en falla, tiempo en mantenimiento, tiempo total acumulado, técnico responsable, acción correctiva y refacciones utilizadas. Permite exportar a Excel y CSV para auditorías de confiabilidad.
+              </p>
+              <div class="callout-tags">
+                <span class="callout-tag">11 Columnas SCADA</span>
+                <span class="callout-tag">Tiempos de Falla y Taller</span>
+                <span class="callout-tag">Exportación Excel/CSV</span>
+              </div>
+            </div>
+
+            <!-- CALLOUT FASE 4 -->
+            <div class="scrolly-callout" data-phase="4">
+              <span class="callout-pill pill-green">
+                <i class="bi bi-box-seam"></i> FASE 5 • ALMACÉN Y REFACCIONES
+              </span>
+              <h2 class="callout-heading">Inventario de Refacciones (inventory.html)</h2>
+              <p class="callout-body apple-scrub-text">
+                Control de stock en tiempo real vinculado a las fallas mecánicas. Cuando una grúa requiere piezas (como Levas, stock 997 pzas, $500 c/u), se genera una solicitud en refaction_requests. Al ser aprobada por el administrador del almacén, el sistema descuenta el stock atómicamente y crea la trazabilidad en inventory_movements.
+              </p>
+              <div class="callout-tags">
+                <span class="callout-tag">Transacciones Atómicas</span>
+                <span class="callout-tag">Deducción de Levas</span>
+                <span class="callout-tag">Control de Mínimos</span>
+              </div>
+            </div>
+
+            <!-- CALLOUT FASE 5 -->
+            <div class="scrolly-callout" data-phase="5">
+              <span class="callout-pill pill-blue">
+                <i class="bi bi-people"></i> FASE 6 • SISTEMA DE JORNADAS
+              </span>
+              <h2 class="callout-heading">Matriz de Turnos (Jornadas A, B, C y D)</h2>
+              <p class="callout-body apple-scrub-text">
+                La operación se rige por cuatro jornadas rotativas: Jornada A (Dom 6AM a Mar 6PM), Jornada B (Mié 6AM a Sáb 6PM), Jornada C (Dom 6PM a Mar 6AM) y Jornada D (Mié 6PM a Dom 6AM). El sistema calcula dinámicamente el turno activo en zona horaria Chihuahua (UTC-6) y archiva las incidencias en colecciones específicas por fecha y jornada.
+              </p>
+              <div class="callout-tags">
+                <span class="callout-tag">4 Jornadas Rotativas</span>
+                <span class="callout-tag">UTC-6 Chihuahua</span>
+                <span class="callout-tag">crane_history Dinámico</span>
+              </div>
+            </div>
+
+            <!-- CALLOUT FASE 6 -->
+            <div class="scrolly-callout" data-phase="6">
+              <span class="callout-pill pill-cyan" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+                <i class="bi bi-diagram-3-fill"></i> FASE 7 • GEMELO DIGITAL 2.5D
+              </span>
+              <h2 class="callout-heading">Gemelo Digital ISA-101 (plant-map.js)</h2>
+              <p class="callout-body apple-scrub-text">
+                Representación vectorial viva de las pistas de rodadura y naves industriales a 60 FPS. Monitorea la posición milimétrica de puentes grúa sobre vigas carrileras compartidas con algoritmo de anti-colisión geométrica por radar. Permite ubicar cualquier estación o grúa en 1 clic y simular trayectorias de carga pesada en planta.
+              </p>
+              <div class="callout-tags">
+                <span class="callout-tag">ISA-101 2.5D</span>
+                <span class="callout-tag">Anti-Colisión Geométrica</span>
+                <span class="callout-tag">Pistas de Rodadura A-B-C-D</span>
+              </div>
+            </div>
+
+            <!-- CALLOUT FASE 7 -->
+            <div class="scrolly-callout" data-phase="7">
+              <span class="callout-pill pill-purple" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">
+                <i class="bi bi-display"></i> FASE 8 • SALA DE CONTROL Y ANDON 4K
+              </span>
+              <h2 class="callout-heading">Andon TV 4K & Megafonía por Voz Industrial</h2>
+              <p class="callout-body apple-scrub-text">
+                Diseñado para videowalls y Smart TVs de 65" a 85" en sala de control y techos de nave. Despliega la matriz de 41 operaciones y métricas de OEE global sin requerir interacción manual. Integra megafonía industrial automatizada (Web Speech API) que vocaliza alertas por audio en el altavoz de la sala al registrarse un paro de línea o falla crítica.
+              </p>
+              <div class="callout-tags">
+                <span class="callout-tag">Andon TV 4K UHD</span>
+                <span class="callout-tag">Megafonía Vocal TTS</span>
+                <span class="callout-tag">Disponibilidad OEE Global</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ─── CONTROLADOR DE PÍLDORAS Y PROGRESO (APPLE PRO SCRUBBER) ─── -->
+      <div class="scrolly-controls-bar">
+        <div class="scrolly-progress-track">
+          <div class="scrolly-progress-fill" id="scrollyProgressFill" style="width: 0%;"></div>
+        </div>
+        <div class="scrolly-pills-row">
+          <button class="scrolly-pill-btn active" data-phase-target="0"><span>01</span> Pizarrón</button>
+          <button class="scrolly-pill-btn" data-phase-target="1"><span>02</span> ESP32</button>
+          <button class="scrolly-pill-btn" data-phase-target="2"><span>03</span> WhatsApp</button>
+          <button class="scrolly-pill-btn" data-phase-target="3"><span>04</span> Historial</button>
+          <button class="scrolly-pill-btn" data-phase-target="4"><span>05</span> Inventario</button>
+          <button class="scrolly-pill-btn" data-phase-target="5"><span>06</span> Turnos</button>
+          <button class="scrolly-pill-btn" data-phase-target="6"><span>07</span> Gemelo Digital</button>
+          <button class="scrolly-pill-btn" data-phase-target="7"><span>08</span> Andon TV</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SANDBOX INTERACTIVO (LABORATORIO EN VIVO)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section id="laboratorio" class="guia-section py-5">
+    <div class="container text-center mb-4">
+      <div class="section-eyebrow" data-reveal>LABORATORIO DE PRUEBAS INDUSTRIAL</div>
+      <h2 class="section-title">Experimenta el Hardware Real en Vivo</h2>
+      <p class="section-subtitle apple-scrub-text mx-auto">
+        Prueba cómo interactúan los componentes que compraste: el Centro de Mando ESP32 con pantalla redonda GC9A01, el botón metálico de 16mm con confirmación por inactividad a 2s, el catálogo editable de fallas y el nodo secundario C3 con OLED 0.42".
+      </p>
+    </div>
+
+    <div class="container">
+      <div class="row g-4 align-items-center">
+        <!-- Panel de Control Virtual: Centro de Mando -->
+        <div class="col-lg-6">
+          <div class="p-4 rounded-4" style="background: rgba(18, 24, 40, 0.85); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px);" data-reveal>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold text-white"><i class="bi bi-cpu text-info"></i> Centro de Mando Master (GC9A01 + Botón 16mm)</span>
+              <span class="badge bg-success">Enlazado a Firestore</span>
+            </div>
+
+            <div class="text-center py-3">
+              <div class="mb-3 d-flex justify-content-center">
+                <div style="width: 140px; height: 140px; border-radius: 50%; background: #07090e; border: 4px solid #38bdf8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px;">
+                  <span style="font-size: 0.65rem; color: #38bdf8; font-weight: 700;">GC9A01 TFT</span>
+                  <span class="fw-bold text-white my-1" id="labDialText" style="font-size: 0.85rem; line-height: 1.2;">LÍNEA 100% DISP</span>
+                  <span class="badge bg-success" id="labDialBadge" style="font-size: 0.6rem;">OPERATIVA</span>
+                </div>
+              </div>
+
+              <button class="btn-metallic-sim mb-2" id="labMetallicBtn" onclick="handleLabSimClick()" style="width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle, #e2e8f0, #475569); border: 3px solid #94a3b8; box-shadow: 0 4px 12px rgba(0,0,0,0.6); color: #38bdf8; font-size: 1.2rem; cursor: pointer;">
+                <i class="bi bi-power"></i>
+              </button>
+              <div class="small text-light fw-medium" id="labBtnPrompt">
+                1 clic para rotar equipo/motivo • 2s de inactividad confirman automáticamente
+              </div>
+            </div>
+
+            <div class="row g-2 mt-2">
+              <div class="col-6">
+                <button class="btn btn-outline-danger btn-sm w-100 py-2" id="labTriggerFaultBtn">
+                  <i class="bi bi-exclamation-triangle"></i> Disparar Falla 10C
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-outline-success btn-sm w-100 py-2" id="labResolveFaultBtn">
+                  <i class="bi bi-check-circle"></i> Resolver Directo
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-outline-info btn-sm w-100 py-2 font-mono" id="labTtsTestBtn" style="font-size: 0.72rem;">
+                  <i class="bi bi-volume-up-fill"></i> Megafonía TTS (Fase 8)
+                </button>
+              </div>
+              <div class="col-6">
+                <button class="btn btn-outline-warning btn-sm w-100 py-2 font-mono" id="labKeynoteScrollBtn" style="font-size: 0.72rem;">
+                  <i class="bi bi-compass"></i> Volver al Keynote
+                </button>
+              </div>
+            </div>
+
+            <div class="mt-3 text-center">
+              <a href="hardware-simulator.html" target="_blank" class="btn btn-primary btn-sm w-100 py-2 shadow">
+                <i class="bi bi-cpu-fill me-1"></i> Abrir Emulador Completo de Hardware en Pantalla Completa <i class="bi bi-box-arrow-up-right ms-1"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado Resultante en Vivo -->
+        <div class="col-lg-6">
+          <div class="p-4 rounded-4" style="background: rgba(18, 24, 40, 0.85); border: 1px solid rgba(255,255,255,0.12); backdrop-filter: blur(20px);" data-reveal>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold text-white"><i class="bi bi-broadcast text-warning"></i> Telemetría SCADA en Tiempo Real</span>
+              <span class="badge bg-success">Jornada A (Diurno)</span>
+            </div>
+
+            <div class="p-3 rounded-3 mb-3" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <div class="text-white fw-bold" id="labCraneTitle">Grúa 10C (Área 10)</div>
+                  <div class="small text-danger fw-medium" id="labCraneDesc">Leva rota (catálogo dinámico)</div>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-danger pulse-badge" id="labCraneBadge">Falla</span>
+                  <div class="font-monospace text-danger small mt-1 scrolly-live-timer" id="labCraneTimer">00:04:12</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center p-2 rounded mb-3" style="background: rgba(255,255,255,0.04);">
+              <span class="small text-muted">WhatsApp Técnico de Guardia (César González):</span>
+              <span class="small text-success fw-bold"><i class="bi bi-check-all"></i> Alerta Entregada (+5216142137321)</span>
+            </div>
+
+            <!-- Mini Nodo Satélite C3 OLED Preview -->
+            <div class="p-2 rounded border border-secondary border-opacity-25 bg-black text-center">
+              <small class="text-muted d-block" style="font-size: 0.65rem;">PANTALLA OLED 0.42" DEL NODO SATÉLITE C3 (72×40 PX):</small>
+              <div class="font-monospace text-info fw-bold mt-1" id="labOledPreview" style="font-size: 0.8rem; letter-spacing: 1px;">
+                [ GRÚA 10C • OPERATIVA ]
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ BENTO GRID DE ESPECIFICACIONES SCADA ═══ -->
+  <section class="guia-section py-5">
+    <div class="container">
+      <div class="text-center mb-5">
+        <div class="section-eyebrow" data-reveal>ESPECIFICACIONES DE INGENIERÍA</div>
+        <h2 class="section-title">Arquitectura Industrial de Alta Disponibilidad</h2>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-card bento-span-4" data-reveal>
+          <div class="bento-icon"><i class="bi bi-shield-check text-success"></i></div>
+          <div>
+            <div class="bento-title">Resiliencia Offline</div>
+            <div class="bento-desc apple-scrub-text">Caché local en navegador y reconexión automática en el ESP32 ante pérdidas momentáneas de cobertura WiFi en nave.</div>
+          </div>
+          <div class="bento-footer-stat"><i class="bi bi-circle-fill text-success" style="font-size: 0.5rem;"></i> 99.98% Uptime</div>
+        </div>
+
+        <div class="bento-card bento-span-4" data-reveal>
+          <div class="bento-icon"><i class="bi bi-lightning-charge text-warning"></i></div>
+          <div>
+            <div class="bento-title">Baja Latencia</div>
+            <div class="bento-desc apple-scrub-text">Transmisión por websockets y Firestore Listeners con tiempos de propagación menores a 350 milisegundos.</div>
+          </div>
+          <div class="bento-footer-stat"><i class="bi bi-speedometer2"></i> &lt;350ms Sync</div>
+        </div>
+
+        <div class="bento-card bento-span-4" data-reveal>
+          <div class="bento-icon"><i class="bi bi-database-check text-primary"></i></div>
+          <div>
+            <div class="bento-title">Auditoría Multi-Jornada</div>
+            <div class="bento-desc apple-scrub-text">Registro segmentado de 11 columnas con cálculo automático de MTTR por cuadrilla diaria.</div>
+          </div>
+          <div class="bento-footer-stat"><i class="bi bi-check-all"></i> 11 Campos SCADA</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="guia-footer">
+    <div class="d-flex justify-content-center gap-3 mb-3">
+      <a href="index.html" class="btn btn-primary btn-sm rounded-pill px-4">Ir al Dashboard en Vivo</a>
+      <a href="cranes.html" class="btn btn-outline-light btn-sm rounded-pill px-4">Pizarrón de Grúas</a>
+    </div>
+    <div>Monitor de Operaciones SCADA • Desarrollado por Cesar</div>
+  </footer>
+
+  <script src="site-nav.js?v=4.0"></script>
+  <script src="guia.js?v=8.5"></script>
+</body>
+</html>

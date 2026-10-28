@@ -1,0 +1,15 @@
+{
+  "name": "SCADA Centro de Mando ESP32 GC9A01 (Supervisión Multinodo)",
+  "version": "3.4.2-GC9A01-ESPNOW",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "bootloader.bin", "offset": 4096 },
+        { "path": "partitions.bin", "offset": 32768 },
+        { "path": "boot_app0.bin", "offset": 57344 },
+        { "path": "centro-mando-gc9a01.bin", "offset": 65536 }
+      ]
+    }
+  ]
+}

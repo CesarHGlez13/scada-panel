@@ -1,0 +1,451 @@
+/* ═══════════════════════════════════════════════════════════════
+   MONITOR DE OPERACIONES — CAPA DE DISEÑO SCADA (visionOS / macOS)
+   Archivo NUEVO: public/styles-scada.css
+   Se enlaza DESPUES de styles.css. No reescribe el CSS existente:
+   redefine tokens y aporta componentes. La seccion PUENTE mapea el
+   markup que YA generan app.js / cranes.js, asi que no hace falta
+   tocar el JS para que el rediseño se vea.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ---------- 1. TOKENS ---------- */
+:root {
+  /* Superficies: profundidad en capas, no un negro plano. */
+  --sc-bg: #0b0d11;
+  --sc-bg-veil: rgba(12, 14, 18, 0.72);
+  --sc-glass: rgba(255, 255, 255, 0.045);
+  --sc-glass-strong: rgba(255, 255, 255, 0.075);
+  --sc-hairline: rgba(255, 255, 255, 0.09);
+  --sc-hairline-lit: rgba(255, 255, 255, 0.16);
+
+  /* Tinta */
+  --sc-ink: #eef1f6;
+  --sc-ink-2: #a4adbb;
+  --sc-ink-3: #6d7684;
+
+  /* Semantica SCADA: misma paleta del proyecto, saturada para glow. */
+  --sc-ok: #34d399;
+  --sc-warn: #fbbf24;
+  --sc-fault: #f87171;
+  --sc-info: #60a5fa;
+  --sc-idle: #7b8492;
+
+  /* Tipografia: SF Pro si existe en el sistema, Inter como base web. */
+  --sc-font: -apple-system, "SF Pro Display", "SF Pro Text", "Inter",
+            "Segoe UI", Roboto, sans-serif;
+  --sc-mono: "SF Mono", "JetBrains Mono", ui-monospace, "Cascadia Mono", monospace;
+
+  /* Curva cinetica de Apple (spring suave, nunca linear). */
+  --sc-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --sc-t-fast: 180ms;
+  --sc-t-med: 320ms;
+  --sc-t-slow: 620ms;
+
+  --sc-r-sm: 10px;
+  --sc-r-md: 14px;
+  --sc-r-lg: 20px;
+}
+
+body {
+  background:
+    radial-gradient(120% 80% at 50% -20%, rgba(96, 165, 250, 0.10), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, rgba(52, 211, 153, 0.06), transparent 55%),
+    var(--sc-bg);
+  font-family: var(--sc-font);
+  letter-spacing: -0.011em;
+  color: var(--sc-ink);
+}
+
+/* ---------- 2. SUPERFICIE GLASS ---------- */
+.sc-glass {
+  position: relative;
+  background: var(--sc-glass);
+  border: 1px solid var(--sc-hairline);
+  border-radius: var(--sc-r-lg);
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 18px 40px -18px rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- 3. KPI: ANILLOS DE METRICA ---------- */
+.sc-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.sc-kpi {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  transition: transform var(--sc-t-med) var(--sc-spring),
+              border-color var(--sc-t-fast) var(--sc-spring),
+              box-shadow var(--sc-t-med) var(--sc-spring);
+}
+.sc-kpi:hover {
+  transform: translateY(-2px);
+  border-color: var(--sc-hairline-lit);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    0 22px 46px -18px rgba(0, 0, 0, 0.6);
+}
+
+.sc-kpi__ring { position: relative; width: 74px; height: 74px; flex: 0 0 auto; }
+.sc-kpi__ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.sc-kpi__ring .track { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 6; }
+.sc-kpi__ring .value {
+  fill: none;
+  stroke: var(--sc-tone, var(--sc-info));
+  stroke-width: 6;
+  stroke-linecap: round;
+  /* 2*pi*r con r=34 = 213.6. --pct entra por inline style. */
+  stroke-dasharray: 213.6;
+  stroke-dashoffset: calc(213.6 * (1 - var(--pct, 0)));
+  transition: stroke-dashoffset var(--sc-t-slow) var(--sc-spring),
+              stroke var(--sc-t-fast) var(--sc-spring);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sc-tone, var(--sc-info)) 45%, transparent));
+}
+.sc-kpi__core {
+  position: absolute; inset: 0;
+  display: grid; place-content: center;
+  text-align: center;
+}
+.sc-kpi__num {
+  font-family: var(--sc-mono);
+  /* Auto-ajuste: --num-size y --num-scale los fija scada-ui.js segun la longitud.
+     !important porque styles.css fija .stats-item span { font-size: 1.6rem } (22px). */
+  font-size: var(--num-size, 18px) !important;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--sc-tone, var(--sc-text));
+  max-width: 100%;
+  overflow: hidden;
+  transform: scale(var(--num-scale, 1));
+  transform-origin: center;
+}
+.sc-kpi__sub { font-size: 10px; color: var(--sc-ink-3); margin-top: 3px; }
+
+.sc-kpi__meta { min-width: 0; }
+.sc-kpi__label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--sc-ink-3);
+}
+.sc-kpi__value {
+  font-family: var(--sc-mono);
+  font-size: 26px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--sc-ink);
+  margin-top: 4px;
+}
+.sc-kpi__delta {
+  font-size: 12px; color: var(--sc-ink-2); margin-top: 4px;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.sc-kpi__delta::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--sc-tone, var(--sc-info));
+  box-shadow: 0 0 8px var(--sc-tone, var(--sc-info));
+}
+
+.sc-kpi[data-tone="ok"]    { --sc-tone: var(--sc-ok); }
+.sc-kpi[data-tone="warn"]  { --sc-tone: var(--sc-warn); }
+.sc-kpi[data-tone="fault"] { --sc-tone: var(--sc-fault); }
+.sc-kpi[data-tone="info"]  { --sc-tone: var(--sc-info); }
+.sc-kpi[data-tone="idle"]  { --sc-tone: var(--sc-idle); }
+
+/* ---------- 4. TARJETAS DE OPERACION / GRUA ---------- */
+.sc-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--sc-r-md);
+  background: var(--sc-glass);
+  border: 1px solid var(--sc-hairline);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+              0 12px 30px -16px rgba(0, 0, 0, 0.5);
+  transition: transform var(--sc-t-med) var(--sc-spring),
+              border-color var(--sc-t-fast) var(--sc-spring),
+              box-shadow var(--sc-t-med) var(--sc-spring);
+}
+.sc-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--sc-tone, var(--sc-hairline-lit)) 40%, var(--sc-hairline));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+              0 20px 44px -18px rgba(0, 0, 0, 0.6),
+              0 0 0 1px color-mix(in srgb, var(--sc-tone, transparent) 22%, transparent);
+}
+
+/* Iluminacion perimetral: solo estados criticos. Pulso de 2.4 s. */
+.sc-card[data-state="fault"]   { --sc-tone: var(--sc-fault); }
+.sc-card[data-state="active"]  { --sc-tone: var(--sc-ok); }
+.sc-card[data-state="alert"]   { --sc-tone: var(--sc-warn); }
+.sc-card[data-state="resolved"] { --sc-tone: var(--sc-info); }
+.sc-card[data-state="inactive"] { --sc-tone: var(--sc-idle); }
+
+.sc-card[data-state="fault"]::before,
+.sc-card[data-state="alert"]::before {
+  content: "";
+  position: absolute; inset: -1px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--ang, 0deg),
+    transparent 0%, color-mix(in srgb, var(--sc-tone) 55%, transparent) 25%,
+    transparent 50%, color-mix(in srgb, var(--sc-tone) 35%, transparent) 75%, transparent 100%);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  padding: 1px;
+  animation: sc-perimeter 2.4s linear infinite;
+  pointer-events: none;
+}
+@property --ang { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes sc-perimeter { to { --ang: 360deg; } }
+
+.sc-card[data-state="fault"] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+              0 12px 30px -16px rgba(0, 0, 0, 0.5),
+              0 0 22px -6px color-mix(in srgb, var(--sc-fault) 45%, transparent);
+}
+
+/* Indicador de estado: punto con halo, sin parpadeo agresivo. */
+.sc-dot {
+  position: relative; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--sc-tone, var(--sc-idle));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--sc-tone, transparent) 60%, transparent);
+}
+.sc-dot::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--sc-tone, transparent) 30%, transparent), transparent 70%);
+  animation: sc-halo 2.4s var(--sc-spring) infinite;
+}
+@keyframes sc-halo { 0%, 100% { opacity: 0.45; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.1); } }
+
+/* Timer elegante: monospace tabular + barra de SLA. */
+.sc-timer {
+  font-family: var(--sc-mono);
+  font-size: 13px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--sc-ink);
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--sc-hairline);
+}
+.sc-timer[data-critical="true"] {
+  color: var(--sc-fault);
+  border-color: color-mix(in srgb, var(--sc-fault) 35%, var(--sc-hairline));
+  background: color-mix(in srgb, var(--sc-fault) 12%, rgba(0, 0, 0, 0.28));
+}
+.sc-sla {
+  height: 3px; border-radius: 3px; overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  margin-top: 10px;
+}
+.sc-sla__fill {
+  height: 100%; width: calc(var(--pct, 0) * 100%);
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--sc-tone, var(--sc-info)) 70%, transparent), var(--sc-tone, var(--sc-info)));
+  border-radius: 3px;
+  transition: width var(--sc-t-slow) var(--sc-spring);
+}
+
+/* ---------- 5. CONTROLES SEGMENTADOS (iOS / macOS) ---------- */
+.sc-segmented {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 3px; border-radius: 11px;
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid var(--sc-hairline);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+.sc-segmented button {
+  position: relative;
+  appearance: none; border: 0; background: transparent;
+  font-family: var(--sc-font); font-size: 13px; font-weight: 500;
+  color: var(--sc-ink-2);
+  padding: 7px 14px; border-radius: 9px; cursor: pointer;
+  transition: color var(--sc-t-fast) var(--sc-spring),
+              background var(--sc-t-fast) var(--sc-spring);
+}
+.sc-segmented button:hover { color: var(--sc-ink); }
+.sc-segmented button.active {
+  color: var(--sc-ink);
+  background: var(--sc-glass-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.sc-segmented button:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--sc-info) 60%, transparent);
+  outline-offset: 2px;
+}
+
+.sc-select {
+  font-family: var(--sc-font); font-size: 13px; font-weight: 500;
+  color: var(--sc-ink);
+  padding: 8px 34px 8px 12px;
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid var(--sc-hairline);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%23a4adbb' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center; background-size: 12px;
+  transition: border-color var(--sc-t-fast) var(--sc-spring);
+}
+.sc-select:hover { border-color: var(--sc-hairline-lit); }
+
+/* ---------- 6. NAVBAR ---------- */
+.sc-nav {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--sc-bg-veil);
+  border-bottom: 1px solid var(--sc-hairline);
+  backdrop-filter: blur(30px) saturate(160%);
+  -webkit-backdrop-filter: blur(30px) saturate(160%);
+}
+.sc-nav__brand { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: var(--sc-ink); }
+.sc-nav__link {
+  font-size: 13px; font-weight: 500; color: var(--sc-ink-2);
+  padding: 8px 12px; border-radius: 10px; text-decoration: none;
+  transition: color var(--sc-t-fast) var(--sc-spring), background var(--sc-t-fast) var(--sc-spring);
+}
+.sc-nav__link:hover { color: var(--sc-ink); background: var(--sc-glass); }
+.sc-nav__link.active { color: var(--sc-ink); background: var(--sc-glass-strong); }
+
+/* ---------- 7. ENTRADA CINETICA ---------- */
+@keyframes sc-enter {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+.sc-enter { animation: sc-enter var(--sc-t-slow) var(--sc-spring) both; }
+
+/* ═══════════════════════════════════════════════════════════════
+   8. PUENTE — mapea el markup EXISTENTE al nuevo lenguaje.
+   Funciona sin tocar app.js, cranes.js ni los HTML.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* .stats-item -> tarjeta de metrica con anillo opcional. */
+.stats-item {
+  background: var(--sc-glass);
+  border: 1px solid var(--sc-hairline);
+  border-radius: var(--sc-r-md);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 14px 16px;
+  transition: transform var(--sc-t-med) var(--sc-spring),
+              border-color var(--sc-t-fast) var(--sc-spring);
+}
+.stats-item:hover { transform: translateY(-2px); border-color: var(--sc-hairline-lit); }
+.stats-item label {
+  display: block; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--sc-ink-3); margin-bottom: 6px;
+}
+.stats-item span {
+  font-family: var(--sc-mono) !important;
+  font-variant-numeric: tabular-nums;
+  font-size: 22px; font-weight: 600;
+  color: var(--sc-ink);
+}
+
+/* .card -> sc-card. position:relative es obligatorio para el glow perimetral. */
+.card {
+  position: relative;
+  background: var(--sc-glass);
+  border: 1px solid var(--sc-hairline);
+  border-radius: var(--sc-r-md);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+              0 12px 30px -18px rgba(0, 0, 0, 0.5);
+  transition: transform var(--sc-t-med) var(--sc-spring),
+              border-color var(--sc-t-fast) var(--sc-spring),
+              box-shadow var(--sc-t-med) var(--sc-spring);
+}
+.card:hover { transform: translateY(-3px); border-color: var(--sc-hairline-lit); }
+
+/* Glow perimetral por estado, usando las clases que YA genera el JS. */
+.card:has(.status-dot.failure)::before,
+.card:has(.badge.bg-danger)::before {
+  content: ""; position: absolute; inset: -1px; border-radius: inherit;
+  background: conic-gradient(from var(--ang, 0deg), transparent 0%,
+    color-mix(in srgb, var(--sc-fault) 55%, transparent) 25%, transparent 50%,
+    color-mix(in srgb, var(--sc-fault) 35%, transparent) 75%, transparent 100%);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude; -webkit-mask-composite: xor; padding: 1px;
+  animation: sc-perimeter 2.4s linear infinite; pointer-events: none;
+}
+.card:has(.status-dot.failure), .card:has(.badge.bg-danger) {
+  border-color: color-mix(in srgb, var(--sc-fault) 30%, var(--sc-hairline));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+              0 12px 30px -18px rgba(0, 0, 0, 0.5),
+              0 0 22px -6px color-mix(in srgb, var(--sc-fault) 45%, transparent);
+}
+
+/* Punto de estado: halo suave en lugar del parpadeo cuadrado. */
+.status-dot {
+  width: 9px; height: 9px; margin-right: 8px;
+  position: relative; flex-shrink: 0;
+  box-shadow: 0 0 10px currentColor;
+}
+.status-dot::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, currentColor 30%, transparent), transparent 70%);
+  animation: sc-halo 2.4s var(--sc-spring) infinite;
+}
+
+/* Timer: monospace tabular en pastilla glass. */
+.timer, .maintenance-timers {
+  font-family: var(--sc-mono) !important;
+  font-variant-numeric: tabular-nums;
+  color: var(--sc-ink) !important;
+}
+.timer {
+  display: inline-flex; align-items: center;
+  padding: 5px 10px; border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--sc-hairline);
+}
+
+/* .btn-group -> control segmentado iOS/macOS. */
+.btn-group {
+  display: inline-flex; gap: 2px; padding: 3px;
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid var(--sc-hairline);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+.btn-group .btn {
+  border: 0; border-radius: 9px; background: transparent;
+  font-family: var(--sc-font); font-size: 13px; font-weight: 500;
+  color: var(--sc-ink-2); padding: 7px 14px;
+  transition: color var(--sc-t-fast) var(--sc-spring), background var(--sc-t-fast) var(--sc-spring);
+}
+.btn-group .btn:hover { color: var(--sc-ink); background: var(--sc-glass); }
+.btn-group .btn.active, .btn-group .btn:active {
+  color: var(--sc-ink); background: var(--sc-glass-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10), 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Navbar: glass mas profundo, hairline inferior. */
+.navbar {
+  background: var(--sc-bg-veil) !important;
+  backdrop-filter: blur(30px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(160%) !important;
+  border-bottom: 1px solid var(--sc-hairline) !important;
+}
+
+/* ---------- 9. ACCESIBILIDAD ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

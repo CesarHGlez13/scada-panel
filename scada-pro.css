@@ -1,0 +1,2685 @@
+/**
+ * ============================================================================
+ * OBSIDIAN HIGH-PERFORMANCE SCADA DESIGN SYSTEM v2.0 (ISA-101 / OpenBridge)
+ * Desarrollado por Cesar + Antigravity
+ * ============================================================================
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ─── Paleta Base Obsidian SCADA ─── */
+  --scada-bg: #07090e;
+  --scada-surface: linear-gradient(180deg, rgba(22, 27, 36, 0.88) 0%, rgba(13, 17, 23, 0.96) 100%);
+  --scada-surface-sub: rgba(255, 255, 255, 0.035);
+  --scada-border: 1px solid rgba(255, 255, 255, 0.07);
+  --scada-border-hover: 1px solid rgba(255, 255, 255, 0.16);
+  --scada-inset-specular: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+  --scada-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6);
+
+  /* ─── Filosofía ISA-101 (Color por Excepción) ─── */
+  --scada-normal-bg: #0d1117;
+  --scada-normal-border: rgba(16, 185, 129, 0.25);
+  --scada-normal-led: #10b981;
+
+  --scada-maint-bg: linear-gradient(180deg, rgba(45, 32, 12, 0.45) 0%, rgba(16, 15, 13, 0.95) 100%);
+  --scada-maint-border: rgba(245, 158, 11, 0.4);
+  --scada-maint-led: #f59e0b;
+
+  --scada-fail-bg: linear-gradient(180deg, rgba(50, 14, 18, 0.6) 0%, rgba(18, 12, 15, 0.96) 100%);
+  --scada-fail-border: rgba(239, 68, 68, 0.55);
+  --scada-fail-led: #ef4444;
+
+  /* ─── Tipografía Dual ─── */
+  --scada-font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --scada-font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ═══ BODY BASE MULTICAPA & MALLA SCADA BLUEPRINT ═══ */
+body,
+body.scada-pro-theme,
+.scada-pro-theme {
+  font-family: var(--scada-font-ui);
+  background-color: #06080e !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 85% 10%, rgba(16, 185, 129, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 15% 10%, rgba(239, 68, 68, 0.05) 0%, transparent 45%),
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 36px 36px, 36px 36px !important;
+  background-attachment: fixed;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══ NAVBAR SUPERIOR SCADA PRO — ESTÉTICA CINEMÁTICA APPLE KEYNOTE (EXACTA A GUIA.HTML) ═══ */
+.guia-navbar,
+.navbar.scada-main-navbar,
+#siteNavbar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100010 !important;
+  background: rgba(7, 9, 14, 0.90) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10) !important;
+  padding: 10px 0 !important;
+  height: 54px !important;
+  min-height: 54px !important;
+  display: flex !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+
+.guia-nav-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: -0.01em !important;
+}
+
+.guia-nav-brand i {
+  color: #38bdf8 !important;
+  font-size: 1.15rem !important;
+}
+
+.brand-text {
+  display: inline-flex !important;
+  align-items: center !important;
+  color: #ffffff !important;
+}
+
+/* El nav de enlaces es desktop-only (Bootstrap d-none d-lg-flex).
+   El !important aqui ganaba sobre d-none y lo mostraba tambien en movil,
+   desbordando el header (781px de enlaces en 393px). Se limita a >= 992px. */
+@media (min-width: 992px) {
+  .guia-nav-links {
+    display: flex !important;
+    align-items: center !important;
+    gap: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+.guia-nav-link {
+  color: #94a3b8 !important;
+  text-decoration: none !important;
+  font-size: 0.82rem !important;
+  font-weight: 500 !important;
+  padding: 5px 12px !important;
+  border-radius: 980px !important;
+  transition: all 0.2s ease !important;
+  display: inline-block !important;
+}
+
+.guia-nav-link:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.guia-nav-link.active {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.15) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+}
+
+.guia-nav-btn {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  padding: 5px 14px !important;
+  border-radius: 980px !important;
+  text-decoration: none !important;
+  font-size: 0.78rem !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.guia-nav-btn:hover {
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5) !important;
+  transform: translateY(-1px) !important;
+  color: #ffffff !important;
+}
+
+.scada-andon-nav-btn {
+  white-space: nowrap !important;
+  background: rgba(245, 158, 11, 0.12) !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  color: #fbbf24 !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  padding: 6px 14px !important;
+  border-radius: 999px !important;
+  transition: all 0.18s ease !important;
+  cursor: pointer;
+}
+
+.scada-andon-nav-btn:hover {
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: #fbbf24 !important;
+  color: #fef3c7 !important;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.3) !important;
+  transform: translateY(-1px);
+}
+
+#siteNavbarRight .apple-tour-nav-btn,
+#siteNavbarRightContent .btn {
+  white-space: nowrap !important;
+  font-size: 0.8rem !important;
+  padding: 6px 13px !important;
+  border-radius: 999px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+#siteNavbarRightContent ul.navbar-nav {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#siteNavbarRightContent li.nav-item {
+  margin: 0 !important;
+  display: inline-flex !important;
+}
+
+/* ═══ TIPOGRAFÍA TABULAR OBLIGATORIA (CERO TEMBLOR) ═══ */
+.scada-mono,
+.font-mono,
+.timer,
+.scrolly-live-timer,
+.kpi-value,
+.kpi-number,
+.crane-timer,
+.stats-number,
+[id*="time"],
+[id*="Timer"],
+[id*="Count"],
+#totalItems,
+#activeItems,
+#lowStockItems,
+#totalValue,
+td[data-type="time"],
+.tabular-nums {
+  font-family: var(--scada-font-mono) !important;
+  font-variant-numeric: tabular-nums !important;
+  letter-spacing: -0.02em;
+}
+
+/* ═══ CONTENEDORES Y TARJETAS OBSIDIAN ═══ */
+.scada-card,
+.card,
+.modal-content {
+  background: var(--scada-surface) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  border: var(--scada-border) !important;
+  box-shadow: var(--scada-shadow), var(--scada-inset-specular) !important;
+  border-radius: 14px !important;
+  color: #e2e8f0 !important;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.18s ease;
+}
+
+.scada-card:hover {
+  border: var(--scada-border-hover) !important;
+}
+
+/* ═══ BOTONES DE ACCIÓN TÁCTICOS ISA-101 EN TARJETAS DE GRÚAS Y OPERACIONES ═══ */
+#cranesContainer .card .d-grid.gap-2,
+#operations-container .card .d-grid.gap-2 {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+  margin-top: 12px !important;
+}
+
+/* Si la tarjeta tiene más de 2 botones (ej. en falla: Resolver, Historial, Refacción, Mant), mantener 2x2 limpio */
+#cranesContainer .card .d-grid.gap-2 > .btn,
+#operations-container .card .d-grid.gap-2 > .btn {
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  padding: 7px 10px !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  white-space: nowrap !important;
+  transition: all 0.16s ease !important;
+}
+
+/* Botón Reportar Falla / Mantenimiento (Táctico Ámbar Sutil en vez de amarillo chillón) */
+#cranesContainer .card .btn-warning,
+#operations-container .card .btn-warning {
+  background: rgba(245, 158, 11, 0.12) !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+  color: #fbbf24 !important;
+  box-shadow: none !important;
+}
+
+#cranesContainer .card .btn-warning:hover,
+#operations-container .card .btn-warning:hover {
+  background: rgba(245, 158, 11, 0.24) !important;
+  border-color: #f59e0b !important;
+  color: #fef3c7 !important;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+/* Botón Historial (Táctico Cian Oscuro en vez de celeste saturado) */
+#cranesContainer .card .btn-info,
+#operations-container .card .btn-info {
+  background: rgba(56, 189, 248, 0.1) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  color: #38bdf8 !important;
+  box-shadow: none !important;
+}
+
+#cranesContainer .card .btn-info:hover,
+#operations-container .card .btn-info:hover {
+  background: rgba(56, 189, 248, 0.22) !important;
+  border-color: #38bdf8 !important;
+  color: #e0f2fe !important;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+/* Botón Resolver (Táctico Esmeralda de Misión Crítica) */
+#cranesContainer .card .btn-success,
+#operations-container .card .btn-success {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.35) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.55) !important;
+  color: #6ee7b7 !important;
+}
+
+#cranesContainer .card .btn-success:hover,
+#operations-container .card .btn-success:hover {
+  background: rgba(16, 185, 129, 0.4) !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35) !important;
+}
+
+/* Si hay un 3er botón impar en Operaciones (Solicitar Refacción), que ocupe el ancho de las 2 columnas */
+#operations-container .card .d-grid.gap-2 > .btn:nth-child(3):last-child {
+  grid-column: 1 / -1 !important;
+}
+
+/* ═══ ESTADOS DINÁMICOS ISA-101 ═══ */
+.scada-status-operational,
+.crane-card.operational,
+.operation-card.operational,
+#cranesContainer .card.border-success,
+#operations-container .card.border-success {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-left: 3px solid var(--scada-normal-led) !important;
+}
+
+.scada-status-maintenance,
+.crane-card.maintenance,
+.operation-card.maintenance,
+#cranesContainer .card.border-warning,
+#operations-container .card.border-warning {
+  background: var(--scada-maint-bg) !important;
+  border: 1px solid var(--scada-maint-border) !important;
+  border-left: 3px solid var(--scada-maint-led) !important;
+}
+
+.scada-status-failed,
+.crane-card.failed,
+.operation-card.failed,
+.operation-card.failure,
+#cranesContainer .card.border-danger,
+#operations-container .card.border-danger {
+  background: var(--scada-fail-bg) !important;
+  border: 1px solid var(--scada-fail-border) !important;
+  border-left: 3px solid var(--scada-fail-led) !important;
+  box-shadow: 0 0 20px -2px rgba(239, 68, 68, 0.25) !important;
+}
+
+/* ═══ INDICADORES LED CON PULSO EXPANSIVO ANDON ═══ */
+.scada-led {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  position: relative;
+  vertical-align: middle;
+}
+
+.scada-led.led-green,
+.scada-led.scada-led-green {
+  background: var(--scada-normal-led);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+}
+
+.scada-led.led-amber,
+.scada-led.scada-led-amber {
+  background: var(--scada-maint-led);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.7);
+}
+
+.scada-led.led-red,
+.scada-led.scada-led-red {
+  background: var(--scada-fail-led);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+  animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+/* ═══ FILTER CHIPS / PILLS INTERACTIVOS ═══ */
+.scada-filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.scada-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 5px 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.scada-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.scada-chip.active {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+/* ═══ BARRA COMPACTA GUÍA SCADA PRO ═══ */
+.scada-guia-banner-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(8px);
+}
+
+.scada-guia-banner-compact .banner-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ═══ MODO ANDON TV (PANTALLAS DE NAVE Y PANELES INDUSTRIALES) ═══ */
+body.andon-tv-mode {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #05070a !important;
+  overflow: hidden !important;
+  height: 100vh !important;
+  width: 100vw !important;
+}
+
+/* Ocultar elementos irrelevantes para pantalla pasiva Andon */
+body.andon-tv-mode .guia-navbar,
+body.andon-tv-mode .site-nav-container,
+body.andon-tv-mode .navbar,
+body.andon-tv-mode #mobileBottomNav,
+body.andon-tv-mode .scada-guia-banner-compact,
+body.andon-tv-mode .scada-guia-banner-compact-wrap,
+body.andon-tv-mode .filter-section-collapsible,
+body.andon-tv-mode .sidebar,
+body.andon-tv-mode .row > .col-md-3,
+body.andon-tv-mode .btn-group#cranes-filter-btn-group,
+body.andon-tv-mode #cranes-filter-btn-group,
+body.andon-tv-mode .scada-filter-chips-container,
+body.andon-tv-mode .cranes-header-wrapper,
+body.andon-tv-mode .container.mt-4 > .d-flex.justify-content-between.align-items-center.mb-4,
+body.andon-tv-mode .container.mt-4 > .row.mb-4 {
+  display: none !important;
+}
+
+/* El contenedor principal se expande al 100% de la pantalla */
+body.andon-tv-mode #mainContent,
+body.andon-tv-mode .main-content,
+body.andon-tv-mode .container-fluid,
+body.andon-tv-mode .container,
+body.andon-tv-mode .container.mt-4 {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  padding: 0 12px !important;
+  margin: 0 !important;
+  height: calc(100vh - 46px) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.andon-tv-mode #mainContent {
+  padding: 0 !important;
+  height: calc(100vh - 46px) !important;
+}
+
+body.andon-tv-mode .container-fluid > .row:not(.scada-guia-banner-compact-wrap),
+body.andon-tv-mode .container > .row:not(.scada-guia-banner-compact-wrap):not(.mb-4) {
+  margin: 0 !important;
+  height: 100% !important;
+  flex: 1 1 0 !important;
+}
+
+body.andon-tv-mode .row > .col-md-9,
+body.andon-tv-mode .row > .col-12 {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Envoltura de tarjeta contenedora se vuelve transparente para aprovechar espacio */
+body.andon-tv-mode .col-md-9 > .card,
+body.andon-tv-mode .col-12 > .card,
+body.andon-tv-mode .col-md-9 > .card[data-module="cranes"],
+body.andon-tv-mode .col-md-9 > .card[data-module="operations"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+body.andon-tv-mode .col-md-9 > .card > .card-header,
+body.andon-tv-mode .col-12 > .card > .card-header {
+  display: none !important;
+}
+
+body.andon-tv-mode .col-md-9 > .card > .card-body,
+body.andon-tv-mode .col-12 > .card > .card-body {
+  padding: 0 !important;
+  height: 100% !important;
+  flex: 1 1 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* HUD Superior Andon TV */
+.scada-andon-hud {
+  display: none;
+}
+
+body.andon-tv-mode .scada-andon-hud {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  height: 46px;
+  background: rgba(10, 14, 23, 0.98);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0 16px;
+  z-index: 99999;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+.scada-andon-hud-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.scada-andon-hud-shift {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.scada-andon-hud-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.86rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.scada-andon-hud-metrics {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.scada-andon-metric-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scada-andon-metric-pill.failed {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.scada-andon-metric-pill.maint {
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fcd34d;
+}
+
+.scada-andon-metric-pill.operational {
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  color: #6ee7b7;
+}
+
+.scada-andon-metric-pill.avail {
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+}
+
+.scada-andon-hud-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.scada-andon-audio-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 2px 4px;
+}
+
+.scada-andon-audio-select {
+  background: transparent;
+  border: none;
+  color: #cbd5e1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
+
+.scada-andon-audio-select option {
+  background: #0d1117;
+  color: #e2e8f0;
+}
+
+.scada-andon-audio-test {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 4px;
+  color: #38bdf8;
+  font-size: 0.72rem;
+  padding: 1px 6px;
+  cursor: pointer;
+}
+
+.scada-andon-audio-test:hover {
+  background: rgba(56, 189, 248, 0.3);
+}
+
+.scada-andon-view-toggle {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 2px;
+}
+
+.scada-andon-tab-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.scada-andon-tab-btn:hover {
+  color: #f8fafc;
+}
+
+.scada-andon-tab-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Reglas de visualización por módulo en Andon TV */
+body.andon-tv-mode.andon-view-cranes .card[data-module="operations"],
+body.andon-tv-mode.andon-view-cranes #operations-grid {
+  display: none !important;
+}
+
+body.andon-tv-mode.andon-view-cranes .card[data-module="cranes"],
+body.andon-tv-mode.andon-view-cranes #cranes-grid,
+html.hide-module-cranes body.andon-tv-mode.andon-view-cranes .card[data-module="cranes"],
+html.hide-module-cranes body.andon-tv-mode.andon-view-cranes #cranes-grid {
+  display: flex !important;
+  flex: 1 1 0 !important;
+  height: 100% !important;
+}
+
+body.andon-tv-mode.andon-view-operations .card[data-module="cranes"],
+body.andon-tv-mode.andon-view-operations #cranes-grid {
+  display: none !important;
+}
+
+body.andon-tv-mode.andon-view-operations .card[data-module="operations"],
+body.andon-tv-mode.andon-view-operations #operations-grid,
+html.hide-module-operations body.andon-tv-mode.andon-view-operations .card[data-module="operations"],
+html.hide-module-operations body.andon-tv-mode.andon-view-operations #operations-grid {
+  display: flex !important;
+  flex: 1 1 0 !important;
+  height: 100% !important;
+}
+
+.scada-andon-exit-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scada-andon-exit-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
+  color: #fca5a5;
+}
+
+/* Contenedor de grúas y operaciones en Andon: amplio y auto-ajustable */
+body.andon-tv-mode #cranes-grid,
+body.andon-tv-mode #cranesContainer,
+body.andon-tv-mode #operations-grid,
+body.andon-tv-mode #operations-container {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  gap: 20px !important;
+  height: auto !important;
+  min-height: calc(100vh - 65px) !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  padding: 16px 20px 60px !important;
+  box-sizing: border-box !important;
+  flex: 1 1 0 !important;
+}
+
+/* Cada Área con su encabezado distinguible y separación */
+body.andon-tv-mode .crane-section,
+body.andon-tv-mode .operations-section {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: none !important;
+  min-height: 0 !important;
+  margin-bottom: 16px !important;
+  background: rgba(13, 17, 23, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+}
+
+/* Título de Área de Alta Legibilidad */
+body.andon-tv-mode .crane-section-title,
+body.andon-tv-mode .operations-section-title {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: #38bdf8 !important;
+  margin: 0 0 12px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  height: auto !important;
+  flex-shrink: 0 !important;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15) !important;
+  padding-bottom: 6px !important;
+}
+
+body.andon-tv-mode .crane-section-title::before,
+body.andon-tv-mode .operations-section-title::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+}
+
+/* Fila de tarjetas: Grid adaptable moderno que nunca comprime ni aplasta tarjetas */
+body.andon-tv-mode .crane-section .row,
+body.andon-tv-mode .operations-section .row {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 14px !important;
+  flex: none !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Cada columna toma el 100% del espacio de su celda de grid */
+body.andon-tv-mode .crane-section .row > div[class*="col-"],
+body.andon-tv-mode .operations-section .row > div[class*="col-"] {
+  flex: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: auto !important;
+  min-height: 150px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Tarjeta individual en Andon: diseño ejecutivo amplio con bordes LED */
+body.andon-tv-mode .crane-card,
+body.andon-tv-mode .operation-card,
+body.andon-tv-mode .op-card-appear,
+body.andon-tv-mode #cranes-grid .operation-card,
+body.andon-tv-mode #cranes-grid .card,
+body.andon-tv-mode #cranesContainer .card,
+body.andon-tv-mode #operations-container .card {
+  height: 100% !important;
+  min-height: 150px !important;
+  min-width: 0 !important;
+  padding: 14px 16px !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  border-radius: 12px !important;
+  transform: none !important;
+  animation: none !important;
+  opacity: 1 !important;
+  box-sizing: border-box !important;
+  border-width: 2px !important;
+}
+
+body.andon-tv-mode #operations-container .card-body {
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+
+body.andon-tv-mode #operations-container .card-title {
+  font-size: 1.25rem !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+/* Superficies y LEDs por Estado en Modo Andon */
+body.andon-tv-mode .operation-card.operational,
+body.andon-tv-mode #cranes-grid .operation-card.operational,
+body.andon-tv-mode #cranesContainer .card.border-success,
+body.andon-tv-mode #cranesContainer .card.operational,
+body.andon-tv-mode #operations-container .card.border-success {
+  background: linear-gradient(180deg, rgba(20, 26, 36, 0.95) 0%, rgba(11, 15, 22, 0.98) 100%) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+body.andon-tv-mode .operation-card.failure,
+body.andon-tv-mode #cranes-grid .operation-card.failure,
+body.andon-tv-mode #cranesContainer .card.border-danger,
+body.andon-tv-mode #cranesContainer .card.failure,
+body.andon-tv-mode #operations-container .card.border-danger {
+  background: linear-gradient(180deg, rgba(60, 16, 22, 0.92) 0%, rgba(24, 10, 14, 0.98) 100%) !important;
+  border: 1px solid rgba(239, 68, 68, 0.75) !important;
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+body.andon-tv-mode .operation-card.maintenance,
+body.andon-tv-mode #cranes-grid .operation-card.maintenance,
+body.andon-tv-mode #cranesContainer .card.border-warning,
+body.andon-tv-mode #cranesContainer .card.maintenance,
+body.andon-tv-mode #operations-container .card.border-warning {
+  background: linear-gradient(180deg, rgba(50, 36, 14, 0.9) 0%, rgba(20, 16, 10, 0.98) 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.6) !important;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Ocultar botones de interacción en Andon TV para evitar overflow */
+body.andon-tv-mode .card-actions,
+body.andon-tv-mode .d-grid,
+body.andon-tv-mode #cranesContainer .card .d-grid,
+body.andon-tv-mode #operations-container .card .d-grid,
+body.andon-tv-mode #cranesContainer .card .btn,
+body.andon-tv-mode #operations-container .card .btn,
+body.andon-tv-mode .btn:not(.scada-andon-exit-btn):not(.scada-andon-tab-btn):not(.scada-andon-audio-test) {
+  display: none !important;
+}
+
+/* Cabecera interna de la tarjeta en Andon TV */
+body.andon-tv-mode .card-title,
+body.andon-tv-mode .operation-card > .d-flex {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: #f8fafc !important;
+  margin-bottom: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+body.andon-tv-mode .operation-card strong {
+  color: #ffffff !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 1.35rem !important;
+  letter-spacing: 0.03em !important;
+}
+
+/* Badges de estado en tarjeta */
+body.andon-tv-mode .badge {
+  font-size: 0.85rem !important;
+  padding: 4px 10px !important;
+  letter-spacing: 0.05em !important;
+  border-radius: 6px !important;
+}
+
+/* Cronómetro de falla / mantenimiento */
+body.andon-tv-mode .timer,
+body.andon-tv-mode .scrolly-live-timer {
+  font-size: 1.85rem !important;
+  font-weight: 800 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  letter-spacing: 0.02em !important;
+  font-variant-numeric: tabular-nums !important;
+  margin: 6px 0 !important;
+  line-height: 1.1 !important;
+  color: #ff4d4d !important;
+  text-shadow: 0 0 12px rgba(255, 77, 77, 0.6) !important;
+}
+
+/* Descripción del problema */
+body.andon-tv-mode .card-text,
+body.andon-tv-mode .mt-2 {
+  font-size: 0.95rem !important;
+  line-height: 1.3 !important;
+  margin: 6px 0 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  color: #cbd5e1 !important;
+}
+
+body.andon-tv-mode .operation-card.failure .mt-2,
+body.andon-tv-mode #cranesContainer .card.border-danger .card-text,
+body.andon-tv-mode #operations-container .card.border-danger .card-text {
+  color: #fecaca !important;
+  font-weight: 600 !important;
+}
+
+/* ═══ TABLAS DE ALTA DENSIDAD Y MODALES SCADA PRO (TODAS LAS PÁGINAS) ═══ */
+.modal-dialog-scada-wide {
+  max-width: 95vw !important;
+  margin: 1.5rem auto;
+}
+
+.modal-header {
+  background: rgba(13, 17, 23, 0.95) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+}
+
+.modal-footer {
+  background: rgba(13, 17, 23, 0.9) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.scada-table-dense,
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.83rem;
+  color: #e2e8f0 !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-striped-bg: rgba(255, 255, 255, 0.025) !important;
+  --bs-table-striped-color: #e2e8f0 !important;
+  --bs-table-hover-bg: rgba(56, 189, 248, 0.06) !important;
+  --bs-table-hover-color: #ffffff !important;
+  --bs-table-color: #e2e8f0 !important;
+}
+
+.scada-table-dense th,
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: #0d1117 !important;
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  padding: 10px 12px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  z-index: 10;
+}
+
+.scada-table-dense td,
+.table tbody td {
+  padding: 9px 12px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #cbd5e1 !important;
+  background-color: transparent !important;
+  vertical-align: middle;
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  color: #e2e8f0 !important;
+}
+
+.scada-table-dense tbody tr:hover > *,
+.table tbody tr:hover > * {
+  background-color: rgba(56, 189, 248, 0.06) !important;
+  color: #ffffff !important;
+}
+
+/* ═══ SCROLLBAR DISCRETA INDUSTRIAL ═══ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ═══ UTILIDADES DE ACCESIBILIDAD ═══ */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ═══ OPTIMIZACIÓN MÓVIL ANDROID / IOS (VIEWPORTS <= 768px) ═══ */
+@media (max-width: 991.98px) {
+  .floating-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  #siteNavbarRightContent li.nav-item.d-none {
+    display: none !important;
+  }
+
+  .scada-area-filter-group {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+
+  .scada-area-filter-group > .btn {
+    border-radius: 8px !important;
+    margin: 0 !important;
+    font-size: 0.78rem !important;
+    padding: 6px 8px !important;
+    text-align: center !important;
+  }
+
+  #cranesContainer .card .d-grid.gap-2,
+  #operations-container .card .d-grid.gap-2 {
+    gap: 6px !important;
+  }
+
+  #cranesContainer .card .d-grid.gap-2 > .btn,
+  #operations-container .card .d-grid.gap-2 > .btn {
+    font-size: 0.71rem !important;
+    padding: 7px 5px !important;
+    white-space: normal !important;
+    text-align: center !important;
+    line-height: 1.15 !important;
+  }
+
+  .inventory-toolbar {
+    justify-content: flex-start !important;
+    margin-top: 8px !important;
+  }
+}
+
+/* ═══ VISTA DE LISTA (#view-list) EN OPERACIONES Y GRÚAS ═══ */
+#operations-container.list-view .card-body {
+  padding: 12px 16px !important;
+}
+
+@media (min-width: 768px) {
+  #operations-container.list-view .card .card-body {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 16px !important;
+  }
+
+  #operations-container.list-view .card .card-title {
+    margin-bottom: 0 !important;
+    min-width: 210px;
+    gap: 10px;
+  }
+
+  #operations-container.list-view .card .card-text {
+    margin-bottom: 0 !important;
+    flex: 1;
+  }
+
+  #operations-container.list-view .card .d-grid.gap-2 {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px !important;
+    margin-top: 0 !important;
+    flex-shrink: 0;
+  }
+}
+
+
+/* ─── Rotación automática por área (Andón TV) ─── */
+body.andon-tv-mode .scada-andon-hud { flex-wrap: wrap; height: auto; min-height: 46px; padding: 10px 16px; }
+.scada-andon-strip {
+  flex: 1 1 100%;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 8px 12px; border-radius: 10px;
+  background: rgba(13, 17, 23, 0.92);
+  border: var(--scada-border);
+  font-family: var(--scada-font-mono);
+}
+.scada-andon-strip-title { font-size: 0.72rem; letter-spacing: 0.16em; color: #64748b; }
+.scada-andon-strip-now { font-size: 1rem; font-weight: 700; color: #f8fafc; letter-spacing: 0.06em; }
+.scada-andon-strip-count { font-size: 0.78rem; color: #94a3b8; letter-spacing: 0.06em; }
+.scada-andon-strip-chips { display: flex; gap: 6px; }
+.scada-andon-strip-chip {
+  padding: 4px 10px; border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04); border: var(--scada-border);
+  font-size: 0.75rem; color: #94a3b8;
+}
+.scada-andon-strip-chip.active {
+  color: #f8fafc; border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.12); box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+}
+.scada-andon-auto {
+  padding: 4px 12px; border-radius: 7px;
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.12); color: var(--scada-normal-led);
+  font-family: var(--scada-font-mono); font-size: 0.72rem; letter-spacing: 0.12em; cursor: pointer;
+}
+.scada-andon-auto.paused { border-color: var(--scada-maint-border); background: rgba(245, 158, 11, 0.12); color: var(--scada-maint-led); }
+.scada-andon-strip-bar { flex: 1 1 100%; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.scada-andon-strip-bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #10b981, #38bdf8); transition: width 0.25s linear; }
+@keyframes andonPhaseIn { from { opacity: 0.35; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.andon-phase-in { animation: andonPhaseIn 0.45s ease; }
+
+/* ═══ MODO ANDON INDUSTRIAL: ALERTA ESCALADA TARDE (>5 MIN) ═══ */
+@keyframes scada-late-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    border-color: #ef4444 !important;
+  }
+  50% {
+    box-shadow: 0 0 25px 6px rgba(239, 68, 68, 0.95);
+    border-color: #ff0015 !important;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    border-color: #ef4444 !important;
+  }
+}
+
+.crane-card.late-escalated,
+.operation-card.late-escalated {
+  border-left: 5px solid #ff0015 !important;
+  animation: scada-late-pulse 1.3s infinite ease-in-out !important;
+}
+
+.badge-late-andon {
+  background: linear-gradient(135deg, #ef4444, #991b1b) !important;
+  color: #fff !important;
+  border: 1px solid #f87171 !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8) !important;
+}
+
+/* ═══ MODO ANDON INDUSTRIAL: ALERTA CRÍTICA NIVEL 3 (>15 MIN) ═══ */
+@keyframes scada-critical-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.9);
+    border-color: #ef4444 !important;
+  }
+  50% {
+    box-shadow: 0 0 35px 10px rgba(220, 38, 38, 1);
+    border-color: #ff0055 !important;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    border-color: #ef4444 !important;
+  }
+}
+
+.crane-card.critical-escalated,
+.operation-card.critical-escalated {
+  border-left: 6px solid #ff0055 !important;
+  animation: scada-critical-pulse 0.8s infinite ease-in-out !important;
+}
+
+.badge-critical-andon {
+  background: linear-gradient(135deg, #ff0055, #990022) !important;
+  color: #fff !important;
+  border: 1px solid #ff4d88 !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  box-shadow: 0 0 14px rgba(255, 0, 85, 0.9) !important;
+  animation: scada-late-pulse 1s infinite alternate;
+}
+
+/* ═══ BARRA DE TIEMPO LED DINÁMICA (ESCALACIÓN ANDON 4.0) ═══ */
+.scada-time-bar-wrap {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  margin: 6px 0;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.scada-time-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #10b981 0%, #38bdf8 50%, #f59e0b 80%, #ef4444 100%);
+  transition: width 0.4s linear;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
+.scada-time-bar.strobe {
+  background: linear-gradient(90deg, #ef4444, #ff0055) !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.9) !important;
+  animation: timebar-strobe 0.6s infinite alternate !important;
+}
+
+@keyframes timebar-strobe {
+  from { opacity: 0.6; filter: brightness(1); }
+  to { opacity: 1; filter: brightness(1.6); }
+}
+
+/* ═══ SCADA HERO RIBBON & ACTIVE SHIFT TELEMETRY CARD ═══ */
+.scada-hero-ribbon {
+  background: linear-gradient(135deg, rgba(14, 20, 32, 0.92) 0%, rgba(8, 12, 20, 0.98) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  margin-bottom: 20px;
+}
+
+.scada-beacon-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: scada-beacon-pulse 1.8s infinite;
+}
+
+.scada-beacon-dot.warning {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.scada-beacon-dot.danger {
+  background: #ef4444;
+  box-shadow: 0 0 12px #ef4444;
+  animation: scada-beacon-pulse 0.9s infinite;
+}
+
+@keyframes scada-beacon-pulse {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.scada-kpi-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex;
+  flex-direction: column;
+  min-width: 115px;
+}
+
+.scada-kpi-pill .kpi-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.scada-kpi-pill .kpi-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.btn-gradient-tv {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  color: #ffffff !important;
+  font-weight: 700;
+  border: 1px solid rgba(255, 100, 100, 0.4);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-gradient-tv:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+  transform: translateY(-1px);
+}
+
+.stats-item.scada-telemetry-row {
+  padding: 8px 12px !important;
+  margin-bottom: 8px !important;
+  border-radius: 8px !important;
+}
+
+.stats-item.scada-telemetry-row label {
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  color: #cbd5e1 !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  margin-bottom: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.stats-item.scada-telemetry-row span {
+  font-size: 1.15rem !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   ESTÁNDAR ISA-101 / SCADA PRO 4.0: FACEPLATES, SLA MULTI-ETAPA & TICKER
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+/* ─── TARJETAS FACEPLATE CON TIRA LATERAL DE NEÓN ─── */
+.scada-faceplate-card,
+.operation-card,
+#cranesContainer .card {
+  position: relative !important;
+  background: linear-gradient(145deg, rgba(18, 24, 36, 0.90) 0%, rgba(10, 14, 22, 0.98) 100%) !important;
+  backdrop-filter: blur(16px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-left: 5px solid #10b981 !important;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.6), inset 0 1px 0 0 rgba(255, 255, 255, 0.06) !important;
+  border-radius: 14px !important;
+  color: #e2e8f0 !important;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+  overflow: hidden !important;
+}
+
+.scada-faceplate-card:hover,
+.operation-card:hover,
+#cranesContainer .card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.75), inset 0 1px 0 0 rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Estado: Operativa */
+.operation-card.operational,
+#cranesContainer .card.operational,
+.scada-faceplate-card.operational {
+  border-left-color: #10b981 !important;
+  box-shadow: -3px 0 14px -2px rgba(16, 185, 129, 0.35), 0 8px 24px -4px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Estado: Mantenimiento / Técnico en camino */
+.operation-card.maintenance,
+#cranesContainer .card.maintenance,
+.scada-faceplate-card.maintenance {
+  border-left-color: #f59e0b !important;
+  background: linear-gradient(145deg, rgba(38, 28, 12, 0.75) 0%, rgba(14, 12, 10, 0.98) 100%) !important;
+  box-shadow: -3px 0 18px -2px rgba(245, 158, 11, 0.45), 0 8px 24px -4px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Estado: Falla N1 (<5m) */
+.operation-card.failure,
+#cranesContainer .card.failure,
+.scada-faceplate-card.failure {
+  border-left-color: #ef4444 !important;
+  background: linear-gradient(145deg, rgba(46, 14, 18, 0.8) 0%, rgba(16, 10, 12, 0.98) 100%) !important;
+  box-shadow: -3px 0 20px -2px rgba(239, 68, 68, 0.5), 0 8px 24px -4px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Estado: Alerta Escalada TARDE N2 (>5m) */
+.operation-card.late-escalated,
+#cranesContainer .card.late-escalated,
+.scada-faceplate-card.late-escalated {
+  border-left-color: #f97316 !important;
+  animation: scada-late-pulse 1.4s infinite ease-in-out !important;
+}
+
+/* Estado: Paro Crítico N3 (>15m) */
+.operation-card.critical-escalated,
+#cranesContainer .card.critical-escalated,
+.scada-faceplate-card.critical-escalated {
+  border-left-color: #ff0055 !important;
+  animation: scada-critical-strobe 0.8s infinite ease-in-out !important;
+}
+
+@keyframes scada-late-pulse {
+  0% { box-shadow: -4px 0 16px rgba(249, 115, 22, 0.5), 0 8px 24px rgba(0,0,0,0.6); }
+  50% { box-shadow: -6px 0 28px rgba(249, 115, 22, 0.9), 0 8px 28px rgba(249, 115, 22, 0.4); }
+  100% { box-shadow: -4px 0 16px rgba(249, 115, 22, 0.5), 0 8px 24px rgba(0,0,0,0.6); }
+}
+
+@keyframes scada-critical-strobe {
+  0% { box-shadow: -4px 0 20px rgba(255, 0, 85, 0.7), 0 8px 24px rgba(0,0,0,0.6); border-color: rgba(255, 0, 85, 0.6); }
+  50% { box-shadow: -8px 0 38px rgba(255, 0, 85, 1), 0 0 35px rgba(255, 0, 85, 0.6); border-color: #ff0055; }
+  100% { box-shadow: -4px 0 20px rgba(255, 0, 85, 0.7), 0 8px 24px rgba(0,0,0,0.6); border-color: rgba(255, 0, 85, 0.6); }
+}
+
+/* ─── BARRA DE PROGRESO DE SLA MULTI-ETAPA (TULIP / ISA-101) ─── */
+.scada-sla-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+  margin-bottom: 6px;
+  position: relative;
+}
+
+.scada-sla-progress {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.3s ease;
+  background: linear-gradient(90deg, #10b981 0%, #06b6d4 100%);
+}
+
+.scada-sla-progress.warning {
+  background: linear-gradient(90deg, #f59e0b 0%, #f97316 100%) !important;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+}
+
+.scada-sla-progress.danger {
+  background: linear-gradient(90deg, #ef4444 0%, #ff0055 100%) !important;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.8);
+  animation: sla-bar-strobe 0.8s infinite;
+}
+
+@keyframes sla-bar-strobe {
+  0% { opacity: 0.75; }
+  50% { opacity: 1; }
+  100% { opacity: 0.75; }
+}
+
+.scada-sla-label-wrap {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  font-family: var(--scada-font-mono);
+  color: #94a3b8;
+}
+
+/* ─── CHIP TÁCTICO DE TÉCNICO EN PISO ─── */
+.scada-tech-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-family: var(--scada-font-ui);
+  color: #e2e8f0;
+  margin-top: 6px;
+  max-width: 100%;
+}
+
+.scada-tech-chip.assigned {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+}
+
+.scada-tech-chip.unassigned {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.scada-tech-avatar {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ─── GAUGE RADIAL HERO DISPONIBILIDAD (AEROESPACIAL / SCADA) ─── */
+.scada-radial-gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 130px;
+  height: 80px;
+}
+
+.scada-radial-gauge-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.scada-radial-gauge-val {
+  position: absolute;
+  top: 36px;
+  font-family: var(--scada-font-mono);
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.scada-radial-gauge-lbl {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  font-weight: 700;
+  margin-top: -6px;
+}
+
+/* ─── LIVE ESCALATION TICKER MARQUEE ─── */
+.scada-escalation-banner {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 8px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+}
+
+.scada-escalation-banner.has-critical {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.22) 0%, rgba(15, 23, 42, 0.98) 100%);
+  border-color: rgba(239, 68, 68, 0.55);
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
+  animation: banner-critical-pulse 2s infinite ease-in-out;
+}
+
+.scada-escalation-banner.has-late {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.2) 0%, rgba(15, 23, 42, 0.98) 100%);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+@keyframes banner-critical-pulse {
+  0% { border-color: rgba(239, 68, 68, 0.4); }
+  50% { border-color: rgba(239, 68, 68, 0.85); box-shadow: 0 0 30px rgba(239, 68, 68, 0.5); }
+  100% { border-color: rgba(239, 68, 68, 0.4); }
+}
+
+.scada-escalation-tag {
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.scada-escalation-tag.normal {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.scada-escalation-tag.late {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.scada-escalation-tag.critical {
+  background: #ef4444;
+  color: #ffffff;
+  border: 1px solid #f87171;
+  animation: beacon-tv-pulse 1s infinite;
+}
+
+.scada-escalation-content {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  font-family: var(--scada-font-mono);
+  font-size: 0.82rem;
+  color: #cbd5e1;
+}
+
+.scada-escalation-scroll {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scada-ticker-scroll 28s linear infinite;
+}
+
+@keyframes scada-ticker-scroll {
+  0% { transform: translate3d(100%, 0, 0); }
+  100% { transform: translate3d(-100%, 0, 0); }
+}
+
+/* ─── ACTION GRID 2-COL / HIGH-EFFICIENCY LAYOUT ─── */
+.scada-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.scada-actions-grid .btn-full {
+  grid-column: 1 / -1;
+}
+
+.scada-actions-grid .btn {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 6px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ─── HIGH-DENSITY TELEMETRY KPI CARDS (CRANES & OPERATIONS) ─── */
+.scada-telemetry-kpi-card {
+  background: linear-gradient(180deg, rgba(20, 26, 38, 0.85) 0%, rgba(11, 15, 23, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 4px solid #38bdf8;
+  border-radius: 12px;
+  padding: 16px 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.scada-telemetry-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+}
+
+.scada-telemetry-kpi-card.kpi-danger {
+  border-left-color: #ef4444;
+}
+
+.scada-telemetry-kpi-card.kpi-warning {
+  border-left-color: #f59e0b;
+}
+
+.scada-telemetry-kpi-card.kpi-success {
+  border-left-color: #10b981;
+}
+
+.scada-telemetry-kpi-card.kpi-info {
+  border-left-color: #06b6d4;
+}
+
+.scada-kpi-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.scada-kpi-header-lbl {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.scada-kpi-microbadge {
+  font-family: var(--scada-font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.scada-kpi-microbadge.live {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.scada-kpi-microbadge.alert {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.scada-kpi-value-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.scada-kpi-big-num {
+  font-family: var(--scada-font-mono);
+  font-size: 2.1rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.scada-kpi-subtext {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scada-sparkline-wrap {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════ */
+/* ─── DIGITAL TWIN PLANT TOPOLOGY & RUNWAY MAP (ISA-101 / OpenBridge) ─── */
+/* ═══════════════════════════════════════════════════════════════════════ */
+.scada-plant-map-card {
+  background: linear-gradient(180deg, rgba(16, 21, 31, 0.96) 0%, rgba(10, 14, 22, 0.98) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  transition: all 0.25s ease;
+}
+
+.scada-plant-map-card.collapsed-view {
+  margin-bottom: 12px;
+}
+
+.scada-plant-map-header {
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.scada-viewmode-switch .btn {
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+}
+
+.scada-viewmode-switch .btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.scada-viewmode-switch .btn.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.scada-sound-toggle-btn,
+.scada-voice-toggle-btn,
+.scada-edit-areas-btn {
+  font-size: 0.8rem;
+  padding: 4px 9px;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #38bdf8;
+  transition: all 0.2s;
+  border-radius: 6px;
+}
+
+.scada-sound-toggle-btn:hover,
+.scada-voice-toggle-btn:hover,
+.scada-edit-areas-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.scada-modal-ops-scroll {
+  max-height: 440px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.scada-modal-ops-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.scada-modal-ops-scroll::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 4px;
+}
+.scada-modal-ops-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.6);
+}
+.scada-op-subtitle {
+  letter-spacing: 0.3px;
+  display: block;
+}
+
+#modalEditPlantAreas .nav-tabs {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+#modalEditPlantAreas .nav-tabs .nav-link {
+  color: #94a3b8;
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: 2px solid transparent;
+  padding: 8px 16px;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.2s;
+}
+#modalEditPlantAreas .nav-tabs .nav-link:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.04);
+}
+#modalEditPlantAreas .nav-tabs .nav-link.active {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  border-bottom: 2px solid #38bdf8 !important;
+  font-weight: bold;
+}
+
+
+
+.scada-sound-toggle-btn.muted,
+.scada-voice-toggle-btn.muted {
+  color: #64748b;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: transparent;
+}
+
+/* ─── Pista de Rodadura & Bahías ─── */
+.scada-plant-bay {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.scada-plant-bay:last-child {
+  margin-bottom: 0;
+}
+
+.scada-plant-bay:hover {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.bay-title {
+  font-family: var(--scada-font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #e2e8f0;
+  text-transform: uppercase;
+}
+
+.bay-status-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.bay-status-badge.danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+  animation: beacon-tv-pulse 1s infinite;
+}
+
+.bay-status-badge.warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.scada-runway-track-wrap {
+  position: relative;
+  background: rgba(11, 15, 23, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: 8px;
+  overflow-x: auto;
+}
+
+.scada-runway-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #1e293b 0%, #38bdf8 50%, #1e293b 100%);
+  opacity: 0.45;
+}
+
+.scada-runway-rail.top {
+  top: 8px;
+}
+
+.scada-runway-rail.bottom {
+  bottom: 8px;
+}
+
+.scada-runway-cranes-lane {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 16px;
+  min-height: 60px;
+  padding: 4px 0;
+}
+
+/* ─── Grúa en Pista (Nodo Topológico) ─── */
+.scada-runway-crane-node {
+  position: relative;
+  width: 72px;
+  height: 52px;
+  background: rgba(22, 27, 38, 0.95);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.scada-runway-crane-node:hover {
+  transform: translateY(-2px) scale(1.04);
+  border-color: #38bdf8;
+  box-shadow: 0 6px 18px rgba(56, 189, 248, 0.3);
+}
+
+.scada-runway-crane-node.operational {
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.scada-runway-crane-node.operational .crane-node-beacon {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.scada-runway-crane-node.maintenance {
+  border-color: #f59e0b;
+  background: rgba(45, 32, 12, 0.6);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+}
+
+.scada-runway-crane-node.maintenance .crane-node-beacon {
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+}
+
+.scada-runway-crane-node.failure {
+  border-color: #ef4444;
+  background: rgba(50, 14, 18, 0.8);
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.5);
+  animation: crane-failure-pulse 1.2s infinite ease-in-out;
+}
+
+.scada-runway-crane-node.failure .crane-node-beacon {
+  background: #ef4444;
+  box-shadow: 0 0 12px #ef4444;
+  animation: beacon-tv-pulse 0.8s infinite;
+}
+
+.scada-runway-crane-node.first-out {
+  border: 2px solid #fbbf24 !important;
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.6) !important;
+  animation: first-out-strobe 1s infinite alternate;
+}
+
+.scada-runway-crane-node.first-out .crane-first-out-pill {
+  display: inline-block !important;
+}
+
+.crane-first-out-pill {
+  display: none;
+  background: #fbbf24;
+  color: #000000;
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-left: 2px;
+}
+
+/* Indicador de Riesgo Predictivo / Mantenimiento Preventivo (72h) */
+.scada-runway-crane-node.predictive-risk {
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.5) !important;
+  border-color: #f59e0b !important;
+}
+
+.scada-runway-crane-node.predictive-risk::after {
+  content: '⚡';
+  position: absolute;
+  top: -9px;
+  right: -7px;
+  font-size: 0.7rem;
+  background: #f59e0b;
+  color: #000000;
+  border-radius: 50%;
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  box-shadow: 0 0 8px #f59e0b;
+  z-index: 10;
+  animation: beacon-tv-pulse 1.4s infinite;
+}
+
+@keyframes first-out-strobe {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.08); filter: brightness(1.3); }
+}
+
+@keyframes crane-failure-pulse {
+  0% { border-color: rgba(239, 68, 68, 0.4); }
+  50% { border-color: #ef4444; box-shadow: 0 0 22px rgba(239, 68, 68, 0.65); }
+  100% { border-color: rgba(239, 68, 68, 0.4); }
+}
+
+.crane-node-endtruck {
+  position: absolute;
+  width: 14px;
+  height: 4px;
+  background: #64748b;
+  border-radius: 1px;
+}
+
+.crane-node-endtruck.top {
+  top: -2px;
+}
+
+.crane-node-endtruck.bottom {
+  bottom: -2px;
+}
+
+.crane-node-bridge {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crane-node-trolley {
+  width: 16px;
+  height: 10px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crane-node-beacon {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.crane-node-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Línea de Estaciones / Operaciones ─── */
+.scada-bay-ops-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.scada-bay-ops-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.scada-runway-op-node {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 2px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.scada-runway-op-node:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.scada-runway-op-node .op-node-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+.scada-runway-op-node.failure {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+  animation: beacon-tv-pulse 1s infinite;
+}
+
+.scada-runway-op-node.failure .op-node-dot {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+/* ─── ISA-18.2 First-Out Alert Banner ─── */
+.scada-first-out-alert {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.25) 0%, rgba(239, 68, 68, 0.2) 100%);
+  border: 1.5px solid #f59e0b;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  animation: first-out-banner-pulse 2s infinite ease-in-out;
+}
+
+@keyframes first-out-banner-pulse {
+  0% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+  50% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.5); }
+  100% { box-shadow: 0 0 10px rgba(245, 158, 11, 0.2); }
+}
+
+.scada-first-out-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.badge-first-out-mini {
+  background: #fbbf24;
+  color: #000000;
+  font-weight: 800;
+  font-size: 0.65rem;
+}
+
+.scada-faceplate-highlight {
+  animation: faceplate-pulse-ring 2.5s ease-out;
+}
+
+@keyframes faceplate-pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.8); border-color: #38bdf8 !important; }
+  50% { box-shadow: 0 0 35px 8px rgba(56, 189, 248, 0.6); border-color: #00f0ff !important; }
+  100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+}
+
+/* ─── Leyenda ─── */
+.scada-plant-map-legend {
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.scada-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.scada-legend-dot.op { background: #10b981; }
+.scada-legend-dot.maint { background: #f59e0b; }
+.scada-legend-dot.fail { background: #ef4444; }
+
+/* ─── SCADA Live Shift Technician Roster Widget ─── */
+.scada-roster-summary-bar {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.scada-roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.scada-roster-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 4px solid #10b981;
+  border-radius: 6px;
+  padding: 8px 10px;
+  transition: all 0.2s ease;
+}
+
+.scada-roster-card.intervening {
+  border-left-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.35);
+  animation: roster-intervene-glow 2s infinite ease-in-out;
+}
+
+@keyframes roster-intervene-glow {
+  0% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.2); }
+  50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.45); }
+  100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.2); }
+}
+
+.scada-roster-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateX(2px);
+}
+
+.scada-roster-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.scada-roster-name {
+  font-weight: 700;
+  color: #f8fafc;
+  font-size: 0.82rem;
+  letter-spacing: -0.01em;
+}
+
+.scada-roster-area-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}
+
+.scada-roster-status-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.73rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.scada-roster-status-avail {
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scada-roster-status-busy {
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.scada-roster-btn-link {
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.scada-roster-btn-link:hover {
+  background: #38bdf8;
+  color: #0f172a;
+}
+
+.scada-roster-focus-btn {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid #f59e0b;
+  color: #fef08a;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.68rem;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all 0.15s ease;
+}
+
+.scada-roster-focus-btn:hover {
+  background: #f59e0b;
+  color: #000;
+}
+
+/* ─── Pista de Rodadura: Bloqueo de Seguridad (OSHA/ANSI B30) ─── */
+.scada-runway-track-wrap.runway-lockout {
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(245, 158, 11, 0.08),
+    rgba(245, 158, 11, 0.08) 12px,
+    rgba(0, 0, 0, 0.25) 12px,
+    rgba(0, 0, 0, 0.25) 24px
+  );
+  border: 1px dashed rgba(245, 158, 11, 0.45);
+}
+
+.runway-lockout-badge {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  animation: lockout-flash 1.6s infinite;
+}
+
+@keyframes lockout-flash {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; text-shadow: 0 0 8px rgba(245, 158, 11, 0.8); }
+}
+
+/* ─── SCADA Shift Event Timeline Drawer (Offcanvas Slide-Over) ─── */
+.scada-timeline-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0.3s ease;
+}
+
+.scada-timeline-drawer.open {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.scada-timeline-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.scada-timeline-drawer.open .scada-timeline-overlay {
+  opacity: 1;
+}
+
+.scada-timeline-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 540px;
+  background: #0b0f19;
+  border-left: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scada-timeline-drawer.open .scada-timeline-panel {
+  transform: translateX(0);
+}
+
+.scada-timeline-body {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.scada-timeline-feed {
+  position: relative;
+  padding-left: 20px;
+}
+
+.scada-timeline-feed::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 6px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.scada-timeline-item {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.scada-timeline-dot {
+  position: absolute;
+  left: -20px;
+  top: 10px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #0b0f19;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.scada-timeline-item.failed .scada-timeline-dot {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+  animation: beacon-pulse 1.2s infinite;
+}
+
+.scada-timeline-item.maintenance .scada-timeline-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.scada-timeline-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+  transition: all 0.2s ease;
+}
+
+.scada-timeline-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateX(2px);
+}
+
+
+
+
+
+
+
+
+
+/* ─── SCADA Module Visibility Rules (ISA-101 / Digital Twin) ─── */
+html.hide-module-operations .scada-bay-ops-track,
+html.hide-module-operations .scada-runway-op-node,
+html.hide-module-operations .scada-plant-bay:not(:has(.scada-runway-track-wrap)),
+html.hide-module-operations [data-module="operations"],
+html.hide-module-operations [data-module*="operations"] {
+    display: none !important;
+}
+
+html.hide-module-cranes .scada-runway-track-wrap,
+html.hide-module-cranes .scada-runway-crane-node,
+html.hide-module-cranes .scada-plant-bay:not(:has(.scada-bay-ops-track)),
+html.hide-module-cranes [data-module="cranes"],
+html.hide-module-cranes [data-module*="cranes"] {
+    display: none !important;
+}
+
+html.hide-module-operations.hide-module-cranes #scada-plant-map-container,
+html.hide-module-operations.hide-module-cranes #scadaPlantMapCard {
+    display: none !important;
+}
+
+/* ═══ NAVBAR EN MOVILES (<= 991.98px) ═══
+   Medido con viewport fiel a 393px: el nav de enlaces (.guia-nav-links) se mostraba
+   porque el display:flex !important de este archivo ganaba sobre el d-none de Bootstrap,
+   y al no permitir envoltura #siteNavbarRight empujaba el contenido hasta 1202px
+   (scroll horizontal en el telefono). Se restaura el comportamiento desktop-only y
+   se permite que la fila envuelva. */
+@media (max-width: 991.98px) {
+  .guia-navbar,
+  .navbar.scada-main-navbar,
+  #siteNavbar {
+    flex-wrap: wrap !important;
+    height: auto !important;
+    min-height: 54px !important;
+    padding: 10px 12px !important;
+  }
+
+  #siteNavbarRight {
+    flex-wrap: wrap !important;
+    margin-left: auto !important;
+    min-width: 0 !important;
+  }
+
+  /* Filas flex que no envuelven empujan el contenido fuera del viewport medido a 393px:
+     la barra de control del HUD Andon TV mide 717px (recortada por overflow:hidden del body)
+     y en el simulador de hardware la fila badge+texto mide 422px. Permitir envoltura elimina
+     el scroll horizontal sin tocar el comportamiento de escritorio. */
+  .d-flex {
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    white-space: normal;
+    max-width: 100%;
+  }
+
+  /* Targets táctiles: la auditoría con viewport fiel midió btn-close de 6x16, checkboxes de
+     13x13, sliders de 16x129 y .btn-xs de 17x40. WCAG 2.2.2 pide 44x44 para controles; los
+     checkboxes se elevan a 24px porque un checkbox de 44px desalinea las filas de formulario. */
+  button,
+  .btn,
+  select,
+  .form-select,
+  .tv-control-btn,
+  .scada-roster-btn-link,
+  .mobile-nav-item {
+    min-height: 44px;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  .form-control,
+  .form-select {
+    min-height: 44px;
+  }
+
+  .btn-sm,
+  .btn-xs {
+    min-width: 44px;
+  }
+
+  .btn-close {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-check-input {
+    min-width: 28px;
+    min-height: 28px;
+  }
+
+  #theme-picker-panel,
+  .theme-floating-window {
+    transform: translate(-50%, -46%) !important;
+  }
+
+  input[type="range"] {
+    height: 44px;
+  }
+}

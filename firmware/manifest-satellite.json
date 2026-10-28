@@ -1,0 +1,24 @@
+{
+  "name": "SCADA Nodo Satélite Secundario (1 Grúa por Nodo: 30A, 30B, 30C, etc.)",
+  "version": "3.4.2-SATELLITE-ESPNOW",
+  "builds": [
+    {
+      "chipFamily": "ESP32",
+      "parts": [
+        { "path": "satellite-esp32-bootloader.bin", "offset": 4096 },
+        { "path": "satellite-esp32-partitions.bin", "offset": 32768 },
+        { "path": "boot_app0.bin", "offset": 57344 },
+        { "path": "satellite-esp32.bin", "offset": 65536 }
+      ]
+    },
+    {
+      "chipFamily": "ESP32-C3",
+      "parts": [
+        { "path": "satellite-c3-bootloader.bin", "offset": 0 },
+        { "path": "satellite-c3-partitions.bin", "offset": 32768 },
+        { "path": "boot_app0.bin", "offset": 57344 },
+        { "path": "satellite-c3.bin", "offset": 65536 }
+      ]
+    }
+  ]
+}

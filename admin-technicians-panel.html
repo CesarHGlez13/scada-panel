@@ -1,0 +1,569 @@
+<div id="techniciansAlerts"></div>
+
+<div class="alert alert-info mb-4">
+    <strong>¿Para qué sirve?</strong> Los <em>técnicos</em> reciben WhatsApp cuando se reporta una falla (según área y jornada actual).
+    Los <em>operadores</em> son quienes pueden reportar fallas desde planta. Usa 10 dígitos sin +52 (ej: 6141234567).
+</div>
+
+            <!-- Navegación entre secciones -->
+            <ul class="nav nav-pills mb-4" id="sectionTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="technicians-tab" data-bs-toggle="tab" data-bs-target="#technicians-section" type="button" role="tab">
+                        <i class="bi bi-tools"></i> Técnicos (Notificaciones)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="operators-tab" data-bs-toggle="tab" data-bs-target="#operators-section" type="button" role="tab">
+                        <i class="bi bi-person-badge"></i> Operadores (Reportes)
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rotation-tab" data-bs-toggle="tab" data-bs-target="#rotation-section" type="button" role="tab">
+                        <i class="bi bi-arrow-repeat"></i> Rotación de Jornadas
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="sectionTabsContent">
+                <!-- Sección de Técnicos -->
+                <div class="tab-pane fade show active" id="technicians-section" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Números de Técnicos por Jornada</h5>
+                            <p class="text-muted">Técnicos que reciben notificaciones de fallas por WhatsApp</p>
+                            
+                            <form id="techForm" class="mt-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="applyTechToAllShifts" checked>
+                                    <label class="form-check-label" for="applyTechToAllShifts">
+                                        Aplicar estos números a <strong>todas las jornadas</strong> (A, B, C y D)
+                                    </label>
+                                </div>
+                                <ul class="nav nav-tabs mb-3" id="jornadaTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="tab-a" data-bs-toggle="tab" data-bs-target="#tab-pane-a" type="button" role="tab" aria-controls="tab-pane-a" aria-selected="true">
+                                            <i class="bi bi-sun-fill text-warning"></i> Jornada A
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="tab-b" data-bs-toggle="tab" data-bs-target="#tab-pane-b" type="button" role="tab" aria-controls="tab-pane-b" aria-selected="false">
+                                            <i class="bi bi-sun-fill text-warning"></i> Jornada B
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="tab-c" data-bs-toggle="tab" data-bs-target="#tab-pane-c" type="button" role="tab" aria-controls="tab-pane-c" aria-selected="false">
+                                            <i class="bi bi-moon-stars-fill text-primary"></i> Jornada C
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="tab-d" data-bs-toggle="tab" data-bs-target="#tab-pane-d" type="button" role="tab" aria-controls="tab-pane-d" aria-selected="false">
+                                            <i class="bi bi-moon-stars-fill text-primary"></i> Jornada D
+                                        </button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="jornadaTabsContent">
+                                    <div class="tab-pane fade show active" id="tab-pane-a" role="tabpanel" aria-labelledby="tab-a">
+                                        <!-- Áreas para Jornada A cargadas dinámicamente -->
+                                        <div id="tech-dynamic-container-a" class="tech-dynamic-container"></div>
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-save"></i> Guardar Cambios
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="tab-pane-b" role="tabpanel" aria-labelledby="tab-b">
+                                        <!-- Áreas para Jornada B cargadas dinámicamente -->
+                                        <div id="tech-dynamic-container-b" class="tech-dynamic-container"></div>
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-save"></i> Guardar Cambios
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="tab-pane-c" role="tabpanel" aria-labelledby="tab-c">
+                                        <!-- Áreas para Jornada C cargadas dinámicamente -->
+                                        <div id="tech-dynamic-container-c" class="tech-dynamic-container"></div>
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-save"></i> Guardar Cambios
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="tab-pane-d" role="tabpanel" aria-labelledby="tab-d">
+                                        <!-- Áreas para Jornada D cargadas dinámicamente -->
+                                        <div id="tech-dynamic-container-d" class="tech-dynamic-container"></div>
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-save"></i> Guardar Cambios
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Operadores -->
+                <div class="tab-pane fade" id="operators-section" role="tabpanel">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Registro de Operadores por Jornada</h5>
+                            <p class="text-muted">Operadores que reportan fallas desde las áreas de trabajo</p>
+                            
+                            <form id="operatorsForm" class="mt-4">
+                                <ul class="nav nav-tabs mb-3" id="operatorsJornadaTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="op-tab-a" data-bs-toggle="tab" data-bs-target="#op-tab-pane-a" type="button" role="tab">
+                                            <i class="bi bi-sun-fill text-warning"></i> Jornada A
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="op-tab-b" data-bs-toggle="tab" data-bs-target="#op-tab-pane-b" type="button" role="tab">
+                                            <i class="bi bi-sun-fill text-warning"></i> Jornada B
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="op-tab-c" data-bs-toggle="tab" data-bs-target="#op-tab-pane-c" type="button" role="tab">
+                                            <i class="bi bi-moon-stars-fill text-primary"></i> Jornada C
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="op-tab-d" data-bs-toggle="tab" data-bs-target="#op-tab-pane-d" type="button" role="tab">
+                                            <i class="bi bi-moon-stars-fill text-primary"></i> Jornada D
+                                        </button>
+                                    </li>
+                                </ul>
+                                
+                                <div class="tab-content" id="operatorsJornadaTabsContent">
+                                    <div class="tab-pane fade show active" id="op-tab-pane-a" role="tabpanel">
+                                        <div class="mb-4">
+                                            <label class="form-label">Operadores Jornada A</label>
+                                            <div id="operators_a_container"></div>
+                                            <button type="button" class="btn btn-outline-success btn-sm add-operator" data-target="operators_a">
+                                                <i class="bi bi-plus-circle"></i> Agregar operador
+                                            </button>
+                                            <small class="text-muted d-block">Operadores que pueden reportar fallas en esta jornada</small>
+                                        </div>
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-save"></i> Guardar Operadores
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tab-pane fade" id="op-tab-pane-b" role="tabpanel">
+                                        <div class="mb-4">
+                                            <label class="form-label">Operadores Jornada B</label>
+                                            <div id="operators_b_container"></div>
+                                            <button type="button" class="btn btn-outline-success btn-sm add-operator" data-target="operators_b">
+                                                <i class="bi bi-plus-circle"></i> Agregar operador
+                                            </button>
+                                            <small class="text-muted d-block">Operadores que pueden reportar fallas en esta jornada</small>
+                                        </div>
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-save"></i> Guardar Operadores
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tab-pane fade" id="op-tab-pane-c" role="tabpanel">
+                                        <div class="mb-4">
+                                            <label class="form-label">Operadores Jornada C</label>
+                                            <div id="operators_c_container"></div>
+                                            <button type="button" class="btn btn-outline-success btn-sm add-operator" data-target="operators_c">
+                                                <i class="bi bi-plus-circle"></i> Agregar operador
+                                            </button>
+                                            <small class="text-muted d-block">Operadores que pueden reportar fallas en esta jornada</small>
+                                        </div>
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-save"></i> Guardar Operadores
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tab-pane fade" id="op-tab-pane-d" role="tabpanel">
+                                        <div class="mb-4">
+                                            <label class="form-label">Operadores Jornada D</label>
+                                            <div id="operators_d_container"></div>
+                                            <button type="button" class="btn btn-outline-success btn-sm add-operator" data-target="operators_d">
+                                                <i class="bi bi-plus-circle"></i> Agregar operador
+                                            </button>
+                                            <small class="text-muted d-block">Operadores que pueden reportar fallas en esta jornada</small>
+                                        </div>
+                                        <div class="d-grid gap-2 mt-4">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="bi bi-save"></i> Guardar Operadores
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Rotación de Jornadas -->
+                <div class="tab-pane fade" id="rotation-section" role="tabpanel">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1"><i class="bi bi-arrow-repeat text-primary"></i> Configuración de Rotación de Jornadas</h5>
+                                    <p class="text-muted mb-0">Programa o ejecuta el cambio periódico de jornadas para técnicos y operadores de forma automática o manual.</p>
+                                </div>
+                                <span class="badge bg-secondary" id="lastRotationBadge">Última rotación: Nunca</span>
+                            </div>
+
+                            <form id="rotationConfigForm">
+                                <div class="row g-3">
+                                    <!-- Esquema de Rotación -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 p-3 subcard-custom">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="fw-bold mb-0"><i class="bi bi-diagram-3 text-info"></i> Matriz de Rotación de Jornadas</h6>
+                                                <span class="badge bg-primary" id="currentSchemeBadge">Habitual (C⇄B, A⇄D)</span>
+                                            </div>
+                                            <p class="small text-muted mb-2">Configura a qué jornada pasará el personal de cada turno o usa una plantilla rápida:</p>
+
+                                            <!-- Botones de plantilla rápida -->
+                                            <div class="btn-group btn-group-sm w-100 mb-3" role="group">
+                                                <button type="button" class="btn btn-outline-primary active" id="btnPresetHabitual">
+                                                    <i class="bi bi-arrow-repeat"></i> Habitual (C⇄B, A⇄D)
+                                                </button>
+                                                <button type="button" class="btn btn-outline-primary" id="btnPresetSemestral">
+                                                    <i class="bi bi-arrows-vertical"></i> Semestral (A⇄C, B⇄D)
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary" id="btnPresetCustom">
+                                                    <i class="bi bi-sliders"></i> Manual
+                                                </button>
+                                            </div>
+
+                                            <!-- Matriz personalizada (SIEMPRE VISIBLE Y CONFIGURABLE) -->
+                                            <div id="customMatrixContainer" class="border rounded p-3 mb-3 custom-matrix-box">
+                                                <div class="small fw-bold mb-2 text-body">Destino de cada jornada al rotar:</div>
+                                                <div class="row g-2">
+                                                    <div class="col-6">
+                                                        <label class="small fw-semibold text-warning"><i class="bi bi-sun-fill text-warning"></i> Jornada A pasa a:</label>
+                                                        <select class="form-select form-select-sm border-primary" id="matrix_target_a">
+                                                            <option value="A">Jornada A (Sin cambio)</option>
+                                                            <option value="B">Jornada B</option>
+                                                            <option value="C">Jornada C</option>
+                                                            <option value="D" selected>Jornada D</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="small fw-semibold text-warning"><i class="bi bi-sun-fill text-warning"></i> Jornada B pasa a:</label>
+                                                        <select class="form-select form-select-sm border-primary" id="matrix_target_b">
+                                                            <option value="A">Jornada A</option>
+                                                            <option value="B">Jornada B (Sin cambio)</option>
+                                                            <option value="C" selected>Jornada C</option>
+                                                            <option value="D">Jornada D</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="small fw-semibold text-info"><i class="bi bi-moon-stars-fill text-info"></i> Jornada C pasa a:</label>
+                                                        <select class="form-select form-select-sm border-primary" id="matrix_target_c">
+                                                            <option value="A">Jornada A</option>
+                                                            <option value="B" selected>Jornada B</option>
+                                                            <option value="C">Jornada C (Sin cambio)</option>
+                                                            <option value="D">Jornada D</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="small fw-semibold text-info"><i class="bi bi-moon-stars-fill text-info"></i> Jornada D pasa a:</label>
+                                                        <select class="form-select form-select-sm border-primary" id="matrix_target_d">
+                                                            <option value="A" selected>Jornada A</option>
+                                                            <option value="B">Jornada B</option>
+                                                            <option value="C">Jornada C</option>
+                                                            <option value="D">Jornada D (Sin cambio)</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-text small mt-2" id="rotationSchemeDescription">
+                                                    Rotación habitual: Jornada C intercambia con B (C⇄B) y Jornada A intercambia con D (A⇄D).
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 mb-3">
+                                                <div class="col-sm-6">
+                                                    <label class="form-label small fw-bold">Frecuencia del Ciclo</label>
+                                                    <select class="form-select" id="rotationFrequencySelect">
+                                                        <option value="15">Quincenal (15 días)</option>
+                                                        <option value="30" selected>Mensual (30 días)</option>
+                                                        <option value="60">Bimestral (60 días)</option>
+                                                        <option value="180">Semestral (180 días)</option>
+                                                        <option value="custom">Días Personalizados...</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-6" id="customDaysCol" style="display:none;">
+                                                    <label class="form-label small fw-bold">Número de días</label>
+                                                    <input type="number" class="form-control" id="rotationCustomDays" min="1" max="365" value="30">
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold">Fecha Programada Siguiente Rotación</label>
+                                                <input type="date" class="form-control" id="rotationNextDate">
+                                            </div>
+
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" id="rotationAutoEnabled">
+                                                <label class="form-check-label small" for="rotationAutoEnabled">
+                                                    <strong>Rotación automática</strong> por el bot en la fecha programada
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Configuración de WhatsApp y Anti-Baneo -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 p-3 subcard-custom">
+                                            <h6 class="fw-bold mb-3"><i class="bi bi-shield-check text-success"></i> Notificaciones WhatsApp & Anti-Baneo</h6>
+                                            
+                                            <div class="alert alert-warning py-2 px-3 small mb-3">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                                <strong>Protección WhatsApp (Meta):</strong> Enviar decenas de mensajes idénticos de golpe puede causar suspensión del número del bot.
+                                            </div>
+
+                                            <label class="form-label small fw-bold mb-2">Método de Notificación:</label>
+                                            <div class="mb-2">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="radio" name="rotationNotifyMode" id="notifyGroup" value="group" checked>
+                                                    <label class="form-check-label small" for="notifyGroup">
+                                                        <strong>📢 Anuncio a Grupo de WhatsApp</strong> <span class="badge bg-success">Recomendado - 0% riesgo</span>
+                                                        <div class="text-muted" style="font-size:0.8rem;">Envía un único mensaje oficial al grupo general de mantenimiento con el desglose de jornadas.</div>
+                                                    </label>
+                                                </div>
+
+                                                <div class="ms-4 mb-3" id="groupJidFieldContainer">
+                                                    <label class="form-label small text-muted mb-1">ID del Grupo (JID) u opcional:</label>
+                                                    <input type="text" class="form-control form-control-sm" id="rotationGroupJid" placeholder="ej: 120363xxxxxx@g.us (dejar vacío si el bot ya usa su grupo)">
+                                                </div>
+
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="radio" name="rotationNotifyMode" id="notifyDirect" value="direct">
+                                                    <label class="form-check-label small" for="notifyDirect">
+                                                        <strong>👤 Mensajes Privados con Anti-Spam</strong> <span class="badge bg-info text-dark">Protegido</span>
+                                                        <div class="text-muted" style="font-size:0.8rem;">Envía mensaje individual con pausas aleatorias de 6 a 10 segundos entre cada técnico/operador.</div>
+                                                    </label>
+                                                </div>
+
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="rotationNotifyMode" id="notifySilent" value="silent">
+                                                    <label class="form-check-label small" for="notifySilent">
+                                                        <strong>🔕 Modo Silencioso</strong> <span class="badge bg-secondary">Sin mensajes</span>
+                                                        <div class="text-muted" style="font-size:0.8rem;">Solo actualiza la base de datos sin enviar avisos por WhatsApp.</div>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div class="mt-2">
+                                                <label class="form-label small fw-bold">Nota o aviso adicional en el mensaje (opcional):</label>
+                                                <textarea class="form-control form-control-sm" id="rotationCustomNote" rows="2" placeholder="Ej: Recuerden checar sus horarios de transporte y relevos a tiempo."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <button type="button" class="btn btn-outline-primary" id="saveRotationConfigBtn">
+                                        <i class="bi bi-save"></i> Guardar Configuración
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Permutas y Excepciones de Personal -->
+                    <div class="card mb-4 border-info border-opacity-25 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3 bg-transparent">
+                            <div>
+                                <h6 class="mb-0 fw-bold"><i class="bi bi-arrow-left-right text-info"></i> Permutas y Excepciones de Personal</h6>
+                                <small class="text-muted">Configura personal que no rotará (se queda en su jornada) o que intercambia turno con otro compañero.</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-info text-white" id="btnOpenAddExceptionModal">
+                                <i class="bi bi-plus-circle"></i> Nueva Permuta / Excepción
+                            </button>
+                        </div>
+                        <div class="card-body p-3">
+                            <div id="rotationExceptionsListContainer">
+                                <div class="text-center text-muted py-3 small">
+                                    <i class="bi bi-info-circle me-1"></i> No hay permutas ni excepciones registradas. Todo el personal rotará normalmente según el esquema general.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Previsualización en Vivo ("Antes vs Después") -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                <h6 class="mb-0 fw-bold"><i class="bi bi-eye text-primary"></i> Previsualización en Vivo de la Rotación (Antes vs Después)</h6>
+                                <small class="text-muted">Revisa cómo quedará distribuido el personal antes de ejecutar el cambio en la base de datos.</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="refreshRotationPreviewBtn">
+                                <i class="bi bi-arrow-clockwise"></i> Actualizar Vista
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3" id="rotationPreviewCards">
+                                <!-- Cards generadas dinámicamente con JS para Jornadas A, B, C y D -->
+                                <div class="col-12 text-center text-muted py-4">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                    <span class="ms-2">Cargando previsualización de personal...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón de Ejecución Directa -->
+                    <div class="card border-danger border-opacity-50 shadow-sm">
+                        <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                            <div>
+                                <h6 class="text-danger fw-bold mb-1"><i class="bi bi-lightning-charge-fill"></i> Ejecución Inmediata de Rotación</h6>
+                                <p class="text-muted small mb-0">Esta acción rotará inmediatamente los números de técnicos y operadores en todas las áreas de la base de datos y enviará las notificaciones según el método configurado.</p>
+                            </div>
+                            <button type="button" class="btn btn-danger btn-lg text-nowrap" id="btnOpenRotateModal">
+                                <i class="bi bi-arrow-repeat"></i> Ejecutar Rotación Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal de Confirmación de Rotación -->
+            <div class="modal fade" id="confirmRotationModal" tabindex="-1" aria-labelledby="confirmRotationModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="confirmRotationModalLabel"><i class="bi bi-exclamation-triangle-fill me-2"></i> Confirmar Rotación de Jornadas</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-warning mb-3">
+                                <strong>¡Atención!</strong> Se van a modificar las listas de técnicos y operadores en Firebase para <strong>todas las jornadas</strong> según el esquema seleccionado.
+                            </div>
+                            
+                            <h6 class="fw-bold">Resumen de la operación:</h6>
+                            <ul class="list-group mb-3" id="rotationModalSummaryList">
+                                <!-- Llenado por JS -->
+                            </ul>
+
+                            <div class="p-3 rounded mb-3 subcard-custom">
+                                <div class="small fw-bold text-muted mb-1">Notificación seleccionada:</div>
+                                <div id="rotationModalNotifySummary" class="fw-semibold text-body"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Escribe <span class="badge bg-danger">ROTAR</span> para confirmar:</label>
+                                <input type="text" class="form-control" id="rotationConfirmInput" placeholder="ROTAR" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-danger" id="btnConfirmExecuteRotation" disabled>
+                                <i class="bi bi-arrow-repeat"></i> Sí, Ejecutar Rotación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal para Agregar Permuta o Excepción -->
+            <div class="modal fade" id="addExceptionModal" tabindex="-1" aria-labelledby="addExceptionModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="addExceptionModalLabel"><i class="bi bi-arrow-left-right me-2"></i> Registrar Permuta o Excepción de Jornada</h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="addExceptionForm">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Tipo de Regla:</label>
+                                        <select class="form-select form-select-sm" id="exceptionTypeSelect">
+                                            <option value="no_rotate">📌 No Rotar (Quedarse fijo en su jornada actual)</option>
+                                            <option value="swap">🔄 Permuta directa (Intercambiar con otro compañero)</option>
+                                            <option value="reassign">➡️ Asignar a jornada específica</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Vigencia:</label>
+                                        <select class="form-select form-select-sm" id="exceptionDurationSelect">
+                                            <option value="temporary">Solo para la próxima rotación (un solo ciclo)</option>
+                                            <option value="permanent">Permanente (fijo en todas las rotaciones)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 rounded mb-3 subcard-custom">
+                                    <h6 class="small fw-bold text-primary mb-2"><i class="bi bi-person-fill"></i> Persona 1 (Afectada)</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <label class="form-label small text-muted">Tipo de Personal:</label>
+                                            <select class="form-select form-select-sm" id="exceptionRole1">
+                                                <option value="technician">Técnico</option>
+                                                <option value="operator">Operador</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label small text-muted">Seleccionar Trabajador:</label>
+                                            <select class="form-select form-select-sm" id="exceptionPerson1" required>
+                                                <option value="">-- Seleccionar trabajador --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bloque dinámico para Permuta (Persona 2) -->
+                                <div class="p-3 rounded mb-3 subcard-custom" id="swapTargetBlock" style="display: none;">
+                                    <h6 class="small fw-bold text-success mb-2"><i class="bi bi-arrow-left-right"></i> Persona 2 (Compañero que permuta / intercambia)</h6>
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <label class="form-label small text-muted">Tipo de Personal:</label>
+                                            <select class="form-select form-select-sm" id="exceptionRole2">
+                                                <option value="technician">Técnico</option>
+                                                <option value="operator">Operador</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label small text-muted">Seleccionar Compañero:</label>
+                                            <select class="form-select form-select-sm" id="exceptionPerson2">
+                                                <option value="">-- Seleccionar compañero --</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block mt-2">Ambos trabajadores intercambiarán sus jornadas resultantes tras la rotación.</small>
+                                </div>
+
+                                <!-- Bloque dinámico para Asignación directa a Jornada -->
+                                <div class="p-3 rounded mb-3 subcard-custom" id="reassignTargetBlock" style="display: none;">
+                                    <label class="form-label small fw-bold text-info"><i class="bi bi-signpost-split"></i> Jornada Destino Específica:</label>
+                                    <select class="form-select form-select-sm" id="exceptionTargetShift">
+                                        <option value="A">Jornada A (Día 6am-6pm)</option>
+                                        <option value="B">Jornada B (Día 6am-6pm)</option>
+                                        <option value="C">Jornada C (Noche 6pm-6am)</option>
+                                        <option value="D">Jornada D (Noche 6pm-6am)</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="form-label small text-muted">Motivo o Comentario (Opcional):</label>
+                                    <input type="text" class="form-control form-control-sm" id="exceptionReason" placeholder="Ej: Permuta acordada / Motivo personal / Turno fijo">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-primary btn-sm" id="btnSaveNewException">
+                                <i class="bi bi-check-circle"></i> Agregar Permuta / Excepción
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+

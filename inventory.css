@@ -1,0 +1,184 @@
+/* SCADA PRO INVENTORY STYLES */
+        /* ═══ SCADA PRO INVENTORY CUSTOM STYLES ═══ */
+        .scada-inv-header {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 15, 25, 0.98) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        .scada-inv-kpi {
+            background: linear-gradient(180deg, rgba(22, 27, 36, 0.92) 0%, rgba(13, 17, 23, 0.98) 100%) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+        }
+        .scada-inv-kpi:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+        .scada-inv-kpi h3 {
+            font-family: var(--scada-font-mono, 'JetBrains Mono', monospace);
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .scada-inv-kpi h6 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+        .stock-controls {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 2px 4px;
+            gap: 4px;
+        }
+        .stock-controls .btn-adj {
+            width: 26px;
+            height: 26px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            line-height: 1;
+            transition: all 0.15s ease;
+        }
+        .stock-value {
+            min-width: 48px;
+            text-align: center;
+            font-family: var(--scada-font-mono, 'JetBrains Mono', monospace);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+        .stock-bar-wrap {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        .stock-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.3s ease;
+        }
+        .batch-action-bar {
+            background: linear-gradient(90deg, rgba(2, 132, 199, 0.95) 0%, rgba(14, 165, 233, 0.9) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35);
+            animation: fadeInDown 0.25s ease;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .pick-pulse-btn {
+            animation: scadaPulse 1.6s infinite ease-in-out;
+        }
+        @keyframes scadaPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.6); }
+            50% { box-shadow: 0 0 0 8px rgba(245, 158, 11, 0); }
+        }
+        .pick-led-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .pick-led-dot--lit {
+            background-color: #00e5ff;
+            box-shadow: 0 0 8px #00e5ff, 0 0 14px #00e5ff;
+            animation: scadaBlink 1s infinite alternate;
+        }
+        @keyframes scadaBlink {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+        .area-compact-pill {
+            font-size: 0.68rem;
+            padding: 2px 5px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+        .qr-thumb-btn {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #38bdf8;
+            transition: all 0.15s ease;
+        }
+        .qr-thumb-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            color: #fff;
+            transform: scale(1.05);
+        }
+        .search-box-pro {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-radius: 10px !important;
+            color: #f8fafc !important;
+        }
+        .search-box-pro:focus {
+            background: rgba(15, 23, 42, 0.95) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 0.2rem rgba(56, 189, 248, 0.25) !important;
+            color: #fff !important;
+        }
+        .search-box-pro::placeholder {
+            color: rgba(148, 163, 184, 0.7);
+        }
+
+        /* ═══ PRINT STYLES FOR HIGH-RES INDUSTRIAL LABELS ═══ */
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #printArea, #printArea * {
+                visibility: visible !important;
+            }
+            #printArea {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                margin: 0 !important;
+                padding: 10px !important;
+                display: block !important;
+            }
+            .qr-label-card {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                border: 2px solid #000000 !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 12px !important;
+                margin-bottom: 14px !important;
+                border-radius: 6px !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }

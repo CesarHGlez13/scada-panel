@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0b0f19" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Monitor de Operaciones</title>
+    <script src="security-shield.js?v=4.8"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="styles.css?v=4.0" />
+    <link rel="stylesheet" href="mobile.css?v=3.0" />
+    <link rel="stylesheet" href="scada-pro.css?v=2.1" />
+    <script src="theme-init.js?v=4.8"></script>
+    <script src="dashboard-cache.js?v=4.8" defer></script>
+    <script src="mobile-nav.js?v=4.8" defer></script>
+  </head>
+  <body>
+    <!-- Barra de navegación móvil fija persistente (cero parpadeo al cambiar de pestaña) -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav d-lg-none" aria-label="Navegación móvil">
+      <div class="mobile-bottom-nav-inner">
+        <a href="index.html" data-id="home" class="mobile-nav-item active"><i class="bi bi-house-door-fill"></i><span>Inicio</span></a>
+        <a href="operations.html" data-id="ops" class="mobile-nav-item" data-module="operations"><i class="bi bi-gear-wide-connected"></i><span>Operaciones</span></a>
+        <a href="cranes.html" data-id="cranes" class="mobile-nav-item" data-module="cranes">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21" stroke-width="1.8"/><rect x="2" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/><rect x="11" y="8" width="2" height="2.2" rx="0.3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="0.8"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M7 10.5h3"/><path d="M7 14h3"/><path d="M7 17.5h3"/><path d="M5.5 20.5h6" stroke-width="1.8"/><path d="M17.5 7v7" stroke-dasharray="1.5 1"/><path d="M16.5 14h2" stroke-width="1.8"/><path d="M17.5 14.8c0 0.8 0.8 0.8 0.8 0.2"/><rect x="14.5" y="16.5" width="6" height="2" rx="0.4" fill="currentColor" stroke="none"/></svg>
+          <span>Grúas</span>
+        </a>
+        <a href="inventory.html" data-id="inventory" class="mobile-nav-item"><i class="bi bi-box-seam"></i><span>Inventario</span></a>
+        <a href="mobile.html" data-id="more" class="mobile-nav-item"><i class="bi bi-grid"></i><span>Más</span></a>
+      </div>
+    </nav>
+
+    <!-- ═══ PANTALLA DE CARGA ═══ -->
+    <div id="page-loader">
+      <div class="pl-brand">
+        <div class="pl-brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </div>
+        <div class="pl-brand-text">
+          <span class="pl-brand-name">Monitor de Operaciones</span>
+          <span class="pl-brand-sub">Industrial SCADA</span>
+        </div>
+      </div>
+      <div class="pl-bar-wrap"><div class="pl-bar"></div></div>
+      <div class="pl-dots">
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <span class="pl-status">Cargando sistema...</span>
+      </div>
+    </div>
+    <!-- ══════════════════════════ -->
+
+    <div class="container-fluid">
+      <nav id="siteNavbar" data-active="dashboard" data-show-legend="true"></nav>
+      <script src="site-nav.js?v=4.8"></script>
+
+      <div class="row">
+        <!-- Panel de Estadísticas y Turno Activo -->
+        <div class="col-md-3">
+          <!-- Card de Turno Activo & Guardia -->
+          <div class="card mb-3" id="active-shift-card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+              <h5 class="card-title mb-0 d-flex align-items-center gap-2" style="font-size: 0.95rem;">
+                <span class="scada-beacon-dot"></span> Guardia & Turno Activo
+              </h5>
+              <span id="shift-type-pill" class="badge bg-dark border border-info text-info font-mono" style="font-size:0.75rem;">Turno</span>
+            </div>
+            <div class="card-body py-2">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <span id="shift-badge-pill" class="badge bg-primary fs-6 font-mono">Jornada --</span>
+                <span id="shift-name-text" class="fw-bold text-white" style="font-size:0.9rem;">Calculando...</span>
+              </div>
+              <div id="shift-schedule-text" class="text-secondary small font-mono">--:-- → --:-- (12 hrs)</div>
+              
+              <!-- Barra de Progreso del Turno de 12 Horas -->
+              <div class="progress mt-2" style="height: 7px; background: rgba(255,255,255,0.08); border-radius: 4px;">
+                <div id="shift-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 0%;"></div>
+              </div>
+              <div class="d-flex justify-content-between mt-1 text-muted font-mono" style="font-size:0.7rem;">
+                <span id="shift-elapsed-text">Transcurrido: --</span>
+                <span id="shift-remaining-text">Resta: --</span>
+              </div>
+
+              <button type="button" class="btn btn-outline-info btn-sm w-100 mt-2 d-flex align-items-center justify-content-center gap-2 fw-semibold" onclick="if(window.openShiftHandoverModal) window.openShiftHandoverModal();" title="Compilar y enviar reporte de entrega de turno">
+                <i class="bi bi-clipboard-data-fill"></i> Reporte Entrega de Turno
+              </button>
+              <button type="button" class="btn btn-outline-warning btn-sm w-100 mt-2 d-flex align-items-center justify-content-center gap-2 fw-semibold" onclick="if(window.ShiftTimeline) window.ShiftTimeline.openDrawer();" title="Línea de tiempo de eventos y métricas de confiabilidad MTBF/MTTR">
+                <i class="bi bi-clock-history"></i> Bitácora & Confiabilidad MTBF
+              </button>
+            </div>
+          </div>
+
+          <!-- Panel de Telemetría SCADA Andon 4.0 -->
+          <div class="card mb-4" id="scada-telemetry-card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+              <h5 class="card-title mb-0 d-flex align-items-center gap-2" style="font-size: 0.95rem;">
+                <i class="bi bi-speedometer2 text-info"></i> Telemetría SCADA Andon
+              </h5>
+              <span class="badge bg-secondary font-mono" style="font-size:0.7rem;">LIVE</span>
+            </div>
+            <div class="card-body py-2">
+              <div class="stats-item scada-telemetry-row mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label><i class="bi bi-speedometer2 text-success me-1"></i> OEE Disponibilidad</label>
+                  <span id="plant-oee-pct" class="text-success font-mono">100%</span>
+                </div>
+              </div>
+              <div class="stats-item scada-telemetry-row mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label><i class="bi bi-exclamation-octagon-fill text-danger me-1"></i> Fallas Activas</label>
+                  <span id="active-failures" class="text-danger font-mono">0</span>
+                </div>
+              </div>
+              <div class="stats-item scada-telemetry-row mb-2" id="late-failures-stat-item">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label><i class="bi bi-alarm-fill text-warning me-1"></i> ⚠️ Tardías (>5m N2)</label>
+                  <span id="late-failures-count" class="text-warning font-mono">0</span>
+                </div>
+              </div>
+              <div class="stats-item scada-telemetry-row mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label><i class="bi bi-tools text-warning me-1"></i> En Reparación</label>
+                  <span id="maint-cranes-count" class="text-secondary font-mono">0</span>
+                </div>
+              </div>
+              <div class="stats-item scada-telemetry-row mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label><i class="bi bi-hourglass-split text-info me-1"></i> MTTR Promedio</label>
+                  <span id="avg-resolution-time" class="text-info font-mono">00:00:00</span>
+                </div>
+              </div>
+              <div class="stats-item scada-telemetry-row mb-2">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label><i class="bi bi-shield-check text-info me-1"></i> SLA Llegada (&lt;5m)</label>
+                  <span id="sla-compliance-rate" class="text-info font-mono">100%</span>
+                </div>
+              </div>
+              <div class="stats-item scada-telemetry-row mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <label><i class="bi bi-check-circle-fill text-success me-1"></i> Resueltas Hoy</label>
+                  <span id="resolved-today" class="text-success font-mono">0</span>
+                </div>
+              </div>
+
+              <a href="andon-tv.html" target="_blank" class="btn btn-gradient-tv btn-sm w-100 d-flex align-items-center justify-content-center gap-2 py-2" title="Abrir pantalla completa para Smart TV de 65-85 pulgadas">
+                <i class="bi bi-tv-fill fs-6"></i> MODO ANDON TV 4K
+              </a>
+            </div>
+          </div>
+
+          <!-- Filtros de Operaciones -->
+          <div class="card mb-3" data-module="operations">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Filtros de Operaciones</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">Estado</label>
+                <select class="form-select" id="status-filter">
+                  <option value="all">Todos</option>
+                  <option value="active">Fallas Activas</option>
+                  <option value="operational">Operativas</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Área</label>
+                <select class="form-select" id="area-filter">
+                  <option value="all">Todas</option>
+                  <option value="5">Área 5</option>
+                  <option value="10">Área 10</option>
+                  <option value="20">Área 20</option>
+                  <option value="30">Área 30</option>
+                  <option value="35">Área 35+</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtros de Grúas -->
+          <div class="card mb-3" data-module="cranes">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Filtros de Grúas</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label class="form-label">Estado</label>
+                <select class="form-select" id="crane-status-filter">
+                  <option value="all">Todos</option>
+                  <option value="active">Fallas Activas</option>
+                  <option value="maintenance">En Mantenimiento 🟡</option>
+                  <option value="operational">Operativas</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Área</label>
+                <select class="form-select" id="crane-area-filter">
+                  <option value="all">Todas</option>
+                  <option value="10">Área 10</option>
+                  <option value="20">Área 20</option>
+                  <option value="30">Área 30</option>
+                  <option value="5">Área 5</option>
+                  <option value="35">Área 35+</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cuadrilla Técnica en Guardia (Live Shift Roster) -->
+          <div class="card mb-3" id="scada-technicians-roster-card">
+            <div class="card-header d-flex justify-content-between align-items-center py-2">
+              <h5 class="card-title mb-0 d-flex align-items-center gap-2" style="font-size: 0.92rem;">
+                <i class="bi bi-person-badge-fill text-info"></i> Cuadrilla de Turno
+              </h5>
+              <span id="roster-active-shift-badge" class="badge bg-primary font-mono" style="font-size:0.7rem;">TURNO --</span>
+            </div>
+            <div class="card-body p-2" id="scada-technicians-roster-body">
+              <div class="text-center py-2 text-secondary font-mono small">
+                <span class="spinner-border spinner-border-sm me-1"></span> Sincronizando personal...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid de Operaciones y Grúas -->
+        <div class="col-md-9">
+          <!-- Banner Hero de Telemetría SCADA Andon 4.0 -->
+          <div class="scada-hero-ribbon d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+            <div class="d-flex align-items-center gap-3">
+              <span id="plant-hero-beacon" class="scada-beacon-dot"></span>
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <h6 class="mb-0 fw-bold text-white fs-6" id="plant-hero-status-title">PLANTA 100% OPERATIVA</h6>
+                  <span id="plant-hero-shift-badge" class="badge bg-primary font-mono">JORNADA --</span>
+                  <span id="plant-hero-shift-name" class="badge bg-dark border border-secondary text-info font-mono d-none d-sm-inline">TURNO --</span>
+                </div>
+                <small class="text-secondary" id="plant-hero-subtitle">Misión Crítica • Escalamiento N1 &gt; N2 (&gt;5m) &gt; N3 (&gt;15m) • Zero Packet Loss</small>
+              </div>
+            </div>
+            
+            <div class="d-flex flex-wrap align-items-center gap-3">
+              <!-- Radial Availability Gauge SCADA -->
+              <div class="scada-radial-gauge-container d-none d-sm-flex" id="plant-radial-gauge-wrap" title="Disponibilidad Global de Planta (OEE)">
+                <svg class="scada-radial-gauge-svg" viewBox="0 0 100 60">
+                  <path d="M 12 52 A 38 38 0 0 1 88 52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"/>
+                  <path id="plant-radial-gauge-arc" d="M 12 52 A 38 38 0 0 1 88 52" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="120" stroke-dashoffset="0" style="transition: stroke-dashoffset 0.8s ease, stroke 0.5s ease;"/>
+                </svg>
+                <span class="scada-radial-gauge-val text-success" id="plant-radial-gauge-pct">100%</span>
+                <span class="scada-radial-gauge-lbl">DISPONIBILIDAD</span>
+              </div>
+
+              <div class="scada-kpi-pill">
+                <span class="kpi-label">OEE Global</span>
+                <span class="kpi-val text-success" id="plant-hero-oee">100%</span>
+              </div>
+              <div class="scada-kpi-pill">
+                <span class="kpi-label">Fallas Activas</span>
+                <span class="kpi-val text-danger" id="plant-hero-active">0</span>
+              </div>
+              <div class="scada-kpi-pill">
+                <span class="kpi-label">Tardías &gt;5m</span>
+                <span class="kpi-val text-warning" id="plant-hero-late">0</span>
+              </div>
+              <div class="scada-kpi-pill">
+                <span class="kpi-label">Mantenimiento</span>
+                <span class="kpi-val text-warning" id="plant-hero-maint">0</span>
+              </div>
+              <div class="d-flex flex-column gap-1 ms-1">
+                <a href="andon-tv.html" target="_blank" class="btn btn-sm btn-gradient-tv py-1 px-3 d-flex align-items-center gap-1 font-mono">
+                  <i class="bi bi-tv-fill"></i> Andon TV
+                </a>
+                <div class="d-flex gap-1">
+                  <button type="button" class="btn btn-sm btn-outline-info py-1 px-2 d-flex align-items-center gap-1 font-mono" onclick="if(window.openShiftHandoverModal) window.openShiftHandoverModal();" style="font-size:0.75rem;" title="Reporte de entrega de turno">
+                    <i class="bi bi-clipboard-data"></i> Guardia
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-warning py-1 px-2 d-flex align-items-center gap-1 font-mono" onclick="if(window.ShiftTimeline) window.ShiftTimeline.openDrawer();" style="font-size:0.75rem;" title="Línea de tiempo de eventos y MTBF/MTTR">
+                    <i class="bi bi-clock-history"></i> MTBF
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Escalation Marquee Ticker -->
+          <div class="scada-escalation-banner" id="scada-live-escalation-banner">
+            <div class="scada-escalation-tag normal" id="scada-escalation-tag">
+              <span class="scada-beacon-dot"></span> NORMAL
+            </div>
+            <div class="scada-escalation-content">
+              <div class="scada-escalation-scroll" id="scada-escalation-scroll">
+                ● SISTEMA NORMALIZADO • TODOS LOS SISTEMAS OPERATIVOS • SLA COMPLIANCE 100% • TELEMETRÍA EN LÍNEA
+              </div>
+            </div>
+          </div>
+
+          <!-- Topología Digital Twin & Pistas de Rodadura (ISA-101 / SCADA 4.0) -->
+          <div id="scada-plant-map-container"></div>
+
+          <div class="card mb-4" data-module="operations">
+            <div class="card-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Estado de Operaciones</h5>
+                <div class="btn-group">
+                  <button
+                    class="btn btn-outline-secondary btn-sm active"
+                    id="view-grid"
+                  >
+                    <i class="bi bi-grid"></i> Grid
+                  </button>
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    id="view-list"
+                  >
+                    <i class="bi bi-list"></i> Lista
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="operations-grid" class="operations-container grid-view">
+                <!-- Las operaciones se cargarán dinámicamente aquí -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Grid de Grúas -->
+          <div class="card" data-module="cranes">
+            <div class="card-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Estado de Grúas</h5>
+                <div class="btn-group" id="cranes-filter-btn-group">
+                  <button
+                    class="btn btn-outline-primary btn-sm active"
+                    id="cranes-all"
+                  >
+                    Todas
+                  </button>
+                  <button class="btn btn-outline-primary btn-sm" id="cranes-10">
+                    Área 10
+                  </button>
+                  <button class="btn btn-outline-primary btn-sm" id="cranes-20">
+                    Área 20
+                  </button>
+                  <button class="btn btn-outline-primary btn-sm" id="cranes-30">
+                    Área 30
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="cranes-grid" class="cranes-container grid-view">
+                <div id="cranes-initial-loader" class="p-4 text-center text-muted" style="grid-column: 1 / -1; width: 100%;">
+                  <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                  <span style="font-size:0.85rem; letter-spacing:0.5px;">Cargando telemetría de grúas...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Detalles de Operación -->
+      <div class="modal fade" id="operationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="operationModalTitle">
+                Detalles de Operación
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table history-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha Inicio</th>
+                      <th>Descripción</th>
+                      <th>Reportado por</th>
+                      <th>Resuelto por</th>
+                      <th>Acciones Correctivas</th>
+                      <th>Tiempo de Falla</th>
+                      <th>Fecha Resolución</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyTableBody">
+                    <!-- El historial se cargará dinámicamente aquí -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de Detalles de Grúa -->
+      <div class="modal fade" id="craneModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="craneModalTitle">
+                Historial de Grúa
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table class="table history-table">
+                  <thead>
+                    <tr>
+                      <th>Fecha Reporte</th>
+                      <th>Descripción</th>
+                      <th>Reportado por</th>
+                      <th>⏱ En Falla</th>
+                      <th>🔧 En Mant.</th>
+                      <th>⏱ Total</th>
+                      <th>Motivo Mant.</th>
+                      <th>👤 Resp. Mant.</th>
+                      <th>Resuelto por</th>
+                      <th>Acción Correctiva</th>
+                      <th>Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody id="craneHistoryTableBody">
+                    <!-- El historial se cargará dinámicamente aquí -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Modal para Resolver Falla -->
+      <div class="modal fade" id="resolveModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Resolver Falla de Operación</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form id="resolveForm">
+                <input type="hidden" id="resolveOperationId" />
+                <div class="mb-3">
+                  <label for="resolution" class="form-label"
+                    >Descripción de la Solución</label
+                  >
+                  <textarea
+                    class="form-control"
+                    id="resolution"
+                    rows="3"
+                    required
+                  ></textarea>
+                </div>
+                <!-- Refacciones Utilizadas (Sprint 3) -->
+                <div class="mb-3">
+                  <label class="form-label d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-tools text-warning"></i> Refacciones Utilizadas (Opcional)</span>
+                    <button type="button" class="btn btn-sm btn-link text-info text-decoration-none p-0" onclick="document.getElementById('refactionPickerSection').classList.toggle('d-none')">
+                      + Agregar pieza
+                    </button>
+                  </label>
+                  <div id="refactionPickerSection" class="p-3 rounded-3 mb-2 d-none" style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);">
+                    <div class="row g-2 align-items-center">
+                      <div class="col-8">
+                        <select class="form-select form-select-sm" id="partsPickerSelect">
+                          <option value="">Seleccione una refacción del almacén...</option>
+                        </select>
+                      </div>
+                      <div class="col-4">
+                        <div class="input-group input-group-sm">
+                          <input type="number" id="partsPickerQty" class="form-control" value="1" min="1" max="99" />
+                          <button type="button" class="btn btn-primary" id="btnAddPartToOrder" onclick="window.addPartToResolution()">+</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div id="selectedPartsContainer" class="d-flex flex-wrap gap-1 mt-1"></div>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                id="submitResolution"
+              >
+                Resolver
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- Bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- PocketBase SCADA Local Engine (Firebase Pausado) -->
+    <script src="pocketbase.umd.js"></script>
+    <script src="scada-config.js?v=4.8"></script>
+    <script src="sha256.js?v=4.8"></script>
+    <script src="pocketbase-adapter.js?v=4.8"></script>
+    <script src="auth-system.js?v=4.8"></script>
+
+    <!-- Configuración Global -->
+    <script src="global-config.js?v=4.8"></script>
+
+    <!-- Excel Export (Auto-hospedado) -->
+    <script src="xlsx.full.min.js?v=0.18.5" defer></script>
+
+    <!-- Motor de Audio Industrial & Digital Twin Map (ISA-101 / ISA-18.2) -->
+    <script src="industrial-sound-engine.js?v=4.0"></script>
+    <script src="plant-map.js?v=4.8"></script>
+
+    <!-- Aplicación -->
+    <script src="app.js?v=4.8"></script>
+    <script src="technician-alerts.js?v=4.8" defer></script>
+    <script src="scada-pro.js?v=4.8" defer></script>
+    <script src="inventory-deduction.js?v=4.8" defer></script>
+    <script src="pwa-register.js?v=4.8" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="network-health.js?v=4.8" defer></script>
+    <script src="shift-handover.js?v=4.8" defer></script>
+    <script src="predictive-alerts.js?v=4.8" defer></script>
+    <script src="command-palette.js?v=4.8" defer></script>
+    <script src="technician-roster.js?v=4.8" defer></script>
+    <script src="shift-timeline.js?v=4.8" defer></script>
+  </body>
+</html>

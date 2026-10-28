@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07090e">
+  <title>Diagrama & Emulador de Hardware SCADA • ESP32 GC9A01 & 4 Nodos C3 (30s)</title>
+  <script src="security-shield.js?v=4.8"></script>
+  
+  <!-- Bootstrap 5 & Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Estilos del Sistema SCADA -->
+  <link rel="stylesheet" href="styles.css?v=4.0">
+  
+  <link rel="stylesheet" href="hardware-simulator.css?v=1.0">
+</head>
+<body class="p-3 p-md-4">
+
+  <!-- Navbar / Cabecera -->
+  <header class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+    <div class="d-flex align-items-center gap-3">
+      <a href="index.html" class="btn btn-outline-secondary btn-sm rounded-circle p-2" title="Volver al Monitor">
+        <i class="bi bi-arrow-left fs-5"></i>
+      </a>
+      <div>
+        <h4 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+          <i class="bi bi-diagram-3-fill text-info"></i> Diagrama & Emulador SCADA • Flota Grúas 30s
+          <span class="badge bg-primary text-white fs-6">Master ESP32 + 4x Nodos C3</span>
+        </h4>
+        <small class="text-muted">Diagrama funcional a escala CAD real con cableado industrial 12V, bus WS2815 y atenuación sincronizada.</small>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+      <div class="form-check form-switch me-2">
+        <input class="form-check-input" type="checkbox" id="simWifiToggle" checked onchange="toggleSimWifi(this.checked)">
+        <label class="form-check-label small text-light" for="simWifiToggle" id="simWifiLabel">
+          <span class="badge bg-success-subtle text-success border border-success"><i class="bi bi-shield-check"></i> Sandbox Aislado</span>
+        </label>
+      </div>
+      <a href="index.html" target="_blank" class="btn btn-sm btn-outline-primary">
+        <i class="bi bi-speedometer2"></i> Dashboard Web <i class="bi bi-box-arrow-up-right small"></i>
+      </a>
+      <a href="andon-tv.html" target="_blank" class="btn btn-sm btn-outline-warning">
+        <i class="bi bi-tv"></i> Andon TV <i class="bi bi-box-arrow-up-right small"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- ======================================================================= -->
+  <!-- CONTENEDOR PRINCIPAL: DIAGRAMA INDUSTRIAL ESQUEMÁTICO                   -->
+  <!-- ======================================================================= -->
+  <main class="container-fluid">
+
+    <!-- ARNESES DE CABLEADO Y FUENTE INDUSTRIAL (BARRA SUPERIOR DE ENLACE) -->
+    <div class="card schematic-bus-card mb-4 p-3">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-2 mb-2 border-bottom border-secondary border-opacity-25">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-dark border border-secondary text-warning fw-bold font-monospace">
+            <i class="bi bi-plug-fill"></i> BUS INDUSTRIAL 12V DC & WS2815 DIN/BIN
+          </span>
+          <span class="small text-muted">Esquema unifilar de interconexión con conectores JST-SM y pasacables TPU estancos</span>
+        </div>
+        <div class="d-flex align-items-center gap-2 font-monospace" style="font-size: 0.7rem;">
+          <span class="badge bg-danger"><i class="bi bi-circle-fill text-danger me-1"></i>+12V DC (18 AWG)</span>
+          <span class="badge bg-dark border border-secondary"><i class="bi bi-circle-fill text-secondary me-1"></i>GND COMÚN</span>
+          <span class="badge bg-success"><i class="bi bi-circle-fill text-success me-1"></i>DIN (GPIO 4)</span>
+          <span class="badge bg-warning text-dark"><i class="bi bi-circle-fill text-warning me-1"></i>BIN (GPIO 16 BACKUP)</span>
+        </div>
+      </div>
+
+      <!-- Representación visual de las 4 líneas de cableado que unen los equipos -->
+      <div class="wire-harness-box">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <span class="jst-tag"><i class="bi bi-lightning-charge text-danger"></i> FUENTE INDUSTRIAL MEAN WELL LRS-150-12 (12V 10A)</span>
+          <span class="jst-tag">LINEA ANDON PRINCIPAL WS2815 12V</span>
+          <span class="jst-tag"><i class="bi bi-broadcast text-info"></i> DISTRIBUCIÓN 4 NODOS C3</span>
+        </div>
+        <div class="wire-line wire-12v" title="Línea +12V DC Bus General"></div>
+        <div class="wire-line wire-din" title="Línea DIN Señal WS2815 (Datos Principales)"></div>
+        <div class="wire-line wire-bin" title="Línea BIN Señal WS2815 (Redundancia de Datos)"></div>
+        <div class="wire-line wire-gnd" title="Línea GND (Masa Común de Alimentación y Datos)"></div>
+      </div>
+    </div>
+
+    <!-- SECCIÓN DE LOS DISPOSITIVOS: MASTER A LA IZQUIERDA Y LOS 4 NODOS A LA DERECHA -->
+    <div class="row g-4">
+
+      <!-- =================================================================== -->
+      <!-- COLUMNA IZQUIERDA: CENTRO DE MANDO MASTER (CAD 94 × 94 mm -> 320px) -->
+      <!-- =================================================================== -->
+      <div class="col-xl-5 col-lg-5 d-flex flex-column align-items-center">
+        <div class="d-flex justify-content-between align-items-center w-100 mb-2" style="max-width: 320px;">
+          <span class="badge bg-dark border border-primary text-info font-monospace">
+            <i class="bi bi-cpu"></i> MASTER GC9A01 • 94×94 mm
+          </span>
+          <span class="badge bg-secondary font-monospace" style="font-size: 0.65rem;">ESCALA CAD 1:1</span>
+        </div>
+
+        <!-- Gabinete Cuadrado 1:1 según OpenSCAD (94 × 94 mm) -->
+        <div class="case-centro-mando">
+          <!-- 4 Tornillos M3 avellanados en esquinas -->
+          <div class="screw-m3 screw-tl"></div>
+          <div class="screw-m3 screw-tr"></div>
+          <div class="screw-m3 screw-bl"></div>
+          <div class="screw-m3 screw-br"></div>
+
+          <!-- Etiqueta grabada en el gabinete -->
+          <div class="text-center mb-1" style="font-size: 0.65rem; letter-spacing: 2px; color: #64748b; font-weight: 700;">
+            CENTRO DE MANDO MASTER • ESP32
+          </div>
+
+          <!-- Pantalla Circular TFT GC9A01 (Ø38.8mm bisel en Y=58mm) -->
+          <div class="bezel-gc9a01">
+            <canvas id="gc9a01Canvas" width="240" height="240"></canvas>
+          </div>
+
+          <!-- Botón Metálico Industrial Antivandálico 16mm (Centrado en Y=22mm) -->
+          <button class="btn-metallic-16mm" id="btn16mmPhysical" title="Mantener presionado 5s para reportar / Clic para rotar">
+            <div class="btn-metallic-ring" id="btnRingHalo">
+              <i class="bi bi-power"></i>
+            </div>
+          </button>
+          <div class="mt-1 text-center" style="font-size: 0.6rem; color: #94a3b8; font-weight: 600;">
+            <span id="btnActionHint">CLIC: ROTAR | MANTENER 5s: CONFIRMAR</span>
+          </div>
+        </div>
+
+        <!-- Arnés de Salida: Tira LED Master de 19 LEDs (Barra Física con Efecto de Llenado Progresivo) -->
+        <div class="mt-3 p-2 rounded bg-dark border border-secondary border-opacity-25 w-100 text-center" style="max-width: 320px;">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span style="font-size: 0.65rem; color: #94a3b8; font-weight: 700;">
+              <i class="bi bi-diagram-3-fill text-warning"></i> BARRA LED MASTER WS2815
+            </span>
+            <span id="ledFillStatusBadge" class="badge bg-dark border border-secondary text-secondary font-monospace" style="font-size: 0.6rem;">STANDBY</span>
+          </div>
+
+          <!-- Barra de 19 LEDs: 4x 30A + 1 Espaciador + 4x 30B + 1 Esp + 4x 30C + 1 Esp + 4x 30D -->
+          <div class="ws2815-bar-master" id="masterWs2815Bar">
+            <!-- Píxeles generados dinámicamente -->
+          </div>
+
+          <!-- Etiquetas de Espaciado Físico -->
+          <div class="d-flex justify-content-between align-items-center px-1 mt-1 font-monospace" style="font-size: 0.58rem; color: #64748b;">
+            <span class="text-info fw-bold">30A (4L)</span>
+            <span class="text-muted" title="Espaciador de 1 LED Físico">| [•] |</span>
+            <span class="text-info fw-bold">30B (4L)</span>
+            <span class="text-muted" title="Espaciador de 1 LED Físico">| [•] |</span>
+            <span class="text-info fw-bold">30C (4L)</span>
+            <span class="text-muted" title="Espaciador de 1 LED Físico">| [•] |</span>
+            <span class="text-info fw-bold">30D (4L)</span>
+          </div>
+          <div class="small text-muted mt-1" style="font-size: 0.62rem;">
+            Barra de llenado 5s para reporte/confirmación • Atenuación verde y estrobo rojo
+          </div>
+        </div>
+
+        <div class="text-center mt-2">
+          <span class="badge bg-dark border border-secondary text-info">Gabinete CAD: 94 × 94 × 36 mm • PETG / PLA</span>
+          <div class="small text-muted mt-1">Puertos traseros: Bornera WS2815 + Jack DC 12V + USB-C Flashing</div>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- COLUMNA DERECHA: LOS 4 NODOS SECUNDARIOS C3 (CAD 46 × 46 mm)       -->
+      <!-- =================================================================== -->
+      <div class="col-xl-7 col-lg-7">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="badge bg-dark border border-secondary text-info font-monospace">
+            <i class="bi bi-grid-fill"></i> FLOTA SECCIÓN 30s • 4 NODOS SECUNDARIOS (46×46 mm)
+          </span>
+          <span class="badge bg-secondary font-monospace" style="font-size: 0.65rem;">ESCALA PROPORCIONAL EXACTA (49%)</span>
+        </div>
+
+        <!-- Cuadrícula 2×2 de los 4 Nodos Secundarios Proporcionales -->
+        <div class="row g-3">
+
+          <!-- NODO 1: GRÚA 30A -->
+          <div class="col-md-6 col-sm-6 d-flex flex-column align-items-center">
+            <div class="case-nodo-c3-prop" id="caseNodo_30A">
+              <div class="screw-m3-sm screw-tl"></div>
+              <div class="screw-m3-sm screw-tr"></div>
+              <div class="screw-m3-sm screw-bl"></div>
+              <div class="screw-m3-sm screw-br"></div>
+
+              <div class="d-flex justify-content-between align-items-center w-100 px-1 mb-1">
+                <span class="text-muted font-monospace" style="font-size: 0.55rem;">C3 • 46mm</span>
+                <span class="badge bg-primary text-white fw-bold" style="font-size: 0.62rem;" id="nodeBadge_30A">GRÚA 30A</span>
+              </div>
+
+              <!-- Ventana Cuadrada OLED 0.42" -->
+              <div class="oled-window-c3-prop">
+                <canvas id="oledC3Canvas_30A" class="oled-c3-canvas" width="72" height="40"></canvas>
+              </div>
+
+              <!-- Tira Local WS2815 (8 LEDs) -->
+              <div class="ws2815-bar-sat mt-1" id="satWs2815Bar_30A"></div>
+
+              <!-- Regulador MP1584 -->
+              <div class="mp1584-pill mt-1">
+                <span class="text-warning">12V</span> ➔ <span class="text-success fw-bold">5.0V ✓</span>
+              </div>
+
+              <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.5rem;">
+                <span class="badge bg-black border border-secondary text-muted">JST-SM 4P</span>
+                <span>TPU M12</span>
+              </div>
+            </div>
+            <!-- Acciones directas por nodo -->
+            <div class="d-flex gap-1 mt-1">
+              <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size: 0.62rem;" onclick="triggerFaultOnNode('30A', 'Leva rota')">Falla</button>
+              <button class="btn btn-xs btn-outline-success py-0 px-2" style="font-size: 0.62rem;" onclick="resolveFaultOnNode('30A')">OK</button>
+            </div>
+          </div>
+
+          <!-- NODO 2: GRÚA 30B -->
+          <div class="col-md-6 col-sm-6 d-flex flex-column align-items-center">
+            <div class="case-nodo-c3-prop" id="caseNodo_30B">
+              <div class="screw-m3-sm screw-tl"></div>
+              <div class="screw-m3-sm screw-tr"></div>
+              <div class="screw-m3-sm screw-bl"></div>
+              <div class="screw-m3-sm screw-br"></div>
+
+              <div class="d-flex justify-content-between align-items-center w-100 px-1 mb-1">
+                <span class="text-muted font-monospace" style="font-size: 0.55rem;">C3 • 46mm</span>
+                <span class="badge bg-primary text-white fw-bold" style="font-size: 0.62rem;" id="nodeBadge_30B">GRÚA 30B</span>
+              </div>
+
+              <div class="oled-window-c3-prop">
+                <canvas id="oledC3Canvas_30B" class="oled-c3-canvas" width="72" height="40"></canvas>
+              </div>
+
+              <div class="ws2815-bar-sat mt-1" id="satWs2815Bar_30B"></div>
+
+              <div class="mp1584-pill mt-1">
+                <span class="text-warning">12V</span> ➔ <span class="text-success fw-bold">5.0V ✓</span>
+              </div>
+
+              <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.5rem;">
+                <span class="badge bg-black border border-secondary text-muted">JST-SM 4P</span>
+                <span>TPU M12</span>
+              </div>
+            </div>
+            <div class="d-flex gap-1 mt-1">
+              <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size: 0.62rem;" onclick="triggerFaultOnNode('30B', 'Fuga neumática')">Falla</button>
+              <button class="btn btn-xs btn-outline-success py-0 px-2" style="font-size: 0.62rem;" onclick="resolveFaultOnNode('30B')">OK</button>
+            </div>
+          </div>
+
+          <!-- NODO 3: GRÚA 30C -->
+          <div class="col-md-6 col-sm-6 d-flex flex-column align-items-center">
+            <div class="case-nodo-c3-prop" id="caseNodo_30C">
+              <div class="screw-m3-sm screw-tl"></div>
+              <div class="screw-m3-sm screw-tr"></div>
+              <div class="screw-m3-sm screw-bl"></div>
+              <div class="screw-m3-sm screw-br"></div>
+
+              <div class="d-flex justify-content-between align-items-center w-100 px-1 mb-1">
+                <span class="text-muted font-monospace" style="font-size: 0.55rem;">C3 • 46mm</span>
+                <span class="badge bg-primary text-white fw-bold" style="font-size: 0.62rem;" id="nodeBadge_30C">GRÚA 30C</span>
+              </div>
+
+              <div class="oled-window-c3-prop">
+                <canvas id="oledC3Canvas_30C" class="oled-c3-canvas" width="72" height="40"></canvas>
+              </div>
+
+              <div class="ws2815-bar-sat mt-1" id="satWs2815Bar_30C"></div>
+
+              <div class="mp1584-pill mt-1">
+                <span class="text-warning">12V</span> ➔ <span class="text-success fw-bold">5.0V ✓</span>
+              </div>
+
+              <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.5rem;">
+                <span class="badge bg-black border border-secondary text-muted">JST-SM 4P</span>
+                <span>TPU M12</span>
+              </div>
+            </div>
+            <div class="d-flex gap-1 mt-1">
+              <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size: 0.62rem;" onclick="triggerFaultOnNode('30C', 'Tornillería floja')">Falla</button>
+              <button class="btn btn-xs btn-outline-success py-0 px-2" style="font-size: 0.62rem;" onclick="resolveFaultOnNode('30C')">OK</button>
+            </div>
+          </div>
+
+          <!-- NODO 4: GRÚA 30D -->
+          <div class="col-md-6 col-sm-6 d-flex flex-column align-items-center">
+            <div class="case-nodo-c3-prop" id="caseNodo_30D">
+              <div class="screw-m3-sm screw-tl"></div>
+              <div class="screw-m3-sm screw-tr"></div>
+              <div class="screw-m3-sm screw-bl"></div>
+              <div class="screw-m3-sm screw-br"></div>
+
+              <div class="d-flex justify-content-between align-items-center w-100 px-1 mb-1">
+                <span class="text-muted font-monospace" style="font-size: 0.55rem;">C3 • 46mm</span>
+                <span class="badge bg-primary text-white fw-bold" style="font-size: 0.62rem;" id="nodeBadge_30D">GRÚA 30D</span>
+              </div>
+
+              <div class="oled-window-c3-prop">
+                <canvas id="oledC3Canvas_30D" class="oled-c3-canvas" width="72" height="40"></canvas>
+              </div>
+
+              <div class="ws2815-bar-sat mt-1" id="satWs2815Bar_30D"></div>
+
+              <div class="mp1584-pill mt-1">
+                <span class="text-warning">12V</span> ➔ <span class="text-success fw-bold">5.0V ✓</span>
+              </div>
+
+              <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.5rem;">
+                <span class="badge bg-black border border-secondary text-muted">JST-SM 4P</span>
+                <span>TPU M12</span>
+              </div>
+            </div>
+            <div class="d-flex gap-1 mt-1">
+              <button class="btn btn-xs btn-outline-danger py-0 px-2" style="font-size: 0.62rem;" onclick="triggerFaultOnNode('30D', 'Atasco mecánico')">Falla</button>
+              <button class="btn btn-xs btn-outline-success py-0 px-2" style="font-size: 0.62rem;" onclick="resolveFaultOnNode('30D')">OK</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- BANCO DE PRUEBAS DE LABORATORIO Y TERMINAL SERIAL VIRTUAL               -->
+    <!-- ======================================================================= -->
+    <div class="row g-4 mt-2">
+      <!-- Banco de Inyección y Catálogo Dinámico -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card hardware-card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 text-white"><i class="bi bi-sliders text-primary"></i> Banco de Pruebas de Señalización</h6>
+            <span class="badge bg-success" id="syncStatusBadge">Sincronizado</span>
+          </div>
+          <div class="card-body">
+            <!-- Selector Rápido de Falla por Grúa -->
+            <label class="form-label small text-muted">Inyección de Fallas en la Flota 30s:</label>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <button class="btn btn-sm btn-outline-danger" onclick="triggerSimulatedFault('Leva rota')">
+                <i class="bi bi-lightning-charge"></i> Falla: Leva Rota
+              </button>
+              <button class="btn btn-sm btn-outline-warning" onclick="triggerSimulatedFault('Fuga neumática')">
+                <i class="bi bi-wind"></i> Falla: Fuga Neumática
+              </button>
+              <button class="btn btn-sm btn-outline-info" onclick="triggerSimulatedFault('Tornillería floja')">
+                <i class="bi bi-wrench"></i> Falla: Tornillería Floja
+              </button>
+              <button class="btn btn-sm btn-outline-success" onclick="resolveCurrentSimulatedFault()">
+                <i class="bi bi-check-circle"></i> Resolver a Operativa
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="cancelCurrentSimSelection()" title="Cancelar selección y volver a modo supervisión">
+                <i class="bi bi-x-circle text-danger"></i> Cancelar Menú (Salida Rápida)
+              </button>
+            </div>
+
+            <!-- Adición Dinámica de Grúas / Áreas -->
+            <div class="row g-2 mb-3 align-items-center">
+              <div class="col-7">
+                <input type="text" id="newMachineNameInput" class="form-control form-control-sm" placeholder="Ej: GRÚA 30E, GRÚA 10A">
+              </div>
+              <div class="col-5">
+                <button class="btn btn-sm btn-primary w-100" onclick="addNewMachineToSim()">
+                  <i class="bi bi-plus-lg"></i> Agregar Equipo
+                </button>
+              </div>
+            </div>
+
+            <!-- Catálogo Editable de Motivos (Sincronizado) -->
+            <div class="mb-2 d-flex justify-content-between align-items-center">
+              <span class="small fw-bold text-white"><i class="bi bi-list-check text-warning"></i> Catálogo Dinámico de Motivos:</span>
+              <button class="btn btn-sm btn-link text-info text-decoration-none p-0" onclick="openAdminReasonsTab()">
+                Editar en Admin <i class="bi bi-arrow-right"></i>
+              </button>
+            </div>
+            <div id="simReasonsBadges" class="d-flex flex-wrap gap-1">
+              <!-- Renderizado dinámico de motivos -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monitor Serial Virtual (115200 baud) -->
+      <div class="col-xl-6 col-lg-6">
+        <div class="card hardware-card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center py-2">
+            <span class="small fw-bold text-light font-monospace">
+              <i class="bi bi-terminal text-info me-1"></i> MONITOR SERIAL BUS (115200 BAUD)
+            </span>
+            <button class="btn btn-sm btn-outline-secondary py-0 px-2 text-muted" onclick="clearSerialLog()">
+              Limpiar
+            </button>
+          </div>
+          <div class="card-body p-2">
+            <div class="serial-terminal" id="serialTerminalLog">
+              <div class="serial-log-line"><span class="serial-time">[00:00:00]</span> [INIT] SCADA Master ESP32 iniciado en 240MHz. Bus WS2815 configurado en GPIO 4 / 16.</div>
+              <div class="serial-log-line"><span class="serial-time">[00:00:01]</span> [NVS] 6 motivos de paro cargados desde Flash NVS.</div>
+              <div class="serial-log-line"><span class="serial-time">[00:00:01]</span> [WIFI] Conectado a red industrial de planta. IP: 192.168.1.145</div>
+              <div class="serial-log-line"><span class="serial-time">[00:00:02]</span> [FLOTA 30s] 4 Nodos Secundarios C3 online (30A, 30B, 30C, 30D).</div>
+              <div class="serial-log-line"><span class="serial-time">[00:00:02]</span> [SUPERVISOR] Estado: STATE_SUPERVISOR activo (Atenuación sincronizada en 19 LEDs).</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Scripts: Bootstrap & Lógica del Emulador Autónomo (Cero dependencias de red / Sandbox Hermético) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="hardware-simulator.js?v=4.8"></script>
+</body>
+</html>

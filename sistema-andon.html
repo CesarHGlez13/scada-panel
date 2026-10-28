@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07090e">
+  <title>SCADA ANDON 4.0 PRO • Misión Crítica Siderúrgica & Ecosistema Industrial</title>
+  
+  <!-- Favicon y Metas -->
+  <link rel="icon" href="crane-glyph.svg" type="image/svg+xml">
+  <meta name="description" content="Sistema Andon Inalámbrico 4.0 de Misión Crítica. Botoneras inteligentes con pantalla IPS GC9A01, cronómetros en piso, tiras LED WS2815 con barra dinámica, WhatsApp Bot multinivel y deducción atómica de almacén.">
+  
+  <!-- Tipografía Industrial Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5.3 & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  
+  <!-- Estilos SCADA Base y Suite Cinemática Pro -->
+  <link rel="stylesheet" href="styles.css?v=4.0">
+  <link rel="stylesheet" href="scada-pro.css?v=4.0">
+  <link rel="stylesheet" href="sistema-andon.css?v=5.0">
+  
+  <!-- Security Shield Guard -->
+  <script src="security-shield.js?v=1.0"></script>
+</head>
+<body class="apple-scrolly-body">
+
+  <!-- Barra de Lectura Cinemática Superior (3px Apple Style) -->
+  <div id="appleReadingBar" class="reading-bar"></div>
+
+  <!-- Resplandor Ambiental Industrial de Lujo -->
+  <div class="ambient-glow"></div>
+
+  <!-- ═══ NAVBAR SUPERIOR SCADA PRO (REACTIVO GLOBAL) ═══ -->
+  <nav id="siteNavbar" data-active="andon-system"></nav>
+
+  <!-- ═══ HERO SECTION KEYNOTE ═══ -->
+  <section class="hero-wrapper text-center" id="hero">
+    <div class="container">
+      <div class="hero-pill-badge" data-reveal>
+        <span class="pulse-dot"></span>
+        <span>Ecosistema Andon 4.0 • Misión Crítica Siderúrgica</span>
+      </div>
+
+      <h1 class="hero-title font-heading" data-reveal>
+        23 Minutos de Máquina Parada.<br>
+        <span class="text-gradient-red">Ni un Minuto en Ningún Reporte.</span><br>
+        <span class="text-gradient-cyan">Nosotros Cronometramos la Respuesta en Milisegundos.</span>
+      </h1>
+
+      <p class="hero-subtitle apple-scrub-text">
+        El operador gira el encoder en el Centro de Mando o acciona el pulsador en cabina a 12 metros de altura. En <strong>800 milisegundos</strong>, el llamado entra con sonido y vibración háptica al WhatsApp del técnico en turno. La tira LED WS2815 inicia una barra dinámica visible a 50 metros y si pasan 5 minutos sin atención, el sistema escala automáticamente al Supervisor.
+      </p>
+
+      <div class="d-flex justify-content-center align-items-center gap-3 flex-wrap mb-4" data-reveal>
+        <button class="btn btn-hero-cinematic font-mono" onclick="goToScrollyPhase(0)">
+          <i class="bi bi-play-circle-fill fs-5"></i> Iniciar Recorrido Cinemático
+        </button>
+        <a href="#demo-interactiva" class="btn btn-outline-info rounded-pill px-4 py-3 fw-bold font-mono">
+          <i class="bi bi-cpu-fill me-2"></i> Probar Simulador en Vivo
+        </a>
+        <a href="index.html" class="btn btn-outline-light rounded-pill px-4 py-3 font-mono">
+          <i class="bi bi-speedometer2 me-1"></i> Ir al SCADA Vivo
+        </a>
+      </div>
+
+      <!-- Barra de Telemetría Superior -->
+      <div class="hero-telemetry-strip" data-reveal>
+        <div class="hero-stat-item">
+          <span class="hero-stat-val text-success">60 FPS</span>
+          <span class="hero-stat-lbl">Cinemática Fluida</span>
+        </div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-val text-primary">&lt; 800 ms</span>
+          <span class="hero-stat-lbl">Despacho WhatsApp</span>
+        </div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-val text-info">ESP-NOW + Nube</span>
+          <span class="hero-stat-lbl">Doble Red Híbrida</span>
+        </div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-val" style="color: #38bdf8;">ISA-101 2.5D</span>
+          <span class="hero-stat-lbl">Gemelo Digital</span>
+        </div>
+        <div class="hero-stat-item">
+          <span class="hero-stat-val text-warning">Deducción Atómica</span>
+          <span class="hero-stat-lbl">Almacén Integrado</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       ESCENARIO STICKY DE SCROLLYTELLING (APPLE AIRPODS PRO 600VH)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section id="scrollyStage" class="apple-scrolly-track">
+    <div class="apple-scrolly-sticky">
+
+      <!-- Barra superior de estado dentro de la escena sticky -->
+      <div class="sticky-stage-topbar">
+        <div class="d-flex align-items-center gap-2">
+          <span class="sticky-phase-badge" id="stagePhaseTag">FASE 1 DE 6</span>
+          <span class="small font-mono text-secondary text-truncate" id="stagePhaseSubtext">Hardware Primario • Centro de Mando GC9A01</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button id="btnScrollyPrev" class="btn btn-sm btn-outline-secondary py-0 px-2 font-mono" style="font-size: 0.72rem; border-radius: 980px;" title="Fase Anterior">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button id="btnScrollyNext" class="btn btn-sm btn-outline-secondary py-0 px-2 font-mono" style="font-size: 0.72rem; border-radius: 980px;" title="Siguiente Fase">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+          <button id="btnScrollyAutoplay" class="btn btn-sm btn-outline-info py-0 px-2 font-mono" style="font-size: 0.72rem; border-radius: 980px;">
+            <i class="bi bi-play-fill me-1" id="autoplayBtnIcon"></i><span id="autoplayBtnText">Presentación</span>
+          </button>
+          <button id="btnScrollyAudio" class="btn btn-sm btn-outline-secondary py-0 px-2 font-mono" style="font-size: 0.72rem; border-radius: 980px;" title="Audio Industrial Sintético">
+            <i class="bi bi-volume-up-fill text-info" id="audioBtnIcon"></i>
+          </button>
+          <span class="badge bg-success pulse-badge d-none d-sm-inline-block font-mono" style="font-size: 0.65rem;">SCADA EN VIVO</span>
+        </div>
+      </div>
+
+      <!-- ESCENARIO DÚO: VENTANA VISUAL + NARRATIVA CONTINUA -->
+      <div class="scrolly-stage-duo">
+
+        <!-- ─── VENTANA VISUAL: COMPONENTES REALES Y RENDERS 3D ─── -->
+        <div class="scrolly-visual-window">
+          <div class="stage-window-frame">
+            <div class="stage-window-topbar">
+              <div class="window-dots">
+                <span class="dot-red"></span>
+                <span class="dot-yellow"></span>
+                <span class="dot-green"></span>
+              </div>
+              <span class="window-title-text" id="windowTitleText">
+                <i class="bi bi-cpu text-info"></i> Centro de Mando Circular • ESP32 GC9A01
+              </span>
+              <span class="badge bg-dark border border-secondary text-light font-mono" style="font-size: 0.65rem;">
+                UTC-6 Chihuahua
+              </span>
+            </div>
+
+            <div class="stage-window-body">
+
+              <!-- FASE 1: CENTRO DE MANDO CIRCULAR GC9A01 (Render 3D Ensamblado Real) -->
+              <div class="visual-phase-item active" data-phase="0">
+                <div class="hw-render-card">
+                  <div class="text-center mb-2">
+                    <span class="badge bg-info text-dark font-mono" style="font-size: 0.70rem;">ESP32-WROOM-32 • GC9A01 240x240 IPS</span>
+                  </div>
+                  <img src="assets/renders/preview_centro_mando_assembled_transparent.png" alt="Centro de Mando Circular Industrial GC9A01" class="hw-render-img-contain">
+                  <div class="d-flex justify-content-between align-items-center w-100 mt-2 px-2 font-mono small text-muted" style="font-size: 0.70rem;">
+                    <span><i class="bi bi-shield-check text-success me-1"></i>Buffer NVS 64 eventos</span>
+                    <span class="text-info"><i class="bi bi-arrow-repeat me-1"></i>Encoder Rotativo Industrial</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 2: NODO SATÉLITE ESP32-C3 + WS2815 + OLED -->
+              <div class="visual-phase-item" data-phase="1">
+                <div class="hw-render-card">
+                  <div class="d-flex justify-content-between align-items-center w-100 mb-1 px-2 font-mono" style="font-size: 0.70rem;">
+                    <span class="badge bg-warning text-dark">ESP32-C3 SUPERMINI</span>
+                    <span class="text-success">OLED SSD1306 0.42" I2C</span>
+                  </div>
+                  
+                  <!-- OLED Simulador en Escenario -->
+                  <div class="stage-oled-box w-100 mb-2 text-center">
+                    <div class="d-flex justify-content-between text-muted" style="font-size: 0.65rem;">
+                      <span>SCADA ANDON</span>
+                      <span>GRUAS AREA 10</span>
+                    </div>
+                    <div class="stage-oled-title text-danger my-1">! PARO GRUA 10C !</div>
+                    <div class="font-mono text-white small">FALLA: LEVA ROTA</div>
+                    <div class="font-mono text-warning mt-1" style="font-size: 0.85rem;">00:04:12</div>
+                  </div>
+
+                  <!-- Tira WS2815 Dinámica de 12 LEDs Virtuales -->
+                  <div class="stage-led-strip w-100 mb-2">
+                    <div class="stage-led-nodes">
+                      <div class="led-dot lit-red"></div>
+                      <div class="led-dot lit-red"></div>
+                      <div class="led-dot lit-red"></div>
+                      <div class="led-dot lit-red"></div>
+                      <div class="led-dot lit-red"></div>
+                      <div class="led-dot lit-red"></div>
+                      <div class="led-dot lit-red"></div>
+                      <div class="led-dot lit-red"></div>
+                      <div class="led-dot"></div>
+                      <div class="led-dot"></div>
+                      <div class="led-dot"></div>
+                      <div class="led-dot"></div>
+                    </div>
+                  </div>
+
+                  <img src="assets/renders/preview_nodo_c3_assembled_transparent.png" alt="Nodo Satélite C3" style="max-height: 140px; object-fit: contain;">
+                </div>
+              </div>
+
+              <!-- FASE 3: MOCKUP INTERACTIVO DE WHATSAPP SCADA BOT -->
+              <div class="visual-phase-item" data-phase="2">
+                <div class="wa-mockup-phone">
+                  <div class="wa-top-bar">
+                    <div class="wa-bot-avatar"><i class="bi bi-robot"></i></div>
+                    <div class="flex-grow-1">
+                      <div class="wa-bot-name">SCADA Operations Bot</div>
+                      <div class="wa-bot-status">en línea • Escalamiento Automático</div>
+                    </div>
+                    <i class="bi bi-three-dots-vertical text-muted"></i>
+                  </div>
+                  <div class="wa-chat-canvas">
+                    <!-- Burbuja de Alerta -->
+                    <div class="wa-bubble-alert">
+                      <div class="fw-bold text-danger mb-1">🚨 *PARO DE GRÚA REGISTRADO*</div>
+                      <div>📍 <strong>Ubicación:</strong> Nave Norte • Grúa 10C</div>
+                      <div>⚠️ <strong>Motivo:</strong> Se rompió la leva de corte</div>
+                      <div>⏱️ <strong>Hora:</strong> 11:42:15 UTC-6 (Chihuahua)</div>
+                      <div>👤 <strong>Operador:</strong> Turno A (Día)</div>
+                      
+                      <div class="wa-btn-group">
+                        <div class="wa-action-btn" id="wa-btn-take">
+                          <i class="bi bi-check2-circle me-1"></i> ✅ Tomar Falla (Acuse Técnico)
+                        </div>
+                        <div class="wa-action-btn" id="wa-btn-resolve">
+                          <i class="bi bi-tools me-1"></i> 🔧 Marcar Falla Resuelta
+                        </div>
+                      </div>
+                      <div class="wa-time-stamp">
+                        <span>11:42</span>
+                        <i class="bi bi-check2-all wa-check-double"></i>
+                      </div>
+                    </div>
+
+                    <!-- Burbuja de Acuse Técnico -->
+                    <div class="wa-bubble-ack" id="wa-live-ack" style="display: none;">
+                      <div>✅ <strong>Acuse Recibido:</strong> Técnico Juan Pérez en camino a Nave Norte. Cronómetro de atención detenido a los 48 segundos.</div>
+                      <div class="wa-time-stamp">
+                        <span>11:43</span>
+                        <i class="bi bi-check2-all wa-check-double"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 4: GEMELO DIGITAL ISA-101 2.5D (PISTAS DE RODADURA) -->
+              <div class="visual-phase-item" data-phase="3">
+                <div class="p-2 p-sm-3 w-100 d-flex flex-column gap-2" style="height: 100%;">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="badge bg-info-subtle text-info border border-info font-mono" style="font-size: 0.65rem;">
+                      <i class="bi bi-diagram-3-fill me-1"></i>GEMELO DIGITAL ISA-101 2.5D
+                    </span>
+                    <span class="font-mono text-success small" style="font-size: 0.68rem;">🟢 RADAR ACTIVO</span>
+                  </div>
+                  
+                  <div class="runway-wrapper my-auto">
+                    <div class="d-flex justify-content-between text-muted font-mono mb-2" style="font-size: 0.70rem;">
+                      <span>VIGA CARRILERA • ÁREA 10 (NAVE NORTE)</span>
+                      <span class="text-danger fw-bold">GRÚA 10C EN PARO</span>
+                    </div>
+                    <div class="runway-rail">
+                      <div class="runway-crane-bridge in-failure" style="left: 45%;">
+                        <span class="badge bg-danger font-mono" style="font-size: 0.65rem;">10C</span>
+                        <div class="small text-danger font-mono" style="font-size: 0.60rem;">FALLA</div>
+                      </div>
+                    </div>
+                    <div class="d-flex justify-content-between font-mono text-muted mt-2" style="font-size: 0.68rem;">
+                      <span>Grúa 10A (Operativa)</span>
+                      <span>Grúa 10B (Operativa)</span>
+                      <span>Grúa 10D (Operativa)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 5: ALMACÉN Y DEDUCCIÓN ATÓMICA DE REFACCIONES -->
+              <div class="visual-phase-item" data-phase="4">
+                <div class="p-2 p-sm-3 w-100 d-flex flex-column gap-2">
+                  <div class="demo-card-real border-info mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <div class="fw-bold text-white fs-6">Levas de Contacto Industrial</div>
+                      <span class="badge bg-success font-mono">Stock: 996 pzas</span>
+                    </div>
+                    <div class="small text-muted font-mono">Código Parte: REF-LEV-01 • Ubicación: Pasillo B-4</div>
+                    <div class="progress my-2" style="height: 6px; background: rgba(255,255,255,0.1);">
+                      <div class="progress-bar bg-success" style="width: 88%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center font-mono small text-secondary">
+                      <span>Costo Unitario: $450.00 MXN</span>
+                      <span class="text-danger">Deducción: -1 pza (OT-10C)</span>
+                    </div>
+                  </div>
+
+                  <div class="p-2 rounded bg-black border border-secondary border-opacity-25 font-mono small text-secondary">
+                    <div class="text-success fw-bold mb-1"><i class="bi bi-shield-lock-fill me-1"></i> Transacción ACID Firestore Ejecutada:</div>
+                    <div>• Grúa: 10C | OT: #2026-10-042</div>
+                    <div>• Centro de Costos: Mantenimiento Nave Norte</div>
+                    <div>• Inventario actualizado en tiempo real sin descuadres.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- FASE 6: AUDITORÍA DE LOS 3 TIEMPOS ANDON & RETORNO DE INVERSIÓN -->
+              <div class="visual-phase-item" data-phase="5">
+                <div class="p-2 p-sm-3 w-100">
+                  <div class="d-flex justify-content-between align-items-center mb-2 font-mono small">
+                    <span class="text-secondary">AUDITORÍA MTTR (11 COLUMNAS)</span>
+                    <span class="badge bg-primary">OEE: 98.4%</span>
+                  </div>
+
+                  <div class="row g-2 mb-3 text-center font-mono">
+                    <div class="col-4">
+                      <div class="p-2 rounded bg-black border border-danger border-opacity-40">
+                        <div class="text-muted" style="font-size: 0.62rem;">T1 REACCIÓN</div>
+                        <div class="text-danger fw-bold fs-6">00:00:48</div>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="p-2 rounded bg-black border border-warning border-opacity-40">
+                        <div class="text-muted" style="font-size: 0.62rem;">T2 REPARACIÓN</div>
+                        <div class="text-warning fw-bold fs-6">00:03:24</div>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="p-2 rounded bg-black border border-success border-opacity-40">
+                        <div class="text-muted" style="font-size: 0.62rem;">T_TOTAL PARO</div>
+                        <div class="text-success fw-bold fs-6">00:04:12</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="p-3 rounded bg-success bg-opacity-10 border border-success border-opacity-30">
+                    <div class="fw-bold text-success font-mono small mb-1"><i class="bi bi-graph-up-arrow me-1"></i> Ahorro Económico Demostrado:</div>
+                    <div class="small text-secondary" style="font-size: 0.78rem;">
+                      Al erradicar el tiempo ciego de respuesta telefónica, la planta recupera <strong>364 horas productivas al año</strong> equivalentes a <strong>$91,000 USD netos</strong>.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── VENTANA NARRATIVA: CALLOUTS CONTINUOS GLASSMORPHISM ─── -->
+        <div class="scrolly-narrative-window">
+
+          <!-- CALLOUT FASE 0 -->
+          <div class="scrolly-callout active-callout" data-callout="0">
+            <div class="callout-phase-tag">FASE 1 • HARDWARE INDUSTRIAL PRIMARIO</div>
+            <h2 class="callout-heading">Centro de Mando Circular con Encoder Rotativo</h2>
+            <p class="callout-body">
+              Diseñado con microcontrolador <strong>ESP32-WROOM-32</strong> y pantalla IPS circular GC9A01 de 240x240 a todo color. El operador selecciona el motivo de falla exacto en menos de 2 segundos mediante un encoder magnético industrial, utilizable con guantes de soldador y en ambientes siderúrgicos severos.
+            </p>
+            <div class="callout-metric-pills">
+              <span class="metric-pill"><i class="bi bi-memory text-info"></i> Buffer NVS 64 eventos offline</span>
+              <span class="metric-pill"><i class="bi bi-shield-check text-success"></i> 0 pérdidas ante caída de Wi-Fi</span>
+              <span class="metric-pill"><i class="bi bi-speedometer text-warning"></i> Selección en &lt; 2 seg</span>
+            </div>
+          </div>
+
+          <!-- CALLOUT FASE 1 -->
+          <div class="scrolly-callout" data-callout="1" style="display: none;">
+            <div class="callout-phase-tag">FASE 2 • SEÑALIZACIÓN EN ESTRUCTURA A 12 METROS</div>
+            <h2 class="callout-heading">Nodo Satélite C3 con Tira LED WS2815 y Pantalla OLED</h2>
+            <p class="callout-body">
+              Instalado directamente en la viga puente de la grúa. Su tira LED direccionable de 12V WS2815 cuenta con <strong>doble línea de datos redundante (BI)</strong>: si un LED se daña por vibración, la señal continúa sin interrumpirse. Llena 12 LEDs proporcionales en 5 minutos y conmuta a estrobo bipolar rojo/blanco ante demoras críticas.
+            </p>
+            <div class="callout-metric-pills">
+              <span class="metric-pill"><i class="bi bi-lightning-charge text-warning"></i> Alimentación 12V Redundante</span>
+              <span class="metric-pill"><i class="bi bi-tv text-info"></i> OLED 0.42" con Diagnóstico</span>
+              <span class="metric-pill"><i class="bi bi-broadcast text-primary"></i> Bus ESP-NOW de Ultra-Baja Latencia</span>
+            </div>
+          </div>
+
+          <!-- CALLOUT FASE 2 -->
+          <div class="scrolly-callout" data-callout="2" style="display: none;">
+            <div class="callout-phase-tag">FASE 3 • COMUNICACIÓN Y ESCALAMIENTO 24/7</div>
+            <h2 class="callout-heading">Despacho Inmediato vía WhatsApp Bot SCADA Pro</h2>
+            <p class="callout-body">
+              Sin radios pesados ni pagers obsoletos. Un webhook asíncrono en <strong>Oracle Cloud & Cloud Functions</strong> notifica en 800 ms al técnico de guardia con los botones interactivos <em>"Tomar Falla"</em> y <em>"Solicitar Refacción"</em>. Si transcurren 5 minutos sin confirmación, escala al Supervisor, y a los 15 minutos a Gerencia de Operaciones.
+            </p>
+            <div class="callout-metric-pills">
+              <span class="metric-pill"><i class="bi bi-stopwatch text-danger"></i> Escalamiento Nivel 2 a los 5 min</span>
+              <span class="metric-pill"><i class="bi bi-smartwatch text-success"></i> Compatible con Wear OS</span>
+              <span class="metric-pill"><i class="bi bi-fingerprint text-info"></i> Trazabilidad por número telefónico</span>
+            </div>
+          </div>
+
+          <!-- CALLOUT FASE 3 -->
+          <div class="scrolly-callout" data-callout="3" style="display: none;">
+            <div class="callout-phase-tag">FASE 4 • SUPERVISIÓN TOPOLÓGICA EN PLANTA</div>
+            <h2 class="callout-heading">Gemelo Digital ISA-101 2.5D en Tiempo Real</h2>
+            <p class="callout-body">
+              Visualización topológica completa de las naves siderúrgicas (Área 10 y Área 20). Permite a jefes de turno y despachadores conocer la posición del carro, el estado de cada polipasto y el radar anti-colisión en un mapa vectorial con código de colores según el estándar internacional de ergonomía ISA-101.
+            </p>
+            <div class="callout-metric-pills">
+              <span class="metric-pill"><i class="bi bi-eye text-info"></i> Interfaz ISA-101 de Alta Ergonomía</span>
+              <span class="metric-pill"><i class="bi bi-diagram-3 text-warning"></i> Multi-Bahía Nave Norte y Sur</span>
+              <span class="metric-pill"><i class="bi bi-radar text-success"></i> Radar Anti-Colisión Activo</span>
+            </div>
+          </div>
+
+          <!-- CALLOUT FASE 4 -->
+          <div class="scrolly-callout" data-callout="4" style="display: none;">
+            <div class="callout-phase-tag">FASE 5 • INTEGRACIÓN TRANSACCIONAL</div>
+            <h2 class="callout-heading">Deducción Atómica de Refacciones en Almacén</h2>
+            <p class="callout-body">
+              Cuando el electromecánico reporta la refacción empleada (levas, baleros, contactores, cables de acero), una transacción ACID en <strong>Firestore</strong> descuenta el stock de forma atómica, valida el inventario crítico y carga el costo al centro de costos específico de la grúa intervenida.
+            </p>
+            <div class="callout-metric-pills">
+              <span class="metric-pill"><i class="bi bi-box-seam text-primary"></i> Stock Sincronizado en Vivo</span>
+              <span class="metric-pill"><i class="bi bi-cash-stack text-success"></i> Costeo por Grúa y Jornada</span>
+              <span class="metric-pill"><i class="bi bi-bell text-warning"></i> Alerta de Reorden Automática</span>
+            </div>
+          </div>
+
+          <!-- CALLOUT FASE 5 -->
+          <div class="scrolly-callout" data-callout="5" style="display: none;">
+            <div class="callout-phase-tag">FASE 6 • RETORNO DE INVERSIÓN (ROI)</div>
+            <h2 class="callout-heading">Auditoría de los 3 Tiempos Andon y Cálculo de ROI</h2>
+            <p class="callout-body">
+              Se desglosa matemáticamente la anatomía del paro: <strong>T1 (Reacción: aviso a llegada)</strong>, <strong>T2 (Reparación: intervención técnica)</strong> y <strong>T_Total</strong>. La gerencia descubre que el 65% de la pérdida no estaba en la avería, sino en los minutos ciegos en que nadie sabía que la grúa estaba detenida.
+            </p>
+            <div class="callout-metric-pills">
+              <span class="metric-pill"><i class="bi bi-clock-history text-danger"></i> MTTR y MTBF Medido al Segundo</span>
+              <span class="metric-pill"><i class="bi bi-file-earmark-spreadsheet text-success"></i> Exportación CSV / Excel 11 Cols</span>
+              <span class="metric-pill"><i class="bi bi-piggy-bank text-warning"></i> Retorno de Inversión en &lt; 60 Días</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECCIÓN DEMO INTERACTIVA EN VIVO (TABLERO ANDON REAL)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section id="demo-interactiva" class="py-5">
+    <div class="container py-4">
+      <div class="text-center max-w-700 mx-auto mb-4" data-reveal>
+        <span class="badge-scada-pro mb-2">EXPERIENCIA EN TIEMPO REAL</span>
+        <h2 class="font-heading fw-bold fs-1 mt-2">Tablero Andon Industrial Interactivo</h2>
+        <p class="text-secondary apple-scrub-text">Presione los botones abajo para experimentar cómo reacciona el sistema con sonido de relé, tiras LED dinámicas y mensajes de WhatsApp en tiempo real.</p>
+      </div>
+
+      <!-- SIMULADOR VISUAL EN VIVO -->
+      <div class="sim-board p-4 mb-4" data-reveal>
+        <div class="sim-header rounded mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center gap-3">
+            <span class="spinner-grow spinner-grow-sm text-info" role="status"></span>
+            <span class="font-mono text-info fw-bold">SCADA ANDON PRO • NAVE SUR (ÁREA 30)</span>
+          </div>
+          <div class="d-flex align-items-center gap-3 font-mono small text-secondary">
+            <span>DISPONIBILIDAD OEE: <strong class="text-success" id="sim-oee">98.4%</strong></span>
+            <span>JORNADA: <strong class="text-warning">Jornada A (Día)</strong></span>
+          </div>
+        </div>
+
+        <!-- TOPOLOGÍA DIGITAL TWIN REAL (PISTAS DE RODADURA ISA-101 2.5D) -->
+        <div class="p-3 mb-4 rounded-3" style="background: rgba(10, 14, 24, 0.95); border: 1px solid rgba(56, 189, 248, 0.25);">
+          <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+            <span class="fw-bold font-mono text-white" style="font-size: 0.82rem;">
+              <i class="bi bi-diagram-3-fill text-info me-2"></i>TOPOLOGÍA DIGITAL TWIN • PISTAS DE RODADURA ISA-101 2.5D
+            </span>
+            <div class="d-flex align-items-center gap-2 font-mono small" style="font-size: 0.72rem;">
+              <span class="text-success"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> Radar Anti-Colisión Activo</span>
+              <span class="badge bg-primary text-white">60 FPS</span>
+            </div>
+          </div>
+
+          <!-- ÁREA 30 • NAVE SUR (CONECTADA DIRECTAMENTE AL SIMULADOR) -->
+          <div class="scada-plant-bay">
+            <div class="scada-plant-bay-header d-flex justify-content-between align-items-center mb-1">
+              <span class="bay-title small text-secondary font-mono"><i class="bi bi-geo-alt-fill text-info me-1"></i> ÁREA 30 • NAVE SUR (ENSAMBLE FINAL & PRUEBAS)</span>
+              <span class="bay-status-badge font-mono" id="bay-badge-30-sim" style="font-size: 0.68rem;">🟢 NORMAL</span>
+            </div>
+            <div class="scada-runway-track-wrap py-2 my-0" id="track-wrap-30-sim">
+              <div class="scada-runway-rail top"></div>
+              <div class="scada-runway-rail bottom"></div>
+              <div class="scada-runway-cranes-lane">
+                <div class="scada-runway-crane-node operational" id="map-crane-30A-sim" title="Grúa 30A • Nodo Interactivo">
+                  <div class="crane-node-endtruck top"></div>
+                  <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                  <div class="crane-node-endtruck bottom"></div>
+                  <div class="crane-node-tag font-mono"><span class="crane-node-id">30A</span></div>
+                </div>
+                <div class="scada-runway-crane-node operational" title="Grúa 30B • Operativa">
+                  <div class="crane-node-endtruck top"></div>
+                  <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                  <div class="crane-node-endtruck bottom"></div>
+                  <div class="crane-node-tag font-mono"><span class="crane-node-id">30B</span></div>
+                </div>
+                <div class="scada-runway-crane-node operational" title="Grúa 30C • Operativa">
+                  <div class="crane-node-endtruck top"></div>
+                  <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                  <div class="crane-node-endtruck bottom"></div>
+                  <div class="crane-node-tag font-mono"><span class="crane-node-id">30C</span></div>
+                </div>
+                <div class="scada-runway-crane-node operational" title="Grúa 30D • Operativa">
+                  <div class="crane-node-endtruck top"></div>
+                  <div class="crane-node-bridge"><div class="crane-node-trolley"><div class="crane-node-beacon"></div></div></div>
+                  <div class="crane-node-endtruck bottom"></div>
+                  <div class="crane-node-tag font-mono"><span class="crane-node-id">30D</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4" id="sim-stations-row">
+          <!-- Grúa 30A (Interactiva) -->
+          <div class="col-md-6 col-lg-3">
+            <div class="station-node state-operational" id="node-30A">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-secondary font-mono">GRÚA 30A</span>
+                <span class="badge bg-success font-mono" id="badge-status-30A">OPERATIVA</span>
+              </div>
+              <div class="font-mono fs-4 fw-bold mb-1 text-success" id="timer-30A">00:00</div>
+              <div class="small text-secondary mb-2" id="info-30A">Operación normal en nave</div>
+              
+              <!-- Barra LED Dinámica WS2815 -->
+              <div class="small text-muted font-mono" style="font-size: 0.7rem;">TIRA LED WS2815 EN GRÚA:</div>
+              <div class="ws2815-strip" id="strip-30A">
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+              </div>
+
+              <!-- Pantalla OLED Simulada -->
+              <div class="p-2 mt-2 rounded bg-black border border-secondary border-opacity-25 font-mono text-center" style="font-size: 0.75rem;">
+                <span class="text-info" id="oled-30A">OLED: GRUA 30A • NORMAL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grúa 30B -->
+          <div class="col-md-6 col-lg-3">
+            <div class="station-node state-operational">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-secondary font-mono">GRÚA 30B</span>
+                <span class="badge bg-success font-mono">OPERATIVA</span>
+              </div>
+              <div class="font-mono fs-4 fw-bold mb-1 text-success">00:00</div>
+              <div class="small text-secondary mb-2">Operación continua</div>
+              <div class="ws2815-strip">
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+              </div>
+              <div class="p-2 mt-2 rounded bg-black border border-secondary border-opacity-25 font-mono text-center text-success" style="font-size: 0.75rem;">
+                OLED: GRUA 30B • NORMAL
+              </div>
+            </div>
+          </div>
+
+          <!-- Grúa 30C -->
+          <div class="col-md-6 col-lg-3">
+            <div class="station-node state-operational">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-secondary font-mono">GRÚA 30C</span>
+                <span class="badge bg-success font-mono">OPERATIVA</span>
+              </div>
+              <div class="font-mono fs-4 fw-bold mb-1 text-success">00:00</div>
+              <div class="small text-secondary mb-2">Operación continua</div>
+              <div class="ws2815-strip">
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+              </div>
+              <div class="p-2 mt-2 rounded bg-black border border-secondary border-opacity-25 font-mono text-center text-success" style="font-size: 0.75rem;">
+                OLED: GRUA 30C • NORMAL
+              </div>
+            </div>
+          </div>
+
+          <!-- Grúa 30D -->
+          <div class="col-md-6 col-lg-3">
+            <div class="station-node state-operational">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-secondary font-mono">GRÚA 30D</span>
+                <span class="badge bg-success font-mono">OPERATIVA</span>
+              </div>
+              <div class="font-mono fs-4 fw-bold mb-1 text-success">00:00</div>
+              <div class="small text-secondary mb-2">Operación continua</div>
+              <div class="ws2815-strip">
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+                <div class="ws2815-led lit-green"></div><div class="ws2815-led lit-green"></div>
+              </div>
+              <div class="p-2 mt-2 rounded bg-black border border-secondary border-opacity-25 font-mono text-center text-success" style="font-size: 0.75rem;">
+                OLED: GRUA 30D • NORMAL
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTONES DE CONTROL DE LA DEMO -->
+        <div class="mt-4 p-3 rounded glass-panel d-flex justify-content-center gap-3 flex-wrap">
+          <button class="btn btn-danger fw-bold" id="btn-sim-fail">
+            <i class="bi bi-exclamation-octagon-fill me-1"></i> 1. Operador Presiona Botón (Reportar Paro)
+          </button>
+          <button class="btn btn-warning fw-bold text-dark" id="btn-sim-take" disabled>
+            <i class="bi bi-hand-index-thumb-fill me-1"></i> 2. Técnico Pulsa "Tomar Falla" (En Camino)
+          </button>
+          <button class="btn btn-success fw-bold" id="btn-sim-resolve" disabled>
+            <i class="bi bi-check-circle-fill me-1"></i> 3. Falla Resuelta en Piso (Liberar Máquina)
+          </button>
+          <button class="btn btn-outline-secondary fw-bold" id="btn-sim-reset">
+            <i class="bi bi-arrow-counterclockwise"></i> Reiniciar Demo
+          </button>
+        </div>
+
+        <!-- LOG DE EVENTOS EN TIEMPO REAL -->
+        <div class="mt-3 p-3 rounded bg-black font-mono small text-secondary" id="sim-console" style="max-height: 120px; overflow-y: auto;">
+          [00:00.000] Sistema SCADA Andon 4.0 inicializado. Red industrial estable. Todas las grúas en estado operativo.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CALCULADORA DE TIEMPO PERDIDO Y RETORNO DE INVERSIÓN (ROI)
+       ═══════════════════════════════════════════════════════════════ -->
+  <section id="calculadora-roi" class="py-5" style="background: radial-gradient(circle at 50% 50%, rgba(14, 18, 27, 0.9) 0%, rgba(7, 9, 14, 1) 100%);">
+    <div class="container py-4">
+      <div class="text-center max-w-700 mx-auto mb-5" data-reveal>
+        <span class="badge-scada-pro mb-2">CALCULADORA DE RETORNO DE INVERSIÓN</span>
+        <h2 class="font-heading fw-bold fs-1 mt-2">Ahora Ponga sus Propios Números</h2>
+        <p class="text-secondary apple-scrub-text">Descubra cuánto dinero y horas productivas pierde su planta al año en tiempos de espera no registrados.</p>
+      </div>
+
+      <div class="calc-box max-w-900 mx-auto" data-reveal>
+        <div class="row g-4 align-items-center">
+          <div class="col-lg-6">
+            <!-- Control 1: Llamados por turno -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <label class="fw-semibold">Llamados de ayuda / paros por turno:</label>
+                <span class="badge bg-info font-mono fs-6" id="calc-calls-val">6 paros</span>
+              </div>
+              <input type="range" class="calc-slider" id="calc-calls" min="1" max="25" step="1" value="6">
+              <div class="d-flex justify-content-between text-muted small font-mono mt-1">
+                <span>1</span><span>12</span><span>25</span>
+              </div>
+            </div>
+
+            <!-- Control 2: Minutos de espera -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <label class="fw-semibold">Minutos de espera hasta que acude el técnico:</label>
+                <span class="badge bg-warning text-dark font-mono fs-6" id="calc-wait-val">14 min</span>
+              </div>
+              <input type="range" class="calc-slider" id="calc-wait" min="3" max="45" step="1" value="14">
+              <div class="d-flex justify-content-between text-muted small font-mono mt-1">
+                <span>3 min</span><span>24 min</span><span>45 min</span>
+              </div>
+            </div>
+
+            <!-- Control 3: Costo por hora -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <label class="fw-semibold">Costo estimado de 1 hora de paro de línea:</label>
+                <span class="badge bg-danger font-mono fs-6" id="calc-cost-val">$250 USD / h</span>
+              </div>
+              <input type="range" class="calc-slider" id="calc-cost" min="50" max="1500" step="50" value="250">
+              <div class="d-flex justify-content-between text-muted small font-mono mt-1">
+                <span>$50</span><span>$750</span><span>$1,500 USD</span>
+              </div>
+            </div>
+
+            <!-- Control 4: Turnos diarios -->
+            <div class="mb-2">
+              <div class="d-flex justify-content-between mb-2">
+                <label class="fw-semibold">Turnos operados por día:</label>
+                <span class="badge bg-secondary font-mono fs-6" id="calc-shifts-val">2 turnos (16h)</span>
+              </div>
+              <input type="range" class="calc-slider" id="calc-shifts" min="1" max="3" step="1" value="2">
+            </div>
+          </div>
+
+          <!-- RESULTADOS DE LA CALCULADORA -->
+          <div class="col-lg-6 ps-lg-4 text-center text-lg-start">
+            <div class="p-4 rounded-4 bg-black border border-secondary border-opacity-25 h-100 d-flex flex-column justify-content-center">
+              <span class="text-secondary small font-mono uppercase">TIEMPO MUERTO OCULTO ANUAL</span>
+              <div class="metric-number-hero my-2 font-mono text-danger" id="calc-total-hours">728</div>
+              <div class="text-secondary small mb-3">Horas al año que su personal pasa esperando asistencia técnica</div>
+              
+              <hr class="border-secondary border-opacity-25">
+
+              <span class="text-secondary small font-mono uppercase">IMPACTO ECONÓMICO EN DOWNTIME</span>
+              <div class="fs-2 fw-bold text-danger font-mono mb-3" id="calc-total-money">$182,000 USD</div>
+              
+              <div class="p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25 text-start">
+                <div class="fw-bold text-success mb-1"><i class="bi bi-piggy-bank-fill me-1"></i> Ahorro Inmediato Proyectado:</div>
+                <div class="small text-secondary" id="calc-savings-text">
+                  Reduciendo el tiempo de respuesta a la mitad con SCADA Andon 4.0, su planta recupera <strong>364 horas</strong> equivalentes a <strong>$91,000 USD netos al año</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECCIÓN HARDWARE PROPIETARIO CON RENDERS 3D REALES
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="py-5" id="hardware-sec">
+    <div class="container py-4">
+      <div class="text-center max-w-700 mx-auto mb-5" data-reveal>
+        <span class="badge-scada-pro mb-2">INGENIERÍA Y HARDWARE INDUSTRIAL</span>
+        <h2 class="font-heading fw-bold fs-1 mt-2">Diseñado para Soportar el Piso de Planta</h2>
+        <p class="text-secondary apple-scrub-text">Sin calcomanías baratas ni timbres de casa. Carcasas industriales con grado de impacto, microcontroladores dedicados y pantallas de alta visibilidad.</p>
+      </div>
+
+      <div class="row g-4">
+        <!-- Hardware 1: Centro de Mando GC9A01 -->
+        <div class="col-lg-6" data-reveal>
+          <div class="glass-panel p-4 h-100">
+            <div class="hw-card-img mb-4 text-center">
+              <img src="assets/renders/preview_centro_mando_exploded_transparent.png" alt="Centro de Mando Industrial GC9A01" loading="lazy" class="img-fluid rounded-3">
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-info text-dark font-mono">NODO PRIMARIO</span>
+              <span class="text-muted small font-mono">ESP32 • LCD IPS 240x240</span>
+            </div>
+            <h3 class="fw-bold fs-4">Centro de Mando Circular con Encoder Rotativo</h3>
+            <p class="text-secondary small mb-3">
+              Equipado con pantalla circular IPS GC9A01 de 240x240 a todo color y un encoder rotativo industrial con botón central. Permite seleccionar el motivo exacto de falla en menos de 2 segundos desde un catálogo dinámico sincronizado en la nube.
+            </p>
+            <ul class="list-unstyled small text-secondary d-flex flex-column gap-2 mb-0 font-mono">
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Buffer Offline de Resiliencia:</strong> Si el Wi-Fi parpadea, encola las pulsaciones y las envía al reconectar sin perder eventos.</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Carcasa de Impacto:</strong> Diseño impreso con tolerancias mecánicas para fijación en perfiles Bosch Rexroth o lámina.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Hardware 2: Nodo Satélite ESP32-C3 -->
+        <div class="col-lg-6" data-reveal>
+          <div class="glass-panel p-4 h-100">
+            <div class="hw-card-img mb-4 text-center">
+              <img src="assets/renders/preview_nodo_c3_exploded_transparent.png" alt="Nodo Satélite ESP32-C3" loading="lazy" class="img-fluid rounded-3">
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-warning text-dark font-mono">NODO SATÉLITE</span>
+              <span class="text-muted small font-mono">ESP32-C3 • WS2815 12V + OLED</span>
+            </div>
+            <h3 class="fw-bold fs-4">Nodo Satélite con Tira LED WS2815 y Pantalla OLED</h3>
+            <p class="text-secondary small mb-3">
+              Instalado directamente en la estructura de la grúa o estación de ensamble. Su tira LED direccionable de 12V cuenta con doble línea de datos redundante: si un LED falla, la tira continúa operando sin apagarse.
+            </p>
+            <ul class="list-unstyled small text-secondary d-flex flex-column gap-2 mb-0 font-mono">
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Barra de Tiempo Dinámica:</strong> Los LEDs se van llenando de 1 a 12 según los minutos de espera (0 a 5m).</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>Estrobo de Emergencia &gt;5m:</strong> Destellos bipolares alternados rojo/blanco para paros que superan el límite de atención.</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i> <strong>OLED Integrado:</strong> Muestra cronómetro digital y mensaje de diagnóstico minuto a minuto.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       BENTO GRID DE INGENIERÍA INDUSTRIAL 4.0
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="py-5" style="background: rgba(14, 18, 27, 0.4); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div class="container py-4">
+      <div class="text-center max-w-700 mx-auto mb-5" data-reveal>
+        <span class="badge-scada-pro mb-2">ARQUITECTURA SISTÉMICA</span>
+        <h2 class="font-heading fw-bold fs-1 mt-2">Bento Grid de Alta Ingeniería Industrial</h2>
+        <p class="text-secondary apple-scrub-text">Capas tecnológicas diseñadas para operar sin interrupciones bajo condiciones extremas de planta.</p>
+      </div>
+
+      <div class="bento-grid" data-reveal>
+        <!-- Card 1: ESP-NOW -->
+        <div class="bento-card bento-span-4">
+          <div class="bento-icon text-cyan" style="color: #38bdf8;"><i class="bi bi-broadcast"></i></div>
+          <div>
+            <h3 class="bento-title">Bus Híbrido ESP-NOW</h3>
+            <p class="bento-desc">Comunicación inalámbrica peer-to-peer de 2.4 GHz sin dependencia de routers comerciales. Latencia de transmisión inferior a 4 ms.</p>
+          </div>
+          <div class="bento-footer-stat"><i class="bi bi-check2-circle"></i> Protocolo Cero Latencia</div>
+        </div>
+
+        <!-- Card 2: NVS Buffer -->
+        <div class="bento-card bento-span-4">
+          <div class="bento-icon text-warning"><i class="bi bi-memory"></i></div>
+          <div>
+            <h3 class="bento-title">Resiliencia NVS</h3>
+            <p class="bento-desc">Cola circular de 64 eventos guardada en memoria flash no volátil. Cero pérdida de eventos ante cortes de energía o caídas de red.</p>
+          </div>
+          <div class="bento-footer-stat"><i class="bi bi-shield-check"></i> Cero Pérdidas de Eventos</div>
+        </div>
+
+        <!-- Card 3: WS2815 Backup Data -->
+        <div class="bento-card bento-span-4">
+          <div class="bento-icon text-danger"><i class="bi bi-lightning-charge"></i></div>
+          <div>
+            <h3 class="bento-title">Línea Redundante BI</h3>
+            <p class="bento-desc">Tira WS2815 a 12V con doble línea de datos. Si un micro-LED recibe un impacto físico, la señal fluye por el bus alterno.</p>
+          </div>
+          <div class="bento-footer-stat"><i class="bi bi-cpu"></i> Tolerancia a Fallos de Hardware</div>
+        </div>
+
+        <!-- Card 4: MTTR Audit Table -->
+        <div class="bento-card bento-span-6">
+          <div class="bento-icon text-primary"><i class="bi bi-table"></i></div>
+          <div>
+            <h3 class="bento-title">Auditoría MTTR de 11 Columnas</h3>
+            <p class="bento-desc">Registro forense con sello de tiempo UTC-6 Chihuahua, operador, electromecánico, refacciones empleadas, costos y desglose de los 3 tiempos Andon.</p>
+          </div>
+          <div class="bento-footer-stat"><i class="bi bi-clock-history"></i> ISO 9001 / IATF 16949 Ready</div>
+        </div>
+
+        <!-- Card 5: Smart TV 4K Native -->
+        <div class="bento-card bento-span-6">
+          <div class="bento-icon text-success"><i class="bi bi-display"></i></div>
+          <div>
+            <h3 class="bento-title">Andon TV 4K sin PC Dedicada</h3>
+            <p class="bento-desc">Abre de forma nativa en el navegador WebOS/Tizen de cualquier Smart TV de 65"-85" en nave. Incluye megafonía por voz TTS y rotación de cámaras.</p>
+          </div>
+          <div class="bento-footer-stat"><i class="bi bi-tv"></i> Despliegue en 60 Segundos</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       TABLA COMPARATIVA: RADIOS VS SISTEMA ANDON
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="py-5" style="background: rgba(14, 18, 27, 0.6); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div class="container py-4">
+      <div class="text-center max-w-700 mx-auto mb-5" data-reveal>
+        <span class="badge-scada-pro mb-2">COMPARATIVA TÉCNICA SIN FILTROS</span>
+        <h2 class="font-heading fw-bold fs-1 mt-2">¿Por Qué los Sistemas Tradicionales son Obsoletos?</h2>
+        <p class="text-secondary apple-scrub-text">Comparativa directa contra radios de dos vías, torretas fijas y sistemas propietarios tipo MMCall.</p>
+      </div>
+
+      <div class="table-responsive" data-reveal>
+        <table class="cmp-table">
+          <thead>
+            <tr>
+              <th style="width: 25%;">Característica</th>
+              <th style="width: 25%;">Radios de 2 Vías (Walkie-Talkie)</th>
+              <th style="width: 25%;">Sistemas Tipo MMCall (Pagers)</th>
+              <th class="cmp-hero-col text-info" style="width: 25%;">SCADA ANDON PRO 4.0</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Dispositivo Receptor</strong></td>
+              <td>Radio portátil ruidoso y pesado</td>
+              <td>Reloj localizador monocromático ($200 USD c/u)</td>
+              <td class="cmp-hero-col text-info fw-bold"><i class="bi bi-check-circle-fill text-success me-1"></i> WhatsApp Bot + Smartphone / Wear OS nativo</td>
+            </tr>
+            <tr>
+              <td><strong>Confirmación 1-Toque de Asistencia</strong></td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> No existe</td>
+              <td><i class="bi bi-dash-circle text-warning me-1"></i> Requiere botón físico adicional</td>
+              <td class="cmp-hero-col text-info fw-bold"><i class="bi bi-check-circle-fill text-success me-1"></i> Botón digital "Tomar Falla" en celular o web</td>
+            </tr>
+            <tr>
+              <td><strong>Métrica de los 3 Tiempos Andon</strong></td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> Cero registro</td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> Solo mide tiempo total de llamado</td>
+              <td class="cmp-hero-col text-info fw-bold"><i class="bi bi-check-circle-fill text-success me-1"></i> T. Reacción + T. Reparación + T. Total</td>
+            </tr>
+            <tr>
+              <td><strong>Escalamiento Multinivel Automático</strong></td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> Humano manual</td>
+              <td><i class="bi bi-dash-circle text-warning me-1"></i> Requiere PC local encendida con licencia</td>
+              <td class="cmp-hero-col text-info fw-bold"><i class="bi bi-check-circle-fill text-success me-1"></i> Servidor Nube: N2 a Supervisor (>5m), N3 a Gerente (>15m)</td>
+            </tr>
+            <tr>
+              <td><strong>Señalización Lumínica en Piso</strong></td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> Ninguna</td>
+              <td>Torreta fija de 3 colores sin cronómetro</td>
+              <td class="cmp-hero-col text-info fw-bold"><i class="bi bi-check-circle-fill text-success me-1"></i> Barra LED interactiva que se llena en 5m + Estrobo</td>
+            </tr>
+            <tr>
+              <td><strong>Visualización en Smart TV</strong></td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> Incompatible</td>
+              <td>Requiere PC dedicada por TV con Windows</td>
+              <td class="cmp-hero-col text-info fw-bold"><i class="bi bi-check-circle-fill text-success me-1"></i> Abre nativo en navegador de cualquier TV de 65"-85"</td>
+            </tr>
+            <tr>
+              <td><strong>Deducción de Refacciones / Almacén</strong></td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> Incompatible</td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> No integrado</td>
+              <td class="cmp-hero-col text-info fw-bold"><i class="bi bi-check-circle-fill text-success me-1"></i> Deduce partes y calcula costo de refacciones por grúa</td>
+            </tr>
+            <tr>
+              <td><strong>Entrega de Guardia Automática</strong></td>
+              <td><i class="bi bi-x-circle text-danger me-1"></i> Bitácora en papel</td>
+              <td>Exportación manual a archivo CSV</td>
+              <td class="cmp-hero-col text-info fw-bold"><i class="bi bi-check-circle-fill text-success me-1"></i> Shift Handover automático a WhatsApp 20 min antes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       LLAMADO A LA ACCIÓN (FOOTER EXECUTIVE)
+       ═══════════════════════════════════════════════════════════════ -->
+  <footer class="py-5 text-center">
+    <div class="container py-4">
+      <h2 class="font-heading fw-bold fs-1 mb-3">Lleve su Planta al Estándar Industrial 4.0</h2>
+      <p class="text-secondary max-w-700 mx-auto mb-4 apple-scrub-text">
+        Diseñado, desarrollado y probado en piso de planta para erradicar los tiempos muertos invisibles y maximizar el OEE de su flota de grúas y líneas de ensamble.
+      </p>
+      
+      <div class="d-flex justify-content-center gap-3 flex-wrap mb-5">
+        <a href="index.html" class="btn btn-primary btn-lg px-4 py-3 fw-bold">
+          <i class="bi bi-speedometer2 me-2"></i> Entrar al Monitor SCADA Principal
+        </a>
+        <a href="hardware-simulator.html" class="btn btn-outline-info btn-lg px-4 py-3 fw-bold">
+          <i class="bi bi-cpu me-2"></i> Abrir Simulador de Hardware
+        </a>
+        <a href="AnalisisDetallado.html" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold">
+          <i class="bi bi-graph-up me-2"></i> Ver Analítica MTTR & OEE
+        </a>
+      </div>
+
+      <div class="text-muted small font-mono">
+        &copy; 2026 OPERATIONS SCADA & ANDON SYSTEMS • Todos los derechos reservados • Desarrollado por Cesar + Antigravity + Hermes
+      </div>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       QUICK DOCK FLOTANTE MÓVIL (BOTTOM NAVIGATION)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="mobile-quick-dock">
+    <a href="#hero" class="dock-btn active">
+      <i class="bi bi-house-door-fill"></i>
+      <span>Inicio</span>
+    </a>
+    <a href="#scrollyStage" class="dock-btn">
+      <i class="bi bi-play-circle-fill"></i>
+      <span>Keynote</span>
+    </a>
+    <a href="#demo-interactiva" class="dock-btn">
+      <i class="bi bi-broadcast"></i>
+      <span>Simulador</span>
+    </a>
+    <a href="#hardware-sec" class="dock-btn">
+      <i class="bi bi-cpu-fill"></i>
+      <span>Hardware</span>
+    </a>
+    <a href="#calculadora-roi" class="dock-btn">
+      <i class="bi bi-calculator-fill"></i>
+      <span>ROI</span>
+    </a>
+    <a href="index.html" class="dock-btn">
+      <i class="bi bi-speedometer2"></i>
+      <span>SCADA</span>
+    </a>
+  </div>
+
+  <!-- SCRIPTS DEL SISTEMA SCADA ANDON 4.0 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="site-nav.js"></script>
+  <script src="sistema-andon.js?v=5.0"></script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Monitor Móvil</title>
+    <script src="security-shield.js?v=4.8"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css?v=4.0">
+    <link rel="stylesheet" href="mobile.css?v=3.0">
+    <link rel="stylesheet" href="scada-pro.css?v=2.1">
+    <script src="theme-init.js?v=4.8"></script>
+    <script src="mobile-nav.js?v=4.8" defer></script>
+</head>
+<body>
+    <!-- Barra de navegación móvil fija persistente (cero parpadeo al cambiar de pestaña) -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav d-lg-none" aria-label="Navegación móvil">
+      <div class="mobile-bottom-nav-inner">
+        <a href="index.html" data-id="home" class="mobile-nav-item"><i class="bi bi-house-door-fill"></i><span>Inicio</span></a>
+        <a href="operations.html" data-id="ops" class="mobile-nav-item" data-module="operations"><i class="bi bi-gear-wide-connected"></i><span>Operaciones</span></a>
+        <a href="cranes.html" data-id="cranes" class="mobile-nav-item" data-module="cranes">
+          <svg class="nav-svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7l2.5-4.5L11 7"/><path d="M8.5 2.5L2 7"/><path d="M8.5 2.5L16 7"/><path d="M1.5 7h21" stroke-width="1.8"/><rect x="2" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/><rect x="11" y="8" width="2" height="2.2" rx="0.3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="0.8"/><path d="M7 7v13.5"/><path d="M10 7v13.5"/><path d="M7 10.5h3"/><path d="M7 14h3"/><path d="M7 17.5h3"/><path d="M5.5 20.5h6" stroke-width="1.8"/><path d="M17.5 7v7" stroke-dasharray="1.5 1"/><path d="M16.5 14h2" stroke-width="1.8"/><path d="M17.5 14.8c0 0.8 0.8 0.8 0.8 0.2"/><rect x="14.5" y="16.5" width="6" height="2" rx="0.4" fill="currentColor" stroke="none"/></svg>
+          <span>Grúas</span>
+        </a>
+        <a href="warehouse.html" data-id="warehouse" class="mobile-nav-item" data-module="warehouse"><i class="bi bi-box-seam"></i><span>Almacén</span></a>
+        <a href="mobile.html" data-id="more" class="mobile-nav-item active"><i class="bi bi-grid"></i><span>Más</span></a>
+      </div>
+    </nav>
+
+    <!-- ═══ PANTALLA DE CARGA ═══ -->
+    <div id="page-loader">
+      <div class="pl-brand">
+        <div class="pl-brand-icon">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        </div>
+        <div class="pl-brand-text">
+          <span class="pl-brand-name">Monitor Móvil</span>
+          <span class="pl-brand-sub">Industrial SCADA</span>
+        </div>
+      </div>
+      <div class="pl-bar-wrap"><div class="pl-bar"></div></div>
+      <div class="pl-dots">
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <div class="pl-dot"></div>
+        <span class="pl-status">Cargando sistema...</span>
+      </div>
+    </div>
+    <!-- ══════════════════════════ -->
+
+    <div class="mobile-hub">
+        <div class="mobile-hub-hero">
+            <h1><i class="bi bi-grid-fill" style="color: #818cf8;"></i> Más Opciones</h1>
+            <p>Acceso directo a todos los módulos y herramientas del sistema</p>
+        </div>
+
+        <div class="mobile-stat-grid">
+            <div class="mobile-stat-card danger" data-module="cranes">
+                <div class="value" id="mobileActiveCranes">—</div>
+                <div class="label">Fallas grúas</div>
+            </div>
+            <div class="mobile-stat-card danger" data-module="operations">
+                <div class="value" id="mobileActiveOps">—</div>
+                <div class="label">Fallas operaciones</div>
+            </div>
+            <div class="mobile-stat-card success">
+                <div class="value" id="mobileResolvedToday">—</div>
+                <div class="label">Resueltas hoy</div>
+            </div>
+            <div class="mobile-stat-card">
+                <div class="value" id="mobilePendingRefactions">—</div>
+                <div class="label">Refacciones pend.</div>
+            </div>
+        </div>
+
+        <div class="mobile-tile-grid">
+            <a href="guia.html" class="mobile-tile tile-tour" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 18px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4); text-decoration: none;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #38bdf8; flex-shrink: 0;">
+                    <i class="bi bi-compass"></i>
+                </div>
+                <div class="text-start">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">Guía Cinemática Scrollytelling</div>
+                    <div style="font-size: 0.72rem; color: #86868b;">Explora el funcionamiento mientras te desplazas por la planta</div>
+                </div>
+            </a>
+            <a href="hardware-simulator.html" class="mobile-tile tile-sim" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 18px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4); text-decoration: none;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #38bdf8; flex-shrink: 0;">
+                    <i class="bi bi-cpu"></i>
+                </div>
+                <div class="text-start">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">Emulador de Hardware (ESP32 / SCADA)</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8;">Prueba el Centro de Mando GC9A01, botón 16mm y nodo C3 en tu PC</div>
+                </div>
+            </a>
+            <a href="andon-tv.html" target="_blank" class="mobile-tile tile-andon-tv" style="grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(13, 17, 23, 0.85) 100%); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 18px; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4); text-decoration: none;">
+                <div style="width: 44px; height: 44px; border-radius: 12px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #f87171; flex-shrink: 0;">
+                    <i class="bi bi-tv-fill"></i>
+                </div>
+                <div class="text-start">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: #ffffff;">Andon TV 4K (Mission Control)</div>
+                    <div style="font-size: 0.72rem; color: #94a3b8;">Pantalla gigante para Smart TV de nave con alarmas sonoras y telemetría en vivo</div>
+                </div>
+            </a>
+            <a href="index.html" class="mobile-tile tile-dashboard" style="grid-column: 1 / -1; background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);">
+                <i class="bi bi-speedometer2" style="font-size: 2.1rem; color: #818cf8; filter: drop-shadow(0 2px 10px rgba(129, 140, 248, 0.5));"></i>
+                <span style="font-size: 1.02rem; font-weight: 700; color: #fff;">Monitor de Operaciones (Principal)</span>
+            </a>
+            <a href="cranes.html" class="mobile-tile tile-cranes" data-module="cranes">
+                <span class="tile-crane-icon-wrap">
+                    <svg class="tile-crane-svg" viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 7l2.5-4.5L11 7"/>
+                      <path d="M8.5 2.5L2 7"/>
+                      <path d="M8.5 2.5L16 7"/>
+                      <path d="M1.5 7h21" stroke-width="1.8"/>
+                      <rect x="2" y="7" width="3" height="3" rx="0.5" fill="currentColor" stroke="none"/>
+                      <rect x="11" y="8" width="2" height="2.2" rx="0.3" fill="currentColor" opacity="0.4" stroke="currentColor" stroke-width="0.8"/>
+                      <path d="M7 7v13.5"/>
+                      <path d="M10 7v13.5"/>
+                      <path d="M7 10.5h3"/>
+                      <path d="M7 14h3"/>
+                      <path d="M7 17.5h3"/>
+                      <path d="M5.5 20.5h6" stroke-width="1.8"/>
+                      <path d="M17.5 7v7" stroke-dasharray="1.5 1"/>
+                      <path d="M16.5 14h2" stroke-width="1.8"/>
+                      <path d="M17.5 14.8c0 0.8 0.8 0.8 0.8 0.2"/>
+                      <rect x="14.5" y="16.5" width="6" height="2" rx="0.4" fill="currentColor" stroke="none"/>
+                    </svg>
+                </span>
+                <span>Grúas</span>
+            </a>
+            <a href="warehouse.html" class="mobile-tile tile-wh" data-module="warehouse">
+                <i class="bi bi-box-seam" style="font-size: 2rem; color: #00e5ff;"></i>
+                <span>Almacén Pick-to-Light</span>
+            </a>
+            <a href="inventory.html" class="mobile-tile tile-inv">
+                <i class="bi bi-boxes"></i>
+                <span>Inventario</span>
+            </a>
+            <a href="operations.html" class="mobile-tile tile-ops" data-module="operations">
+                <i class="bi bi-gear-wide-connected"></i>
+                <span>Operaciones</span>
+            </a>
+            <a href="AnalisisDetallado.html" class="mobile-tile tile-analysis">
+                <i class="bi bi-graph-up"></i>
+                <span>Análisis</span>
+            </a>
+            <a href="admin.html" class="mobile-tile tile-admin">
+                <i class="bi bi-shield-lock"></i>
+                <span>Administración</span>
+            </a>
+            <a href="admin.html#technicians-mgmt" class="mobile-tile tile-tech">
+                <i class="bi bi-people"></i>
+                <span>Técnicos</span>
+            </a>
+            <button type="button" class="mobile-tile tile-tech-alerts" onclick="openTechAlertsModal()" style="border:none;background:rgba(239, 68, 68, 0.08);border:1px solid rgba(239, 68, 68, 0.3);text-align:center;cursor:pointer;padding:16px 12px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+                <i class="bi bi-bell-fill" style="font-size: 2rem; color: #ef4444;"></i>
+                <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">Mi Alerta / Vibración</span>
+                <span id="techAlertsBadge" style="font-size:0.68rem;color:#f87171;font-weight:600;">Configurar</span>
+            </button>
+            <button type="button" class="mobile-tile" onclick="if(window.openShiftHandoverModal) window.openShiftHandoverModal()" style="border:none;background:rgba(56, 189, 248, 0.08);border:1px solid rgba(56, 189, 248, 0.3);text-align:center;cursor:pointer;padding:16px 12px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+                <i class="bi bi-clipboard2-check" style="font-size: 2rem; color: #38bdf8;"></i>
+                <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">Entrega de Guardia</span>
+                <span style="font-size:0.68rem;color:#7dd3fc;font-weight:600;">Reporte 12h</span>
+            </button>
+            <button type="button" class="mobile-tile" onclick="if(window.openCommandPalette) window.openCommandPalette()" style="border:none;background:rgba(168, 85, 247, 0.08);border:1px solid rgba(168, 85, 247, 0.3);text-align:center;cursor:pointer;padding:16px 12px;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+                <i class="bi bi-search" style="font-size: 2rem; color: #c084fc;"></i>
+                <span style="font-size: 0.85rem; font-weight: 700; color: #fff;">Búsqueda Rápida</span>
+                <span style="font-size:0.68rem;color:#d8b4fe;font-weight:600;">Ctrl + K</span>
+            </button>
+        </div>
+
+        <a href="index.html" class="mobile-desktop-link">
+            <i class="bi bi-arrow-left"></i> Volver al Monitor de Operaciones
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- PocketBase SCADA Local Engine (Firebase Pausado) -->
+    <script src="pocketbase.umd.js"></script>
+    <script src="scada-config.js?v=4.8"></script>
+    <script src="sha256.js?v=4.8"></script>
+    <script src="pocketbase-adapter.js?v=4.8"></script>
+    <script src="global-config.js?v=4.8"></script>
+    <script src="mobile-stats.js?v=1.0" defer></script>
+    <script src="technician-alerts.js?v=4.8" defer></script>
+    <script src="scada-pro.js?v=4.8" defer></script>
+    <script src="pwa-register.js?v=4.8" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="network-health.js?v=4.8" defer></script>
+    <script src="shift-handover.js?v=4.8" defer></script>
+    <script src="predictive-alerts.js?v=4.8" defer></script>
+    <script src="command-palette.js?v=4.8" defer></script>
+</body>
+</html>

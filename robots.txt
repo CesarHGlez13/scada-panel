@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /admin-technicians-panel.html
+Disallow: /hardware-simulator.html
+Disallow: /firmware/
+Disallow: /api/

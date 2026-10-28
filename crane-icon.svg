@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none">
+  <!-- Cables de tensión superiores -->
+  <line x1="12" y1="5" x2="3.5" y2="10.5" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="12" y1="5" x2="24" y2="10.5" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
+
+  <!-- Cúspide / Torre superior (Apex) -->
+  <polygon points="9,10.5 12,4.5 15,10.5" fill="#f59e0b" stroke="#d97706" stroke-width="0.8" stroke-linejoin="round"/>
+  <line x1="12" y1="4.5" x2="12" y2="10.5" stroke="#d97706" stroke-width="0.8"/>
+
+  <!-- Pluma horizontal principal (Brazo) -->
+  <path d="M2 10.5h27v3.5h-15v1h-4v-1h-8z" fill="#f59e0b" stroke="#d97706" stroke-width="0.8" stroke-linejoin="round"/>
+  
+  <!-- Celosía triangular de la pluma -->
+  <polygon points="15,11 17,13.5 19,11" fill="#fbbf24" opacity="0.6"/>
+  <polygon points="19,11 21,13.5 23,11" fill="#fbbf24" opacity="0.6"/>
+  <polygon points="23,11 25,13.5 27,11" fill="#fbbf24" opacity="0.6"/>
+
+  <!-- Contrapeso (trasero izquierdo gris) -->
+  <rect x="2.5" y="12.5" width="4.5" height="5" rx="1" fill="#64748b" stroke="#475569" stroke-width="0.8"/>
+
+  <!-- Cabina del operador (con ventanal celeste) -->
+  <rect x="14.5" y="12" width="3.5" height="3.5" rx="0.8" fill="#38bdf8" stroke="#0284c7" stroke-width="0.8"/>
+  <line x1="15.5" y1="13.5" x2="17" y2="13.5" stroke="#ffffff" stroke-width="0.6" stroke-linecap="round"/>
+
+  <!-- Torre vertical / Mástil con celosía / orificios -->
+  <rect x="10" y="10.5" width="4.5" height="17" fill="#f59e0b" stroke="#d97706" stroke-width="0.8"/>
+  <circle cx="12.25" cy="14.5" r="1.1" fill="#0f172a"/>
+  <circle cx="12.25" cy="18.5" r="1.1" fill="#0f172a"/>
+  <circle cx="12.25" cy="22.5" r="1.1" fill="#0f172a"/>
+
+  <!-- Base / Zapata -->
+  <path d="M8 27.5h8.5l1.2 2.5H6.8z" fill="#d97706" stroke="#b45309" stroke-width="0.8" stroke-linejoin="round"/>
+
+  <!-- Cable de izaje vertical -->
+  <line x1="21.5" y1="14" x2="21.5" y2="21.5" stroke="#cbd5e1" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="1.5 1"/>
+  
+  <!-- Gancho / Polea -->
+  <path d="M20.5 21.5h2l-0.5 2h-1z" fill="#f59e0b" stroke="#d97706" stroke-width="0.6"/>
+  <path d="M21 23.5c0 0.8 1 0.8 1 0.3" stroke="#cbd5e1" stroke-width="1" fill="none" stroke-linecap="round"/>
+
+  <!-- Carga suspendida (Viga / Carga roja con rebordes) -->
+  <rect x="17" y="24.5" width="9" height="3.2" rx="0.8" fill="#ef4444" stroke="#dc2626" stroke-width="0.8"/>
+  <rect x="18" y="25.6" width="7" height="1" rx="0.3" fill="#b91c1c"/>
+</svg>

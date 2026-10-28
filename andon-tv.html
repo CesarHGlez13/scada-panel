@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SCADA ANDON 4.0 • DASHBOARD INDUSTRIAL SMART TV</title>
+  
+  <link rel="icon" href="crane-glyph.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#07090e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <!-- Google Fonts: Inter & JetBrains Mono / IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 & Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="scada-pro.css?v=2.2">
+
+  <style>
+    :root {
+      --tv-bg: #07090e;
+      --tv-surface: #0e121b;
+      --tv-card-bg: rgba(14, 19, 29, 0.95);
+      --tv-border: rgba(255, 255, 255, 0.08);
+      --tv-cyan: #00f0ff;
+      --tv-blue: #38bdf8;
+      --tv-green: #10b981;
+      --tv-yellow: #f59e0b;
+      --tv-red: #ef4444;
+      --tv-crimson: #ff0055;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--tv-bg);
+      color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(239, 68, 68, 0.04) 0%, transparent 40%),
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    .font-mono {
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .font-heading {
+      font-family: 'Barlow Semi Condensed', sans-serif;
+      letter-spacing: -0.01em;
+    }
+
+    /* ═══ TOP HUD (MISSION CONTROL TV HEADER) ═══ */
+    .tv-hud-header {
+      background: linear-gradient(180deg, rgba(13, 17, 24, 0.98) 0%, rgba(9, 12, 17, 0.92) 100%);
+      border-bottom: 2px solid rgba(56, 189, 248, 0.25);
+      padding: 12px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    }
+
+    .tv-brand-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: #ffffff;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tv-online-beacon {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 12px #10b981;
+      animation: beacon-tv-pulse 1.8s infinite;
+    }
+
+    .tv-online-beacon.danger {
+      background: #ef4444;
+      box-shadow: 0 0 15px #ef4444;
+      animation: beacon-tv-pulse 0.8s infinite;
+    }
+
+    .tv-online-beacon.warning {
+      background: #f59e0b;
+      box-shadow: 0 0 12px #f59e0b;
+    }
+
+    @keyframes beacon-tv-pulse {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+
+    .tv-shift-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 10px;
+      padding: 6px 16px;
+      min-width: 280px;
+    }
+
+    .tv-clock-display {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #38bdf8;
+      letter-spacing: 0.05em;
+      text-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+      line-height: 1;
+    }
+
+    .tv-date-display {
+      font-size: 0.78rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 3px;
+    }
+
+    /* ═══ EXECUTIVE KPI RIBBON ═══ */
+    .tv-kpi-ribbon {
+      padding: 12px 24px 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tv-kpi-pill {
+      background: var(--tv-card-bg);
+      border: 1px solid var(--tv-border);
+      border-radius: 10px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1 1 auto;
+      min-width: 160px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    }
+
+    .tv-kpi-pill.oee {
+      border-color: rgba(16, 185, 129, 0.35);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(14, 19, 29, 0.95) 100%);
+    }
+
+    .tv-kpi-pill.failures {
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .tv-kpi-pill.late {
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .tv-kpi-val {
+      font-size: 1.9rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .tv-kpi-lbl {
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    /* ═══ SECCIONES DE ÁREA & GRID ═══ */
+    .tv-main-container {
+      padding: 12px 24px 80px;
+    }
+
+    .tv-area-section {
+      background: rgba(14, 19, 29, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 16px 20px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .tv-area-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+    }
+
+    .tv-area-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #38bdf8;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .tv-area-pill-stats {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #94a3b8;
+    }
+
+    /* ═══ TARJETAS INDUSTRIALES DE EQUIPO ═══ */
+    .tv-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    @media (min-width: 1800px) {
+      .tv-grid {
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      }
+    }
+
+    .tv-card {
+      background: linear-gradient(180deg, rgba(20, 26, 36, 0.95) 0%, rgba(12, 16, 24, 0.98) 100%);
+      border: 2px solid rgba(16, 185, 129, 0.35);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 160px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Estado: Operativa */
+    .tv-card.operational {
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    /* Estado: Mantenimiento */
+    .tv-card.maintenance {
+      border-color: rgba(245, 158, 11, 0.7);
+      background: linear-gradient(180deg, rgba(45, 30, 10, 0.92) 0%, rgba(16, 12, 8, 0.98) 100%);
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.25);
+    }
+
+    /* Estado: Falla N1 */
+    .tv-card.failure {
+      border-color: rgba(239, 68, 68, 0.85);
+      background: linear-gradient(180deg, rgba(55, 15, 20, 0.94) 0%, rgba(20, 8, 10, 0.98) 100%);
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.35);
+    }
+
+    /* Estado: Alerta Escalada TARDE N2 (>5m) */
+    .tv-card.late-escalated {
+      border-color: #ff0015 !important;
+      border-left-width: 8px !important;
+      animation: tv-late-pulse 1.3s infinite ease-in-out !important;
+    }
+
+    /* Estado: Paro Crítico CRÍTICO N3 (>15m) */
+    .tv-card.critical-escalated {
+      border-color: #ff0055 !important;
+      border-left-width: 10px !important;
+      animation: tv-critical-pulse 0.8s infinite ease-in-out !important;
+    }
+
+    @keyframes tv-late-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); border-color: #ef4444; }
+      50% { box-shadow: 0 0 35px 8px rgba(239, 68, 68, 0.95); border-color: #ff0015; }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); border-color: #ef4444; }
+    }
+
+    @keyframes tv-critical-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0.9); border-color: #ff0055; }
+      50% { box-shadow: 0 0 45px 12px rgba(255, 0, 85, 1); border-color: #ff3377; }
+      100% { box-shadow: 0 0 0 0 rgba(255, 0, 85, 0); border-color: #ff0055; }
+    }
+
+    .tv-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .tv-equip-id {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+
+    .tv-status-badge {
+      font-size: 0.82rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .tv-badge-ok {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #34d399;
+    }
+
+    .tv-badge-maint {
+      background: rgba(245, 158, 11, 0.25);
+      border: 1px solid rgba(245, 158, 11, 0.7);
+      color: #fcd34d;
+    }
+
+    .tv-badge-fail {
+      background: rgba(239, 68, 68, 0.25);
+      border: 1px solid rgba(239, 68, 68, 0.7);
+      color: #fca5a5;
+    }
+
+    .tv-badge-late {
+      background: linear-gradient(135deg, #ef4444, #991b1b) !important;
+      border: 1px solid #f87171 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+      animation: tv-late-pulse 1.3s infinite;
+    }
+
+    .tv-badge-critical {
+      background: linear-gradient(135deg, #ff0055, #880022) !important;
+      border: 1px solid #ff4d88 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 16px rgba(255, 0, 85, 0.9);
+      animation: tv-critical-pulse 0.8s infinite;
+    }
+
+    .tv-giant-timer {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #ff4d4d;
+      letter-spacing: 0.02em;
+      line-height: 1.1;
+      margin: 8px 0 4px;
+      text-shadow: 0 0 15px rgba(255, 77, 77, 0.6);
+    }
+
+    .tv-3timers-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: 8px;
+      padding: 6px 10px;
+      margin: 6px 0;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .tv-desc-text {
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      line-height: 1.3;
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* ═══ BARRA DE TIEMPO LED DINÁMICA ═══ */
+    .tv-time-bar-wrap {
+      width: 100%;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      margin: 8px 0;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+    }
+
+    .tv-time-bar {
+      height: 100%;
+      width: 0%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #10b981 0%, #38bdf8 50%, #f59e0b 80%, #ef4444 100%);
+      transition: width 0.4s linear;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    }
+
+    .tv-time-bar.strobe {
+      background: linear-gradient(90deg, #ef4444, #ff0055) !important;
+      box-shadow: 0 0 14px rgba(255, 0, 85, 0.9) !important;
+      animation: timebar-strobe 0.6s infinite alternate !important;
+    }
+
+    @keyframes timebar-strobe {
+      from { opacity: 0.6; filter: brightness(1); }
+      to { opacity: 1; filter: brightness(1.7); }
+    }
+
+    /* ═══ BOTTOM TICKER MARQUEE ═══ */
+    .tv-ticker-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      background: rgba(10, 14, 20, 0.98);
+      border-top: 2px solid rgba(56, 189, 248, 0.3);
+      display: flex;
+      align-items: center;
+      z-index: 1000;
+      padding: 0 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .tv-ticker-label {
+      background: #ef4444;
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-right: 14px;
+      white-space: nowrap;
+    }
+
+    .tv-ticker-content {
+      overflow: hidden;
+      white-space: nowrap;
+      flex: 1;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+    }
+
+    .tv-ticker-inner {
+      display: inline-block;
+      white-space: nowrap;
+      animation: ticker-scroll 35s linear infinite;
+    }
+
+    @keyframes ticker-scroll {
+      0% { transform: translate3d(100%, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
+
+    /* Modales de Audio y Controles */
+    .tv-control-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tv-control-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+    }
+
+    .tv-control-select {
+      background: #0d1117;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+      font-size: 0.8rem;
+      border-radius: 6px;
+      padding: 4px 8px;
+      outline: none;
+    }
+
+    #theme-picker-panel, #theme-picker-backdrop, .theme-floating-window, .theme-picker-backdrop {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- TOP SCADA HUD: MISSION CONTROL TV HEADER                        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <header class="tv-hud-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <!-- Brand y Status Online -->
+    <div class="d-flex align-items-center gap-3">
+      <div class="tv-online-beacon" id="tvGlobalBeacon"></div>
+      <div>
+        <div class="tv-brand-title font-heading">
+          SCADA ANDON 4.0 <span class="badge bg-danger fs-6 font-mono">MISSION CONTROL TV</span>
+        </div>
+        <small class="text-secondary font-mono" id="tvStatusSubtext">
+          <i class="bi bi-shield-check text-success"></i> SISTEMA SCADA INDUSTRIAL • CERO PÉRDIDA DE PAQUETES
+        </small>
+      </div>
+    </div>
+
+    <!-- Telemetría de Turno Activo (12 Horas) -->
+    <div class="tv-shift-card d-flex flex-column justify-content-center">
+      <div class="d-flex align-items-center justify-content-between">
+        <span id="tvShiftBadge" class="badge bg-primary font-mono fw-bold fs-6">JORNADA --</span>
+        <span id="tvShiftName" class="text-info font-mono fw-bold" style="font-size:0.85rem;">TURNO --</span>
+      </div>
+      <div class="progress mt-2" style="height: 6px; background: rgba(255,255,255,0.08);">
+        <div id="tvShiftProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-info" style="width: 0%;"></div>
+      </div>
+      <div class="d-flex justify-content-between mt-1 text-secondary font-mono" style="font-size:0.68rem;">
+        <span id="tvShiftElapsed">Transcurrido: --</span>
+        <span id="tvShiftRemaining">Resta: --</span>
+      </div>
+    </div>
+
+    <!-- Reloj Monospace Monitoreo Chihuahua & Controles TV -->
+    <div class="d-flex align-items-center gap-3">
+      <div class="text-end">
+        <div class="tv-clock-display font-mono" id="tvLiveClock">00:00:00</div>
+        <div class="tv-date-display font-mono" id="tvLiveDate">CHIHUAHUA, CHIH.</div>
+      </div>
+
+      <!-- Selector de Alarma Sonora y Voz Industrial -->
+      <div class="d-flex align-items-center gap-2 bg-dark bg-opacity-50 p-1 px-2 rounded border border-secondary border-opacity-25">
+        <select class="tv-control-select font-mono" id="tvAlarmSelect" title="Tono sonoro de sirena">
+          <option value="sirena">🚨 Sirena</option>
+          <option value="campana">🔔 Campana</option>
+          <option value="pitido">📢 Pitido</option>
+          <option value="silencio">🔇 Silencio</option>
+        </select>
+        <button type="button" class="tv-control-btn py-1 px-2" id="tvTestAudioBtn" title="Probar audio">🔊</button>
+        <button type="button" class="tv-control-btn py-1 px-2 d-flex align-items-center gap-1 font-mono active" id="tvToggleVoiceBtn" onclick="if(window.IndustrialAudio) { window.IndustrialAudio.toggleVoice(); if(window.updateTvVoiceBtnUI) window.updateTvVoiceBtnUI(); }" title="Alternar Megafonía Industrial (TTS es-MX)">
+          <i class="bi bi-megaphone-fill text-warning"></i> Voz
+        </button>
+      </div>
+
+      <button type="button" class="tv-control-btn active d-flex align-items-center gap-1 font-mono" id="tvToggleMapBtn" onclick="toggleTvPlantMap()" title="Alternar Topología de Planta 2.5D">
+        <i class="bi bi-diagram-3-fill text-info"></i> Topología
+      </button>
+
+      <button type="button" class="tv-control-btn d-flex align-items-center gap-1 font-mono" id="tvFullscreenBtn" onclick="toggleTvFullscreen()">
+        <i class="bi bi-arrows-fullscreen"></i> 4K
+      </button>
+
+      <a href="index.html" class="tv-control-btn text-decoration-none font-mono" title="Volver al Monitor Principal">
+        <i class="bi bi-arrow-left"></i> Monitor
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- EXECUTIVE KPI RIBBON                                            -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <section class="tv-kpi-ribbon">
+    <div class="tv-kpi-pill oee d-flex align-items-center gap-3">
+      <div class="scada-radial-gauge-container" style="width:105px; height:68px;">
+        <svg class="scada-radial-gauge-svg" viewBox="0 0 100 60">
+          <path d="M 12 52 A 38 38 0 0 1 88 52" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8" stroke-linecap="round"/>
+          <path id="tvRadialGaugeArc" d="M 12 52 A 38 38 0 0 1 88 52" fill="none" stroke="#10b981" stroke-width="8" stroke-linecap="round" stroke-dasharray="120" stroke-dashoffset="0" style="transition: stroke-dashoffset 0.8s ease, stroke 0.5s ease;"/>
+        </svg>
+        <span class="scada-radial-gauge-val text-success font-mono" id="tvKpiOee" style="top:27px; font-size:1.35rem;">100%</span>
+      </div>
+      <div>
+        <div class="tv-kpi-lbl">Disponibilidad OEE</div>
+        <small class="text-secondary font-mono" style="font-size:0.68rem;">SLA META &gt; 95%</small>
+      </div>
+    </div>
+
+    <div class="tv-kpi-pill">
+      <i class="bi bi-check-circle-fill text-success fs-1"></i>
+      <div>
+        <div class="tv-kpi-val text-white font-mono" id="tvKpiOperational">0</div>
+        <div class="tv-kpi-lbl">Operativas</div>
+      </div>
+    </div>
+
+    <div class="tv-kpi-pill failures">
+      <i class="bi bi-exclamation-triangle-fill text-danger fs-1"></i>
+      <div>
+        <div class="tv-kpi-val text-danger font-mono" id="tvKpiFailures">0</div>
+        <div class="tv-kpi-lbl">Fallas Activas</div>
+      </div>
+    </div>
+
+    <div class="tv-kpi-pill late">
+      <i class="bi bi-alarm-fill text-warning fs-1"></i>
+      <div>
+        <div class="tv-kpi-val text-warning font-mono" id="tvKpiLate">0</div>
+        <div class="tv-kpi-lbl">⚠️ Tardías (&gt;5m N2)</div>
+      </div>
+    </div>
+
+    <div class="tv-kpi-pill">
+      <i class="bi bi-tools text-warning fs-1"></i>
+      <div>
+        <div class="tv-kpi-val text-warning font-mono" id="tvKpiMaint">0</div>
+        <div class="tv-kpi-lbl">En Reparación</div>
+      </div>
+    </div>
+
+    <div class="tv-kpi-pill">
+      <i class="bi bi-shield-check text-info fs-1"></i>
+      <div>
+        <div class="tv-kpi-val text-info font-mono" id="tvKpiSla">100%</div>
+        <div class="tv-kpi-lbl">Cumplimiento SLA (&lt;5m)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Topología Digital Twin & First-Out (Smart TV 4K / ISA-101) -->
+  <div class="px-4 pt-2" id="tvPlantMapWrapper" style="display: block;">
+    <div id="scada-plant-map-container"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- MAIN EQUIPMENT GRID (EXPANSIVE 16:9 INDUSTRIAL MATRIX)         -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <main class="tv-main-container" id="tvMainContainer">
+    <!-- Secciones renderizadas dinámicamente por área -->
+    <div class="text-center p-5 text-secondary">
+      <div class="spinner-border text-primary me-2" role="status"></div>
+      <span class="font-mono">Inicializando enlace SCADA Andon 4.0 en tiempo real...</span>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- BOTTOM INDUSTRIAL TICKER MARQUEE                                -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <footer class="tv-ticker-bar">
+    <div class="tv-ticker-label">SCADA TELEMETRÍA</div>
+    <div class="tv-ticker-content">
+      <div class="tv-ticker-inner" id="tvTickerInner">
+        ⚡ SCADA ANDON 4.0 ACTIVO • MONITOREO DE PLANTA EN TIEMPO REAL • REACCIÓN TÉCNICA META SLA &lt; 5 MINUTOS • ESCALAMIENTO N1 &gt; N2 SUPERVISOR &gt; N3 GERENCIA • ENTREGA DE GUARDIA AUTOMÁTICA
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap Bundle (requerido para modales de autenticación) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- PocketBase SCADA Local Engine (Firebase Pausado) -->
+  <script src="pocketbase.umd.js"></script>
+  <script src="scada-config.js?v=4.8"></script>
+  <script src="sha256.js?v=4.8"></script>
+  <script src="pocketbase-adapter.js?v=4.8"></script>
+  <script src="auth-system.js?v=4.8"></script>
+  <script src="global-config.js?v=4.8"></script>
+
+  <!-- Motor de Audio Industrial & Digital Twin Map (ISA-101 / ISA-18.2) -->
+  <script src="industrial-sound-engine.js?v=4.0"></script>
+  <script src="plant-map.js?v=4.8"></script>
+
+  <!-- LÓGICA MAESTRA ANDON TV 4K (CSP COMPLIANT) -->
+  <script src="andon-tv.js?v=4.1"></script>
+</body>
+</html>

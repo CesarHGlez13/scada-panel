@@ -49,6 +49,25 @@
       .card:hover {
         transform: translateY(-2px);
       }
+      /* Los .list-group-item heredaban el blanco de Bootstrap mientras el tema usa texto claro,
+         así que el catálogo de motivos de paro se veía ilegible (texto gris clarísimo sobre
+         blanco). Se alinean con el fondo de las cards del tema oscuro. */
+      .list-group-item {
+        background: rgba(15, 23, 42, 0.55);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-color);
+      }
+      .list-group-item-action:hover {
+        background: rgba(56, 189, 248, 0.10);
+        color: #f8fafc;
+      }
+      body.light-theme .list-group-item {
+        background: #fff;
+        color: #111827;
+      }
+      body.light-theme .list-group-item strong.text-light {
+        color: #111827;
+      }
       .btn {
         border-radius: 8px;
         padding: 0.45rem 1.15rem;

@@ -1,5 +1,5 @@
 // 🛡️ HELPER DE SEGURIDAD DOM SEGURO (Elimina DOM XSS y preserva acciones operativas)
-function setSafeDOM(element, htmlString) {
+if (!window.setSafeDOM) window.setSafeDOM = function setSafeDOM(element, htmlString) {
     if (!element) return;
     if (!htmlString) {
         element.replaceChildren();
@@ -25,7 +25,7 @@ function setSafeDOM(element, htmlString) {
 }
 
 // 🛡️ Ejecutor seguro de acciones registradas (100% compliant con CSP, sin eval ni new Function)
-function executeSafeAction(target, actionString) {
+if (!window.executeSafeAction) window.executeSafeAction = function executeSafeAction(target, actionString) {
     if (!actionString) return;
     const trimmed = actionString.trim();
     const match = trimmed.match(/^([a-zA-Z0-9_$.]+)\s*\((.*)\)\s*;?$/s);
@@ -90,13 +90,18 @@ function executeSafeAction(target, actionString) {
     }
 }
 
-document.addEventListener('click', (e) => {
-    const actionEl = e.target.closest('[data-safe-action]');
-    if (actionEl) {
-        const action = actionEl.getAttribute('data-safe-action');
-        executeSafeAction(actionEl, action);
-    }
-});
+// El listener global vive en security-shield.js (guardado con __safeActionListenerInstalled).
+// Aquí solo se instala si esa capa no está cargada, para no ejecutar la acción dos veces.
+if (!window.__safeActionListenerInstalled) {
+    window.__safeActionListenerInstalled = true;
+    document.addEventListener('click', (e) => {
+        const actionEl = e.target.closest('[data-safe-action]');
+        if (actionEl) {
+            const action = actionEl.getAttribute('data-safe-action');
+            executeSafeAction(actionEl, action);
+        }
+    });
+}
 
 
 document.addEventListener('DOMContentLoaded', () => {

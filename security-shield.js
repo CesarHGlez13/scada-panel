@@ -167,4 +167,116 @@
     }
   } catch (e) {}
 
+  // 6. SANITIZADOR DOM CANÓNICO + EJECUTOR DE ACCIONES
+  //    Bug corregido (2026-10-28): 13 archivos definen `setSafeDOM` y todos menos admin.js
+  //    eliminan los atributos `on*` SIN convertirlos a `data-safe-action`. Como los scripts se
+  //    cargan en orden, la definición que gana en runtime es la última (scada-pro.js, defer),
+  //    así que los botones renderizados dinámicamente (catálogo de motivos de paro, grúas,
+  //    inventario, técnicos…) quedaban sin handler: se veían pero no hacían nada.
+  //    Esta es la única versión efectiva: sanitiza igual y enruta la acción.
+  if (!window.setSafeDOM) {
+    window.setSafeDOM = function setSafeDOM(element, htmlString) {
+      if (!element) return;
+      if (!htmlString) {
+        element.replaceChildren();
+        return;
+      }
+      const range = document.createRange();
+      range.selectNodeContents(element);
+      const fragment = range.createContextualFragment(htmlString);
+      fragment.querySelectorAll('script, iframe, object, embed').forEach(el => el.remove());
+      fragment.querySelectorAll('*').forEach(el => {
+        for (let i = el.attributes.length - 1; i >= 0; i--) {
+          const attr = el.attributes[i];
+          if (attr && attr.name && attr.name.toLowerCase().startsWith('on')) {
+            const attrVal = attr.value;
+            el.removeAttribute(attr.name);
+            if (attrVal) {
+              el.setAttribute('data-safe-action', attrVal);
+            }
+          }
+        }
+      });
+      element.replaceChildren(fragment);
+    };
+  }
+
+  if (!window.executeSafeAction) {
+    window.executeSafeAction = function executeSafeAction(target, actionString) {
+      if (!actionString) return;
+      const trimmed = actionString.trim();
+      const match = trimmed.match(/^([a-zA-Z0-9_$.]+)\s*\((.*)\)\s*;?$/s);
+      if (!match) return;
+
+      const fnPath = match[1].trim();
+      const rawArgs = match[2].trim();
+
+      const parts = fnPath.split('.');
+      let fn = window;
+      for (const p of parts) {
+        if (!fn) break;
+        fn = fn[p];
+      }
+      if (typeof fn !== 'function') {
+        console.warn('[executeSafeAction] Función no encontrada en window:', fnPath);
+        return;
+      }
+
+      let parsedArgs = [];
+      if (rawArgs.length > 0) {
+        const tokens = [];
+        let cur = '';
+        let inQuote = null;
+        for (let i = 0; i < rawArgs.length; i++) {
+          const ch = rawArgs[i];
+          if (inQuote) {
+            if (ch === inQuote && rawArgs[i - 1] !== '\\') {
+              inQuote = null;
+            } else {
+              cur += ch;
+            }
+          } else {
+            if (ch === "'" || ch === '"' || ch === '`') {
+              inQuote = ch;
+            } else if (ch === ',') {
+              tokens.push(cur.trim());
+              cur = '';
+            } else {
+              cur += ch;
+            }
+          }
+        }
+        if (cur.trim().length > 0 || inQuote === null) {
+          tokens.push(cur.trim());
+        }
+        parsedArgs = tokens.map(tok => {
+          if (tok === 'true') return true;
+          if (tok === 'false') return false;
+          if (tok === 'null') return null;
+          if (tok === 'undefined') return undefined;
+          if (!isNaN(Number(tok)) && tok !== '') return Number(tok);
+          return tok;
+        });
+      }
+
+      try {
+        fn.apply(target, parsedArgs);
+      } catch (err) {
+        console.error(`[executeSafeAction] Error ejecutando ${fnPath}:`, err);
+      }
+    };
+  }
+
+  // Un solo listener global (guardado) para no ejecutar la acción dos veces.
+  if (!window.__safeActionListenerInstalled) {
+    window.__safeActionListenerInstalled = true;
+    document.addEventListener('click', (e) => {
+      const actionEl = e.target.closest('[data-safe-action]');
+      if (actionEl) {
+        const action = actionEl.getAttribute('data-safe-action');
+        window.executeSafeAction(actionEl, action);
+      }
+    });
+  }
+
 })();

@@ -1,5 +1,5 @@
 // 🛡️ HELPER DE SEGURIDAD DOM SEGURO (Elimina DOM XSS)
-function setSafeDOM(element, htmlString) {
+if (!window.setSafeDOM) window.setSafeDOM = function setSafeDOM(element, htmlString) {
     if (!element) return;
     if (!htmlString) {
         element.replaceChildren();

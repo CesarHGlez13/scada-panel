@@ -7077,6 +7077,13 @@ async function resetDefaultFailureReasons() {
 
 async function saveFailureReasonsToCloud(silent = false) {
     try {
+        // El campo 'reason' del paquete ESP-NOW que el Centro de Mando envía al satélite es de
+        // 32 bytes, así que el OLED del nodo sólo puede mostrar 31 caracteres por motivo.
+        const recortados = currentFailureReasons.filter(r => String(r).length > 31);
+        if (recortados.length > 0) {
+            showAlert('El satélite sólo muestra 31 caracteres por motivo; se recortarán: ' + recortados.join(', '), 'warning');
+        }
+
         await db.collection('config').doc('failure_reasons').set({
             reasons: currentFailureReasons,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
